@@ -6,7 +6,9 @@ export default defineConfig({
   plugins: [
     react({
       babel: {
+        // reactCompilerを有効にしている箇所↓↓
         plugins: [['babel-plugin-react-compiler']],
+        // reactCompilerを有効にしている箇所↑↑
       },
     }),
   ],
