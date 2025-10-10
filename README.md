@@ -17,6 +17,9 @@ Currently, two official plugins are available:
 - Variant: TypeScript + React Compiler
   - 2025/09 現在で比較的推奨されているようなので採用。
     挙動がおかしいようなら無効にする予定（開発前時点）
+- CSS：Sass（使える技術は広い方が良いので練習を兼ねて採用）
+  - 最適化ツール：cssnano（本番ビルドのみ）
+  - 他ツール：postcss-sort-media-queries（メディアクエリごとに整理）
 
 ## React Compiler
 
