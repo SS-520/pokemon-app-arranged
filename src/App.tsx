@@ -1,7 +1,9 @@
 import './App.css';
 
 function App() {
-  return <></>;
+  // 土台になるポケモンAPIを取得
+  const initialURL = 'https://pokeapi.co/api/v2/pokemon';
+  return <div className='App'>ポケモンAPI</div>;
 }
 
 export default App;
