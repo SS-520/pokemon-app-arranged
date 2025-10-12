@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import './App.scss';
 import type { PokemonListResponse, PokemonDetail } from './utilities/types'; // PokemonListResponse型を使用（type{型}）
 import { getAllPokemon, loadPokemon } from './utilities/pokemon'; // getAllPokemon関数を呼び出し
+import Card from './components/Card';
+import './App.scss';
 
 function App() {
   // 土台になるポケモンAPIのURLを指定
@@ -57,11 +58,14 @@ function App() {
       ) : (
         /* ロード完了後のメイン処理 */
         <div className='pokemonCardcontainer'>
-          {/* {pokemonDetailData.map((pokemon: PokemonDetail, i: number) => {
+          {pokemonDetailData.map((pokemon: PokemonDetail, i: number) => {
             // 配列pokemonDetailDataの各データをpokemonをする
             // i = index(0~19)
-            return <div>Pokemon</div>;
-          })} */}
+            // Cardコンポーネントを呼び出す
+            // key:配列ループのindex
+            // props名：pokemon(引数pokemonを渡す)
+            return <Card key={i} pokemon={pokemon} />;
+          })}
         </div>
       )}
     </div>
