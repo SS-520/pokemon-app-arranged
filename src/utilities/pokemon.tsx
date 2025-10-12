@@ -40,13 +40,13 @@ export const getAllPokemon = (url: string): Promise<PokemonListResponse> => {
 
 /*** @name loadPokemon
  *   @function
- *   @type
+ *   @type PokemonDetail[]
  *   @param data:PokemonResult[]
- *   @return
+ *   @return PokemonDetail[]
  *  各ポケモンデータの配列から、ULR部分を取り出す
  */
 // loadPokemonの詳細
-export const loadPokemon = async (data: PokemonResult[]): Promise<void> => {
+export const loadPokemon = async (data: PokemonResult[]): Promise<PokemonDetail[]> => {
   try {
     // 内部変数_pokemonDataを定義
     // Promise.all()内部の処理がすべて終わったら結果をpokemonDataに格納
@@ -56,9 +56,10 @@ export const loadPokemon = async (data: PokemonResult[]): Promise<void> => {
       data.map((pokemon: PokemonResult) => {
         // console.log(pokemon);
         const pokemonRecord: Promise<PokemonDetail> = getPokemon(pokemon.url);
-        return pokemonRecord; //戻り値は_pokemonDataに格納される
+        return pokemonRecord; //結果は_pokemonDataに格納される
       }),
     );
+    return _pokemonData; // 結果を戻す
   } catch (error) {
     // 型ガード⇒errorが Error オブジェクトであることを確認する
     if (error instanceof Error) {
@@ -71,6 +72,9 @@ export const loadPokemon = async (data: PokemonResult[]): Promise<void> => {
       // 予期せぬ、Errorオブジェクトではない何かが飛んできた場合
       console.error('loadPokemon()において予期せぬエラーが発生しました:', error);
     }
+    // 失敗時: 呼び出し元に空の配列を返し、「データはゼロ件だった」と伝える
+    // ※戻り値の型がオブジェクトの配列型のため
+    return [];
   }
 };
 
