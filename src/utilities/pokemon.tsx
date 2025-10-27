@@ -44,52 +44,17 @@ export const fetchPokemonData = (initialURL: string): ResultAsync<PokemonDetail[
  */
 
 const getAllPokemon = (url: string): ResultAsync<PokemonListResponse, FetchError> => {
-  // fetch処理を「大声（例外）を出す Promise」として neverthrowのメソッド・fromPromise でラップ
-  // fromPromiseはneverthrowのメソッド・「ResultAsyncの箱」に変身させる道具なので、戻り値の型はPromise型かつResultAsync<成功,失敗>
-  // 成功：Response≒fetchのresolve
-  // 失敗：FetchError≒fetchのreject
-  const fetchPokemonAll: ResultAsync<Response, FetchError> = fromPromise(
-    fetch(url), // fetchは成功時にPromise<Response>を返す
-    (error: unknown): FetchError => ({
-      // errorは暗黙的にunknownと推察される
-      // Promiseが reject (ネットワークエラーなど) されたとき、
-      //    その例外(Error)を Err の失敗報告書(FetchError型)に変換する
-      type: 'NETWORK_ERROR',
-      message: `ネットワーク接続に失敗: ${(error as Error).message}`,
-      // ここではerrorがunknownのままだとプロパティが使用できない
-      // ⇒型アサーションでError型に定義
-    }),
-  );
+  // fetchを含む処理：fetchWrapper使用
+
+  const fetchPokemonAll: ResultAsync<Response, FetchError> = fetchWrapper(url);
   // andThen⇒Responseが成功(Ok)した場合の次の処理を継続する
   return (
     fetchPokemonAll
+      // fetch成功時のResponseオブジェクトを変数resFetchに格納
+      // Response型には要素としてok,statusが含まれている
       .andThen((resFetch: Response) => {
-        // fetch成功時のResponseオブジェクトを変数resFetchに格納
-        // Response型には要素としてok,statusが含まれている
-
-        // HTTPステータスコードのチェック⇒従来のtry内のステータス確認の工程
-        if (!resFetch.ok) {
-          // res.okがfalseの場合、throwではなく Err の箱を返す
-          const httpError: FetchError = {
-            type: 'HTTP_ERROR',
-            message: `HTTPエラーが発生: ${resFetch.status}`,
-            status: resFetch.status,
-          };
-          // ResultAsync内で失敗報告書を返す
-          return err(httpError); //err：neverthrowのメソッド
-        }
-        // HTTPステータスコードのチェックここまで
-
-        // JSON解析処理も fromPromise で安全にラップする
-        return fromPromise(
-          resFetch.json() as Promise<PokemonListResponse>,
-          // JSON解析エラーが発生した場合、それを失敗報告書(変数error)に変換
-          (error): FetchError => ({
-            type: 'PARSE_ERROR',
-            message: `JSON解析エラー: ${(error as Error).message}`,
-          }),
-        );
-        // JSON解析のエラー処理ここまで
+        // HTTPエラー処理とJSON変換処理を関数で実行
+        return checkResponseAndParseJson<PokemonListResponse>(resFetch);
       })
       // fetchPokemonAllの処理が終わったらmapで仕上げ処理
       // PokemonDetail型に変換したjson()を変数pokemonAllDataに入れる
@@ -139,52 +104,16 @@ const loadPokemon = (data: PokemonResult[]): ResultAsync<PokemonDetail[], FetchE
  *  try/catch⇒ neverthrow ライブラリ使用
  */
 const getPokemon = (url: string): ResultAsync<PokemonDetail, FetchError> => {
-  // fetch処理を「大声（例外）を出す Promise」として neverthrowのメソッド・fromPromise でラップ
-  // fromPromiseはneverthrowのメソッド・「ResultAsyncの箱」に変身させる道具なので、戻り値の型はPromise型かつResultAsync<成功,失敗>
-  // 成功：Response≒fetchのresolve
-  // 失敗：FetchError≒fetchのreject
-  const fetchPokemonDetail: ResultAsync<Response, FetchError> = fromPromise(
-    fetch(url), // fetchは成功時にPromise<Response>を返す
-    (error: unknown): FetchError => ({
-      // errorは暗黙的にunknownと推察される
-      //  Promiseが reject (ネットワークエラーなど) されたとき、
-      //    その例外(Error)を Err の失敗報告書(FetchError型)に変換する
-      type: 'NETWORK_ERROR',
-      message: `ネットワーク接続に失敗: ${(error as Error).message}`,
-      // ここではerrorがunknownのままだとプロパティが使用できない
-      // ⇒型アサーションでError型に定義
-    }),
-  );
+  // fetchを含む処理：fetchWrapper使用
+  const fetchPokemonDetail: ResultAsync<Response, FetchError> = fetchWrapper(url);
   // andThen⇒Responseが成功(Ok)した場合の次の処理を継続する
   return (
     fetchPokemonDetail
+      // fetch成功時のResponseオブジェクトを変数resFetchに格納
+      // Response型には要素としてok,statusが含まれている
       .andThen((resFetch: Response) => {
-        // fetch成功時のResponseオブジェクトを変数resFetchに格納
-        // Response型には要素としてok,statusが含まれている
-
-        // HTTPステータスコードのチェック⇒従来のtry内のステータス確認の工程
-        if (!resFetch.ok) {
-          // res.okがfalseの場合、throwではなく Err の箱を返す
-          const httpError: FetchError = {
-            type: 'HTTP_ERROR',
-            message: `HTTPエラーが発生: ${resFetch.status}`,
-            status: resFetch.status,
-          };
-          // ResultAsync内で失敗報告書を返す
-          return err(httpError); //err：neverthrowのメソッド
-        }
-        // HTTPステータスコードのチェックここまで
-
-        // JSON解析処理も fromPromise で安全にラップする
-        return fromPromise(
-          resFetch.json() as Promise<PokemonDetail>,
-          // JSON解析エラーが発生した場合、それを失敗報告書(変数error)に変換
-          (error): FetchError => ({
-            type: 'PARSE_ERROR',
-            message: `JSON解析エラー: ${(error as Error).message}`,
-          }),
-        );
-        // JSON解析のエラー処理ここまで
+        // HTTPエラー処理とJSON変換処理を関数で実行
+        return checkResponseAndParseJson<PokemonDetail>(resFetch);
       })
       // fetchPokemonDetailの処理が終わったらmapで仕上げ処理
       // PokemonDetail型に変換したjson()を変数pokemonDetailDataに入れる
@@ -192,6 +121,74 @@ const getPokemon = (url: string): ResultAsync<PokemonDetail, FetchError> => {
         // jsonを返す
         return pokemonDetailData;
       })
+  );
+};
+
+//
+//// 共通部品
+//
+
+/*** @name checkResponseAndParseJson
+ *   HTTPステータスチェックとJSON解析（非同期）の共通化
+ *   @function
+ *   @type ResultAsync<T, FetchError>
+ *   @param resFetch: Response
+ *   @return ResultAsync<T, FetchError>
+ *   成功時の型 T はジェネリクスで指定する。
+ */
+
+const checkResponseAndParseJson = <T,>(resFetch: Response): ResultAsync<T, FetchError> => {
+  if (!resFetch.ok) {
+    // res.okがfalseの場合、throwではなく Err の箱を返す
+    const httpError: FetchError = {
+      type: 'HTTP_ERROR',
+      message: `HTTPエラーが発生: ${resFetch.status}`,
+      status: resFetch.status,
+    };
+    // 失敗報告書ををResultAsyncに変換して返す
+    // ⇒呼び出し元のandThen内で型を合わせるため
+    return new ResultAsync(Promise.resolve(err(httpError))); //err：neverthrowのメソッド
+    // ※同期的な Result を非同期の ResultAsync に変換する
+    // 1. err(httpError): 確定した同期的な失敗報告書（Result）を作成。
+    // 2. Promise.resolve(...): その報告書を「即座に成功する Promise」でラップ。
+    // 3. new ResultAsync(...): 「結果が確定している Promise<Result>」を、ResultAsync の箱として構築
+  }
+
+  return fromPromise(
+    // Tは呼び出し元が期待する成功時の型（PokemonListResponseまたはPokemonDetail）
+    resFetch.json() as Promise<T>,
+    // JSON解析エラーが発生した場合、それを失敗報告書(変数error)に変換
+    (error): FetchError => ({
+      type: 'PARSE_ERROR',
+      message: `JSON解析エラー: ${(error as Error).message}`,
+    }),
+  );
+};
+
+/*** @name fetchWrapper
+ *  fetch(url)処理の共通化
+ *   @function
+ *   @param url: string
+ *   @return ResultAsync<Response, FetchError>：fetchの結果
+ *   共通化: fetch処理を実行し、ネットワークエラーを安全な Err<NETWORK_ERROR> に変換する。
+ */
+const fetchWrapper = (url: string): ResultAsync<Response, FetchError> => {
+  // fetch処理を「大声（例外）を出す Promise」として neverthrowのメソッド・fromPromise でラップ
+  // fromPromiseはneverthrowのメソッド・「ResultAsyncの箱」に変身させる道具なので、戻り値の型はPromise型かつResultAsync<成功,失敗>
+
+  // 成功：Response≒fetchのresolve
+  // 失敗：FetchError≒fetchのreject
+  return fromPromise(
+    fetch(url), // fetchは成功時にPromise<Response>を返す
+    (error: unknown): FetchError => ({
+      // errorは暗黙的にunknownと推察される
+      // Promiseが reject (ネットワークエラーなど) されたとき、
+      //    その例外(Error)を Err の失敗報告書(FetchError型)に変換する
+      type: 'NETWORK_ERROR',
+      message: `ネットワーク接続に失敗: ${(error as Error).message}`,
+      // ここではerrorがunknownのままだとプロパティが使用できない
+      // ⇒型アサーションでError型に定義
+    }),
   );
 };
 
