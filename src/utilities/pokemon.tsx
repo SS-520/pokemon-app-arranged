@@ -8,35 +8,64 @@ import { ResultAsync, fromPromise, err } from 'neverthrow'; // neverthrowライ�
  *   @param url
  *   @return
  *  ポケモンAPIからデータを取得する
- *  getPokemon()（後述）のようにasync/await記法もできるが、練習のため.then()構文を使用
+ *  neverthrow構文使用
  */
 
-export const getAllPokemon = (url: string): Promise<PokemonListResponse> => {
-  // resolve:成功
-  // resolve:失敗
-  // Promise：fetch以下の処理が終わるまで待機
-  return new Promise<PokemonListResponse>((resolve, reject) => {
-    // fetchで引数のURLに対しAPIを接続して情報取得
-    fetch(url)
-      // 成功ルート
-      .then((res: Response) => {
-        // resがResponse型なのは自動型推論されるので、省略可（今回は練習なので記述）
-        // HTTPエラーコード(4xx/5xx)も Promise は成功とみなすため、チェックを追加
-        // HTTPエラーコードで返ってきたときの処理
-        if (!res.ok) {
-          throw new Error(`HTTP Error: ${res.status}`); // Error型の新規オブジェクトとして生成→errorもError型
+export const getAllPokemon = (url: string): ResultAsync<PokemonListResponse, FetchError> => {
+  // fetch処理を「大声（例外）を出す Promise」として neverthrowのメソッド・fromPromise でラップ
+  // fromPromiseはneverthrowのメソッド・「ResultAsyncの箱」に変身させる道具なので、戻り値の型はPromise型かつResultAsync<成功,失敗>
+  // 成功：Response≒fetchのresolve
+  // 失敗：FetchError≒fetchのreject
+  const fetchPokemonAll: ResultAsync<Response, FetchError> = fromPromise(
+    fetch(url), // fetchは成功時にPromise<Response>を返す
+    (error: unknown): FetchError => ({
+      // errorは暗黙的にunknownと推察される
+      // ❌ Promiseが reject (ネットワークエラーなど) されたとき、
+      //    その例外(Error)を Err の失敗報告書(FetchError)に変換する
+      type: 'NETWORK_ERROR',
+      message: `ネットワーク接続に失敗: ${(error as Error).message}`,
+      // ここではerrorがunknownのままだとプロパティが使用できない
+      // ⇒型アサーションでError型に定義
+    }),
+  );
+  // andThen⇒Responseが成功(Ok)した場合の次の処理を継続する
+  return (
+    fetchPokemonAll
+      .andThen((resFetch: Response) => {
+        // fetch成功時のResponseオブジェクトを変数resFetchに格納
+        // Response型には要素としてok,statusが含まれている
+
+        // HTTPステータスコードのチェック⇒従来のtry内のステータス確認の工程
+        if (!resFetch.ok) {
+          // res.okがfalseの場合、throwではなく Err の箱を返す
+          const httpError: FetchError = {
+            type: 'HTTP_ERROR',
+            message: `HTTPエラーが発生: ${resFetch.status}`,
+            status: resFetch.status,
+          };
+          // ResultAsync内で失敗報告書を返す
+          return err(httpError); //err：neverthrowのメソッド
         }
-        return res.json(); //res: fetchで受け取ったデータを格納した変数⇒json形式に変換（data）
+        // HTTPステータスコードのチェックここまで
+
+        // JSON解析処理も fromPromise で安全にラップする
+        return fromPromise(
+          resFetch.json() as Promise<PokemonListResponse>,
+          // JSON解析エラーが発生した場合、それを失敗報告書(変数error)に変換
+          (error): FetchError => ({
+            type: 'PARSE_ERROR',
+            message: `JSON解析エラー: ${(error as Error).message}`,
+          }),
+        );
+        // JSON解析のエラー処理ここまで
       })
-      // dataはjson形式かつresolveとして返されるので、Promiseと同じ結果→PokemonListResponse型
-      .then((data: PokemonListResponse) => resolve(data)) // dataを「成功」として返す（resolve関数使用）【成功ルート完了】
-      // ここから失敗ルート
-      .catch((error: Error) => {
-        // errorの型はTypeErrorになることもあるので、anyか自動推論に任せてもOK
-        // fetchや res.json() で発生したエラーを Promise の失敗ルートに送る
-        reject(error);
-      });
-  });
+      // fetchPokemonAllの処理が終わったらmapで仕上げ処理
+      // PokemonDetail型に変換したjson()を変数pokemonAllDataに入れる
+      .map((pokemonAllData: PokemonListResponse) => {
+        // jsonを返す
+        return pokemonAllData;
+      })
+  );
 };
 
 /*** @name loadPokemon
@@ -45,7 +74,7 @@ export const getAllPokemon = (url: string): Promise<PokemonListResponse> => {
  *   @param data:PokemonResult[]
  *   @return すべて成功した場合にOk<PokemonDetail[]>を、失敗した場合にErr<エラー>を返す
  *  各ポケモンデータの配列から、ULR部分を取り出す
- *  ※Neverthrow combine + map
+ *  ※Neverthrow combine + mapで処理
  */
 // loadPokemonの詳細
 export const loadPokemon = (data: PokemonResult[]): ResultAsync<PokemonDetail[], FetchError> => {
@@ -71,7 +100,7 @@ export const loadPokemon = (data: PokemonResult[]): ResultAsync<PokemonDetail[],
  *  戻り値の型を明示し、async/awaitでより簡潔に処理する
  *  try/catch⇒ neverthrow ライブラリ使用
  */
-export const getPokemon = (url: string): ResultAsync<PokemonDetail, FetchError> => {
+const getPokemon = (url: string): ResultAsync<PokemonDetail, FetchError> => {
   // fetch処理を「大声（例外）を出す Promise」として neverthrowのメソッド・fromPromise でラップ
   // fromPromiseはneverthrowのメソッド・「ResultAsyncの箱」に変身させる道具なので、戻り値の型はPromise型かつResultAsync<成功,失敗>
   // 成功：Response≒fetchのresolve
@@ -127,6 +156,43 @@ export const getPokemon = (url: string): ResultAsync<PokemonDetail, FetchError> 
       })
   );
 };
+
+/*** @name getAllPokemonPromise（使わない・参考用に残す）
+ *   @function
+ *   @type PokemonListResponse
+ *   @param url
+ *   @return
+ *  ポケモンAPIからデータを取得する
+ *  getPokemon()（後述）のようにasync/await記法もできるが、練習のため.then()構文を使用
+ */
+
+// export const getAllPokemonPromise = (url: string): Promise<PokemonListResponse> => {
+//   // resolve:成功
+//   // resolve:失敗
+//   // Promise：fetch以下の処理が終わるまで待機
+//   return new Promise<PokemonListResponse>((resolve, reject) => {
+//     // fetchで引数のURLに対しAPIを接続して情報取得
+//     fetch(url)
+//       // 成功ルート
+//       .then((res: Response) => {
+//         // resがResponse型なのは自動型推論されるので、省略可（今回は練習なので記述）
+//         // HTTPエラーコード(4xx/5xx)も Promise は成功とみなすため、チェックを追加
+//         // HTTPエラーコードで返ってきたときの処理
+//         if (!res.ok) {
+//           throw new Error(`HTTP Error: ${res.status}`); // Error型の新規オブジェクトとして生成→errorもError型
+//         }
+//         return res.json(); //res: fetchで受け取ったデータを格納した変数⇒json形式に変換（data）
+//       })
+//       // dataはjson形式かつresolveとして返されるので、Promiseと同じ結果→PokemonListResponse型
+//       .then((data: PokemonListResponse) => resolve(data)) // dataを「成功」として返す（resolve関数使用）【成功ルート完了】
+//       // ここから失敗ルート
+//       .catch((error: Error) => {
+//         // errorの型はTypeErrorになることもあるので、anyか自動推論に任せてもOK
+//         // fetchや res.json() で発生したエラーを Promise の失敗ルートに送る
+//         reject(error);
+//       });
+//   });
+// };
 
 /*** @name loadPokemonTryCatch（使わない・参考用に残す）
  *   @function
