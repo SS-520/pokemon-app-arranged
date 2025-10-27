@@ -44,23 +44,19 @@ export const fetchPokemonData = (initialURL: string): ResultAsync<PokemonDetail[
  */
 
 const getAllPokemon = (url: string): ResultAsync<PokemonListResponse, FetchError> => {
-  // fetchを含む処理：fetchWrapper使用
-
-  const fetchPokemonAll: ResultAsync<Response, FetchError> = fetchWrapper(url);
-  // andThen⇒Responseが成功(Ok)した場合の次の処理を継続する
+  // 中の処理を一気にreturnしちゃう
   return (
-    fetchPokemonAll
+    // fetchを含む処理：fetchWrapper使用
+    fetchWrapper(url)
       // fetch成功時のResponseオブジェクトを変数resFetchに格納
-      // Response型には要素としてok,statusが含まれている
+      // 成功時のみ続けて処理
+      //    失敗時はエラーに格納されてここで戻る
       .andThen((resFetch: Response) => {
         // HTTPエラー処理とJSON変換処理を関数で実行
+        // 成功結果がPokemonListResponse型JSON
+        // ⇒.mapを嚙まさずに直接戻す
+        // 失敗でもFetchError型の結果が戻る
         return checkResponseAndParseJson<PokemonListResponse>(resFetch);
-      })
-      // fetchPokemonAllの処理が終わったらmapで仕上げ処理
-      // PokemonDetail型に変換したjson()を変数pokemonAllDataに入れる
-      .map((pokemonAllData: PokemonListResponse) => {
-        // jsonを返す
-        return pokemonAllData;
       })
   );
 };
@@ -104,22 +100,19 @@ const loadPokemon = (data: PokemonResult[]): ResultAsync<PokemonDetail[], FetchE
  *  try/catch⇒ neverthrow ライブラリ使用
  */
 const getPokemon = (url: string): ResultAsync<PokemonDetail, FetchError> => {
-  // fetchを含む処理：fetchWrapper使用
-  const fetchPokemonDetail: ResultAsync<Response, FetchError> = fetchWrapper(url);
-  // andThen⇒Responseが成功(Ok)した場合の次の処理を継続する
+  // 中の処理を一気にreturnしちゃう
   return (
-    fetchPokemonDetail
+    // fetchを含む処理：fetchWrapper使用
+    fetchWrapper(url)
       // fetch成功時のResponseオブジェクトを変数resFetchに格納
-      // Response型には要素としてok,statusが含まれている
+      // 成功時のみ続けて処理
+      //    失敗時はエラーに格納されてここで戻る
       .andThen((resFetch: Response) => {
         // HTTPエラー処理とJSON変換処理を関数で実行
+        // 成功結果がPokemonListResponse型JSON
+        // ⇒.mapを嚙まさずに直接戻す
+        // 失敗でもFetchError型の結果が戻る
         return checkResponseAndParseJson<PokemonDetail>(resFetch);
-      })
-      // fetchPokemonDetailの処理が終わったらmapで仕上げ処理
-      // PokemonDetail型に変換したjson()を変数pokemonDetailDataに入れる
-      .map((pokemonDetailData: PokemonDetail) => {
-        // jsonを返す
-        return pokemonDetailData;
       })
   );
 };
