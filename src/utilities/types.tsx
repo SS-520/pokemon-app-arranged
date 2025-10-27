@@ -49,3 +49,10 @@ export interface PokemonDetail {
   moves: PokemonMove[]; // 覚える技のリスト（Move型の配列）
   stats: PokemonStatus[]; // ステータスのリスト（Stat型の配列）
 }
+
+// neverthrow で使用するエラー型
+export interface FetchError {
+  type: 'HTTP_ERROR' | 'NETWORK_ERROR' | 'PARSE_ERROR';
+  message: string;
+  status?: number; // HTTPエラーの場合のみ
+}

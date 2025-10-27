@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import type { PokemonListResponse, PokemonDetail } from './utilities/types'; // PokemonListResponse型を使用（type{型}）
+import { Result } from 'neverthrow';
+import type { PokemonListResponse, PokemonDetail, FetchError } from './utilities/types'; // PokemonListResponse型を使用（type{型}）
 import { getAllPokemon, loadPokemon } from './utilities/pokemon'; // getAllPokemon関数を呼び出し
 import Card from './components/Card';
 import './App.scss';
@@ -33,10 +34,16 @@ function App() {
         // 各ポケモンの詳細なデータを取得
         // loadPokemon()の処理が終わるまで待ち、全データの中のresults配列を引数で渡す
         // awaitで配列状態になってから渡ってくる⇒Promise<PokemonDetail[]>ではなく、PokemonDetail[]の配列型でOK
-        const resLoadPokemon: PokemonDetail[] = await loadPokemon(resPokemon.results);
+
+        // neverthrow構文使用
+        const resLoadPokemon: Result<PokemonDetail[], FetchError> = await loadPokemon(resPokemon.results);
+        resLoadPokemon.match(
+          // 成功：PokemonDetail[]の中身を変数pokemonに格納
+          (pokemon) => setPokemonDetailData(pokemon),
+          (error) => console.error(`[Combine 失敗]: エラーコード: ${error}`),
+        );
 
         // resLoadPokemonをfetchPokemonDataのスコープ外で使用するので、PokemonDetailDataに格納
-        setPokemonDetailData(resLoadPokemon);
       } catch (error) {
         // awaitの処理が失敗（reject）されたらこっちに入る(引数：error)
         console.error('fetchPokemonData()においてデータ取得中にエラーが発生しました:', error);
