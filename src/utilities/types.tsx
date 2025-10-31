@@ -32,7 +32,7 @@ interface PokemonMove {
     move_learn_method: {
       name: string;
       url: string;
-    };
+    }[]; // 複数ある⇒配列
     order: number | null;
     version_group: {
       name: string; // ソフト名
@@ -77,8 +77,14 @@ interface PokemonAbilities {
 }
 
 // 過去世代特性に対応
-interface PokemonPastAbility extends PokemonAbilities {
-  name: string | null; // 過去世代からの変更がない場合null
+//  PokemonAbilitiesから 'ability' フィールドを除外し（omit）、
+//  'ability' フィールドを null を許容する型で再定義(extends)します。
+interface PokemonPastAbility extends Omit<PokemonAbilities, 'ability'> {
+  // abilityオブジェクト全体がnullを許容
+  ability: {
+    name: string;
+    url: string;
+  } | null;
 }
 
 // 姿の情報（？）
