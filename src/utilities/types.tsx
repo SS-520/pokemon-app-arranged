@@ -29,12 +29,95 @@ interface PokemonMove {
   };
 }
 
-// ステータスを表す型 (例: HP, Attack, Defense)
+// 種族値（ステータス）を表す型 (例: HP, Attack, Defense)
 interface PokemonStatus {
   base_stat: number; // 基本的なステータス値
+  effort: number; // 努力値（戦闘で得られるステータス）
   stat: {
     name: string; // ステータスの名前 (hp, attack, defense など)
+    url: string;
   };
+}
+
+// タイプを表す情報
+interface PokemonTypes {
+  slot: number; // メインタイプ
+  type: {
+    name: string; // タイプ種類
+    url: string;
+  };
+}
+
+// 鳴き声
+interface PokemonCries {
+  latest: string;
+  legacy: string;
+}
+
+// 特性の情報
+interface PokemonAbilities {
+  ability: {
+    name: string;
+    url: string;
+  };
+  is_hidden: boolean;
+  slot: number;
+}
+
+// 姿の情報（？）
+interface PokemonForms {
+  name: string;
+  url: string;
+}
+
+// ソフト情報
+interface PokemonGameIndices {
+  game_index: number;
+  version: {
+    name: string;
+    url: string;
+  };
+}
+
+// ソフト別のアイテム所持確率
+interface HeldItemVersionDetails {
+  rarity: number;
+  version: {
+    name: string;
+    url: string;
+  };
+}
+
+// 捕獲時所有アイテム情報
+interface PokemonHeldItems {
+  item: {
+    name: string;
+    url: string;
+  };
+  version_details: HeldItemVersionDetails[];
+}
+
+// 過去の特性
+interface PokemonPastAbilities {
+  abilities: PokemonAbilities[];
+  generation: {
+    name: string;
+    url: string;
+  };
+}
+
+// 画像
+interface PokemonSprites {
+  // shiny：色違い
+  // ※雌雄同姿の場合、メス（female）はnull
+  front_default: string;
+  front_female: string | null;
+  front_shiny: string;
+  front_shiny_female: string | null;
+  back_default: string;
+  back_female: string | null;
+  back_shiny: string;
+  back_shiny_female: string | null;
 }
 
 // ポケモン個別の詳細データを表すメインの型
@@ -43,11 +126,21 @@ export interface PokemonDetail {
   name: string; // ポケモンの名前 (bulbasaur, ivysaur...)
   height: number; // ポケモンの高さ (デシメートル単位)
   weight: number; // ポケモンの重さ (ヘクトグラム単位)
-  sprites: {
-    front_default: string; // デフォルトの画像URL
-  };
+  sprites: PokemonSprites[]; // ポケモンの画像
   moves: PokemonMove[]; // 覚える技のリスト（Move型の配列）
-  stats: PokemonStatus[]; // ステータスのリスト（Stat型の配列）
+  stats: PokemonStatus[]; // 種族値のリスト（stats型の配列）
+  types: PokemonTypes[]; // ポケモンのタイプ
+  abilities: PokemonAbilities[]; // 特性
+  base_experience: number; // 倒して得られる経験値
+  cries: PokemonCries; // 鳴き声のURL
+  forms: PokemonForms[]; // 姿
+  game_indices: PokemonGameIndices[]; // ソフト情報
+  held_items: PokemonHeldItems[]; // 所持アイテム
+  is_default: boolean; // デフォルトの姿かどうか（メガシンカやリージョンフォームはfalse）
+  location_area_encounters: string; // 遭遇場所のリンク
+  order: number; // 全国図鑑の番号
+  past_abilities: PokemonPastAbilities[]; // 過去世代で持っていた特性一覧
+  // past_types: [];  // 過去世代で持っていたタイプの一覧
 }
 
 // neverthrow で使用するエラー型
