@@ -18,8 +18,10 @@ export interface PokemonListResponse {
 }
 
 /**
-/* 各ポケモンの個別データ
-*/
+ *  各ポケモンの個別データ
+ *    叩き台：API情報からAIが生成
+ *    最終版：実データと検証・より正確な構造に手動でリファイン
+ */
 
 // 技の情報を表す型 (例: "scratch", "cut")
 interface PokemonMove {
