@@ -2,6 +2,7 @@
 
 import React from 'react';
 import type { PokemonDetail } from '../utilities/types';
+import '../scss/Card.scss';
 
 // propsの定義
 interface CardProps {
