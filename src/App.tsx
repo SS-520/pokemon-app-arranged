@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 
 // 外部の関数・型定義ファイル
 import type { PokemonListResponse, PokemonDetail } from './utilities/types'; // PokemonListResponse型を使用（type{型}）
-import { asynchroFunction } from './utilities/function'; // getAllPokemon関数を呼び出し
+import { asynchroFunction, movePage } from './utilities/function'; // getAllPokemon関数を呼び出し
 import './scss/App.scss'; // viteがコンパイル時にcssに自動で処理するので、importはscssでOK
 
 // 読み込むコンポーネント
@@ -60,8 +60,8 @@ function App() {
           </div>
         )}
         <div className='btn'>
-          {preURL !== null ? <button onClick={() => movePage(preURL)}>前へ</button> : <></>}
-          {nextURL !== null ? <button onClick={() => movePage(nextURL)}>次へ</button> : <></>}
+          {preURL !== null ? <button onClick={() => movePage(preURL, setPreURL, setNextURL, setIsLoading, setPokemonDetailData)}>前へ</button> : <></>}
+          {nextURL !== null ? <button onClick={() => movePage(nextURL, setPreURL, setNextURL, setIsLoading, setPokemonDetailData)}>次へ</button> : <></>}
         </div>
       </div>
     </>
