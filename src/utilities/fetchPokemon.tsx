@@ -1,5 +1,5 @@
 /* パーツとして使用する関数を記述 */
-import type { FetchError, PokemonResult, PokemonListResponse, PokemonDetail } from './types'; // ユーザー定義型を読み込む（type{型}）
+import type { FetchError, PokemonResult, PokemonListResponse, PokemonDetail, PokemonDetailAndURL } from './types'; // ユーザー定義型を読み込む（type{型}）
 import { ResultAsync, fromPromise, err } from 'neverthrow'; // neverthrowライブラリを読み込み
 
 //
@@ -9,19 +9,20 @@ import { ResultAsync, fromPromise, err } from 'neverthrow'; // neverthrowライ�
 /*** @name fetchPokemonData
  *   @function
  *   @param initialURL:string(ポケモンAPI)
- *   @return ResultAsync<PokemonDetail[], FetchError>
+ *   @return ResultAsync<PokemonDetailAndURL[], FetchError>
  *  ポケモンAPIからデータを取得・加工する全体処理
  *  neverthrow構文使用
  *  内部関数のエラーの結果は、すべてFetchErrorに格納されて排出される
  */
 
-export const fetchPokemonData = (initialURL: string): ResultAsync<PokemonDetail[], FetchError> => {
+export const fetchPokemonData = (initialURL: string): ResultAsync<PokemonDetailAndURL, FetchError> => {
   // 1.全ポケデータを取得
   // andThenでチェーンで以下の処理を繋ぎ、すべて終わったら親関数に戻す
   //  1. getAllPokemon(initialURL)でポケモン全情報を取得
   //  2. 成功したらgetAllPokemon()の成功結果を使ってloadPokemon()実行
-  //  3. loadPokemon()の戻り値がgetAllPokemon()に届く
-  //  4. getAllPokemon()に届いた値をfetchPokemonData()の戻り値としてreturnする
+  //  3. loadPokemon()の戻り値に、getAllPokemonのprevious,nextプロパティも追加する
+  //  4. 3の結果がgetAllPokemon()に届く
+  //  5. getAllPokemon()に届いた値をfetchPokemonData()の戻り値としてreturnする
   // 最終的に ResultAsync型 で戻る
   return (
     getAllPokemon(initialURL) // src/utilities/pokemon.tsxの関数にAPIのUPLを渡す
@@ -29,7 +30,19 @@ export const fetchPokemonData = (initialURL: string): ResultAsync<PokemonDetail[
       //  成功結果を変数resAllPokemonに格納して処理
       .andThen((resAllPokemon) => {
         // loadPokemon()が成功⇒結果をgetPokemonInfoに格納
-        return loadPokemon(resAllPokemon.results);
+        console.log(resAllPokemon);
+        // 個別のポケモンデータを格納
+        return (
+          loadPokemon(resAllPokemon.results)
+            // loadPokemonの結果をsuccessLoadPokemon：PokemonDetail[]とする
+            // 前後20匹ずつのURL情報も一緒に格納するために、neverthrowの.mapで加工
+            // オブジェクトを直接返す⇒関数と区別するように{}を()で囲む
+            .map((successLoadPokemon: PokemonDetail[]) => ({
+              pokemonDetailData: successLoadPokemon,
+              previous: resAllPokemon.previous,
+              next: resAllPokemon.next,
+            }))
+        );
       })
   );
 };
@@ -99,7 +112,7 @@ const loadPokemon = (data: PokemonResult[]): ResultAsync<PokemonDetail[], FetchE
  *  戻り値の型を明示し、async/awaitでより簡潔に処理する
  *  try/catch⇒ neverthrow ライブラリ使用
  */
-const getPokemon = (url: string): ResultAsync<PokemonDetail, FetchError> => {
+export const getPokemon = (url: string): ResultAsync<PokemonDetail, FetchError> => {
   // 中の処理を一気にreturnしちゃう
   return (
     // fetchを含む処理：fetchWrapper使用
