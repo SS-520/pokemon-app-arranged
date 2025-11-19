@@ -1,6 +1,6 @@
 {
-  "name": "pokemon-app",
-  "homepage": "https://ss-520.github.io/pokemon-app/",
+  "name": "pokemon-app-arranged",
+  "homepage": "https://ss-520.github.io/pokemon-app-arranged/",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -11,7 +11,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "deploy": "npm run build && gh-pages -d build --remote pokemon-app --message \"Deploy Updates [skip ci]\""
+    "deploy": "npm run build && gh-pages -d build --remote pokemon-app-arranged --message \"Deploy Updates [skip ci]\""
   },
   "dependencies": {
     "eslint-plugin-neverthrow": "^1.1.4",

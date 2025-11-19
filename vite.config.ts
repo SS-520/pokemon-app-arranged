@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 // github pagesで公開する際のサブディレクトリ（リポジトリ）名
-const repositoryName = '/pokemon-app/';
+const repositoryName = '/pokemon-app-arranged/';
 
 // https://vite.dev/config/
 export default defineConfig({
