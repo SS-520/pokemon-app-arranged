@@ -6,6 +6,11 @@ const repositoryName = '/pokemon-app/';
 
 // https://vite.dev/config/
 export default defineConfig({
+  build: {
+    // デフォルトは 'dist'
+    // package.json > scripts > deploy に「gh-pages -d build」の設定がある場合outDirの設定必要
+    outDir: 'build',
+  },
   base: repositoryName, // 公開対象のサブディレクトリ名を指定
   plugins: [
     react({
@@ -16,11 +21,6 @@ export default defineConfig({
       },
     }),
   ],
-  build: {
-    // デフォルトは 'dist'
-    // package.json > scripts > deploy に「gh-pages -d build」の設定がある場合outDirの設定必要
-    outDir: 'build',
-  },
   server: {
     port: 3000,
   },
