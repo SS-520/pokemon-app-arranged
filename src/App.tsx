@@ -60,8 +60,8 @@ function App() {
           </div>
         )}
         <div className='btn'>
-          {preURL !== null ? <button onClick={() => movePage(preURL, setPreURL, setNextURL, setIsLoading, setPokemonDetailData)}>前へ</button> : <></> /* 前ページ用URLがあればボタン表示・なければ非表示 */}
-          {nextURL !== null ? <button onClick={() => movePage(nextURL, setPreURL, setNextURL, setIsLoading, setPokemonDetailData)}>次へ</button> : <></> /* 前ページ用URLがあればボタン表示・なければ非表示 */}
+          {preURL !== null ? <button onClick={() => movePage(preURL, setPreURL, setNextURL, setIsLoading, setPokemonDetailData)}>前の20件</button> : <></> /* 前ページ用URLがあればボタン表示・なければ非表示 */}
+          {nextURL !== null ? <button onClick={() => movePage(nextURL, setPreURL, setNextURL, setIsLoading, setPokemonDetailData)}>次の20件</button> : <></> /* 前ページ用URLがあればボタン表示・なければ非表示 */}
         </div>
       </div>
     </>
