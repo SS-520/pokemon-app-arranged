@@ -1,3 +1,28 @@
+# 目的
+
+- Udemy 教材で作ったアプリをブラッシュアップ
+  - 教材成果物：https://github.com/SS-520/pokemon-app
+
+## コンセプト
+
+暇つぶしに読めるポケモン図鑑
+
+## 改造項目
+
+- スタイル
+  - PC のみだったのをモバイル（レスポンシブ）対応
+  - グリッド表示とリスト表示の切り替え
+- 表示件数
+  - 一定の数ずつ任意で切り替え可能にする
+- 検索
+  - タイプ検索
+  - 地方（世代）検索
+- 表示内容
+  - 日本語にする
+  - 雌雄・色違いの画像を見せる
+  - バージョン別の解説を「読める」ようにする
+  - 登場世代（地方）を表示する
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
@@ -6,34 +31,6 @@ Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
 - [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## 目的
-
-- [【React アプリ開発】3 種類の React アプリケーションを構築して、React の理解をさらに深めるステップアップ講座](https://www.udemy.com/course/react-3project-app-udemy/learn/lecture/32873974#overview)
-  アプリ１を実践学習
-- `npm create vite@latest`にてプロジェクト作成
-  - 2025/09 時点で推奨の Vite と Next.js を比較し、サーバーサイドは今回不要と判断 ⇒ Vite を採用
-- Framework: React
-- Variant: TypeScript + React Compiler
-  - 2025/09 現在で比較的推奨されているようなので採用。
-    挙動がおかしいようなら無効にする予定（開発前時点）
-- CSS：Sass（使える技術は広い方が良いので練習を兼ねて採用）
-  - 最適化ツール：cssnano（本番ビルドのみ）
-  - 他ツール：postcss-sort-media-queries（メディアクエリごとに整理）
-
-### 教材内実装項目
-
-- `fetch`機能の使用と API の取得の仕方
-- `async/await`の使い方
-- コンポーネントの作り方
-- PC 向けの画面設定
-
-### 自己アレンジ内容
-
-- `fetch`におけるエラー処理実装
-- 非同期処理にて`neverthrow`ライブラリの使用
-- 処理の部品化
-- コーディングの簡略化
 
 ## React Compiler
 
