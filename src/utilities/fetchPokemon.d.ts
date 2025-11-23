@@ -19,27 +19,3 @@ export declare const fetchPokemonData: (initialURL: string) => ResultAsync<Pokem
  *  try/catch⇒ neverthrow ライブラリ使用
  */
 export declare const getPokemon: (url: string) => ResultAsync<PokemonDetail, FetchError>;
-/*** @name getAllPokemonPromise
- *   @function
- *   @type PokemonListResponse
- *   @param url
- *   @return
- *  ポケモンAPIからデータを取得する
- *  getPokemon()（後述）のようにasync/await記法もできるが、練習のため.then()構文を使用
- */
-/*** @name loadPokemonTryCatch
- *   @function
- *   @type PokemonDetail[]
- *   @param data:PokemonResult[]
- *   @return PokemonDetail[]
- *  各ポケモンデータの配列から、ULR部分を取り出す
- */
-/*** @name getPokemonTryCatch
- *   @function
- *   @type PokemonDetail
- *   @param url:string
- *   @return Promise<PokemonDetail>
- *  引数で受け取ったurlをAPIとして、各ポケモンの詳細情報を取得する
- *  戻り値の型を明示し、async/awaitでより簡潔に処理する
- * try/catch, async/await処理
- */

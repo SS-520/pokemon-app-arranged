@@ -1,4 +1,4 @@
-import type { setURL, setBoolean, setTypePokemonDetailData } from './types';
+import type { setURL, setBoolean, setTypePokemonDetailData } from './types-utility';
 /***  処理記述 ***/
 /*** @name fetchPokemonData
  *   @function
