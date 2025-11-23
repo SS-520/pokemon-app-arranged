@@ -41,23 +41,12 @@ const Card = ({ pokemon }: CardProps): React.ReactNode => {
   return (
     <div className='card'>
       <div className='cardImg'>
-        <img src={pokemon.sprites.front_default} alt={`${pokemon.name}'s front img`} /> {/* JSX記法でtsを記述 */}
+        <img className='mainImg' src={pokemon.sprites.front_default} alt={`${pokemon.name}'s front img`} /> {/* JSX記法でtsを記述 */}
       </div>
       <h3 className='cardName'>{pokemon.name}</h3>
       <div className='cardTypes'>
         <div className='typeTitle'>タイプ</div>
         <div className='typeDetail'>{getTypes({ pokemon })}</div>
-      </div>
-      <div className='cardInfo'>
-        <div className='cardData'>
-          <p className='title'>平均体長：{pokemon.height / 10}m</p>
-        </div>
-        <div className='cardData'>
-          <p className='title'>平均体重：{pokemon.weight / 10}kg</p>
-        </div>
-        <div className='cardData'>
-          <p className='title'>特性：{pokemon.abilities[0].ability.name}</p>
-        </div>
       </div>
     </div>
   );
