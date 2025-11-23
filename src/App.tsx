@@ -49,21 +49,23 @@ function App() {
           <Loading />
         ) : (
           /* ロード完了後のメイン処理 */
-          <div className='pokemonCardContainer'>
-            {pokemonDetailData.map((pokemon: PokemonDetail, i: number) => {
-              // 配列pokemonDetailDataの各データをpokemonをする
-              // i = index(0~19)
-              // Cardコンポーネントを呼び出す
-              // key:配列ループのindex
-              // props名：pokemon(引数pokemonを渡す)
-              return <Card key={i} pokemon={pokemon} />;
-            })}
-          </div>
+          <>
+            <div className='pokemonCardContainer'>
+              {pokemonDetailData.map((pokemon: PokemonDetail, i: number) => {
+                // 配列pokemonDetailDataの各データをpokemonをする
+                // i = index(0~19)
+                // Cardコンポーネントを呼び出す
+                // key:配列ループのindex
+                // props名：pokemon(引数pokemonを渡す)
+                return <Card key={i} pokemon={pokemon} />;
+              })}
+            </div>
+            <div className='btn'>
+              {preURL !== null ? <button onClick={() => movePage(preURL, setPreURL, setNextURL, setIsLoading, setPokemonDetailData)}>前の20件</button> : <></> /* 前ページ用URLがあればボタン表示・なければ非表示 */}
+              {nextURL !== null ? <button onClick={() => movePage(nextURL, setPreURL, setNextURL, setIsLoading, setPokemonDetailData)}>次の20件</button> : <></> /* 前ページ用URLがあればボタン表示・なければ非表示 */}
+            </div>
+          </>
         )}
-        <div className='btn'>
-          {preURL !== null ? <button onClick={() => movePage(preURL, setPreURL, setNextURL, setIsLoading, setPokemonDetailData)}>前の20件</button> : <></> /* 前ページ用URLがあればボタン表示・なければ非表示 */}
-          {nextURL !== null ? <button onClick={() => movePage(nextURL, setPreURL, setNextURL, setIsLoading, setPokemonDetailData)}>次の20件</button> : <></> /* 前ページ用URLがあればボタン表示・なければ非表示 */}
-        </div>
       </div>
     </>
   );
