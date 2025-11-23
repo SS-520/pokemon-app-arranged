@@ -1,5 +1,7 @@
 /* 全ページの基本設定 */
+@use 'sass:math';
 @use 'mixins'; // ミックスイン読み込み
+@use 'variables'; // 変数読み込み
 
 /* スタイル */
 .App {
@@ -9,12 +11,13 @@
 }
 
 // 各ポケモンのカードをグリッドで表示
+
 .pokemonCardContainer {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(variables.$cardWidth + variables.$cardGap, 1fr));
   justify-items: center;
   align-items: center;
-  gap: 20px;
+  gap: variables.$cardGap;
   margin-top: 20px;
 }
 
