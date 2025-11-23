@@ -4,11 +4,22 @@
   padding: 0;
   background-color: transparent;
 }
+img {
+  overflow: unset;
+  overflow-clip-margin: unset;
+}
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   background-color: rgba(96, 58, 136, 0.05);
 }
 
+html,
 body {
+  height: 100%;
+  width: 100%;
   margin: 0;
+  padding: 0;
+}
+#root {
+  min-height: 100vh;
 }
