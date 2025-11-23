@@ -1,4 +1,9 @@
 /* 不要な設定をコメントアウト */
+* {
+  margin: 0;
+  padding: 0;
+  background-color: transparent;
+}
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   background-color: rgba(96, 58, 136, 0.05);
