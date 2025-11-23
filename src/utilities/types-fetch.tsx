@@ -1,6 +1,4 @@
-// ユーザー定義の型の集積ファイル
-import type { Dispatch, SetStateAction } from 'react';
-// ＊外部から呼び出すのが全体の定義⇒export を付与
+// fetch処理用ユーザー定義の型の集積ファイル
 
 // 個々のポケモンのデータ型
 // オブジェクト構造のため interfaceで定義
@@ -188,9 +186,3 @@ export interface FetchError {
   message: string;
   status?: number; // HTTPエラーの場合のみ
 }
-
-//// 状態変数の定義
-// useStateのの中身を更新するための型
-export type setURL = Dispatch<SetStateAction<PokemonListResponse['previous']> | PokemonListResponse['next']>;
-export type setBoolean = Dispatch<SetStateAction<boolean>>;
-export type setTypePokemonDetailData = Dispatch<SetStateAction<PokemonDetail[]>>;

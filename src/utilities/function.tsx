@@ -2,7 +2,8 @@
 
 /* 設定・導入 */
 import type { Result } from 'neverthrow'; // 非同期処理用ライブラリ
-import type { FetchError, PokemonDetailAndURL, setURL, setBoolean, setTypePokemonDetailData } from './types'; // PokemonListResponse型を使用（type{型}）
+import type { FetchError, PokemonDetailAndURL } from './types-fetch'; // PokemonListResponse型を使用（type{型}）
+import type { setURL, setBoolean, setTypePokemonDetailData } from './types-utility';
 import { fetchPokemonData } from './fetchPokemon'; // getAllPokemon関数を呼び出し
 
 /***  処理記述 ***/
