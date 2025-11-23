@@ -9,6 +9,7 @@ import './scss/App.scss'; // viteがコンパイル時にcssに自動で処理�
 // 読み込むコンポーネント
 import Card from './components/Card';
 import NavigationBar from './components/NavigationBar';
+import Loading from './components/Loading';
 
 function App() {
   // 土台になるポケモンAPIのURLを指定
@@ -45,7 +46,7 @@ function App() {
       <NavigationBar />
       <div className='App'>
         {isLoading ? (
-          <h1>Now Loading</h1>
+          <Loading />
         ) : (
           /* ロード完了後のメイン処理 */
           <div className='pokemonCardContainer'>
