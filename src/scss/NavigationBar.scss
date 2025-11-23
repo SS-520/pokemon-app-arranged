@@ -1,5 +1,6 @@
 // ナビゲーションバーのスタイル
 @use 'mixins'; // ミックスイン読み込み
+@use 'media'; // メディアクエリ読み込み
 
 @import url('https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap');
 nav {
@@ -13,10 +14,20 @@ nav {
     font-family: 'Dela Gothic One', sans-serif;
     color: #fff2f2;
     font-size: 1.75rem;
+    padding-right: 10vw;
     @include mixins.itemCenter;
+
+    @include media.media('tb') {
+      font-size: 5vh;
+    }
+
+    @include media.media('pc') {
+      padding-right: 0;
+      font-size: 4vh;
+    }
   }
   .titleLogo {
-    height: 50%;
+    height: 40%;
     margin-bottom: 20px;
     margin-right: 3px;
   }

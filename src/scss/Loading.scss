@@ -1,5 +1,9 @@
 // ローディング画面用スタイル
 @use 'mixins'; // ミックスイン読み込み
+@use 'media'; // メディアクエリ読み込み
+
+// Googleフォント読み込み
+@import url('https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Petit+Formal+Script&display=swap');
 
 div.loading {
   height: 100%;
@@ -7,21 +11,35 @@ div.loading {
   position: absolute;
   top: 0;
   left: 0;
+  font-size: 1.75rem;
   background-color: rgba(227, 164, 164, 0.75);
-  font-size: 1.5rem;
   @include mixins.itemCenter;
   flex-direction: column;
 
-  .loadImg {
-    display: block;
-    width: 5vw;
-    animation: korokoro 2.5s linear 0s infinite;
+  @include media.media('tb') {
+    font-size: 2.5rem;
   }
+
+  @include media.media('pc') {
+    font-size: 2.5rem;
+  }
+
+  .loadImg {
+    width: 20vw;
+    animation: korokoro 2.5s linear 0s infinite;
+
+    @include media.media('pc') {
+      width: 5vw;
+    }
+  }
+
   p {
-    display: block;
+    font-family: 'Petit Formal Script', cursive, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    font-weight: bold;
   }
 }
 
+// アニメーション設定
 @keyframes korokoro {
   0% {
     transform: translate(0%, 0%);
