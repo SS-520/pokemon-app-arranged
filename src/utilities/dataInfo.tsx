@@ -1,10 +1,15 @@
 // 各種アイテムデータまとめ
 // 頻繁に変わるものじゃないのでAPIの情報を事前にまとめておく
 
-import type { BallDetails, TypeDetails } from './types-utility';
+import type { BallDetails, TypeDetails } from './typesUtility';
 
 // ボール
 export const balls: BallDetails[] = [
+  {
+    number: 0,
+    name: '',
+    imgURL: '',
+  },
   {
     number: 1,
     name: 'マスターボール',
