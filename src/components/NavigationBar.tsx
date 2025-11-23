@@ -2,7 +2,14 @@
 import '../scss/NavigationBar.scss';
 
 function NavigationBar() {
-  return <nav>ポケモン図鑑</nav>;
+  return (
+    <nav>
+      <h1>
+        <img className='titleLogo' src='./src/img/title.png' alt='読む！' />
+        ポケモン図鑑
+      </h1>
+    </nav>
+  );
 }
 
 export default NavigationBar;
