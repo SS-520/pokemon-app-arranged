@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import '../scss/Loading.scss';
 import type { BallDetails } from '../utilities/typesUtility';
 import { balls } from '../utilities/dataInfo';
