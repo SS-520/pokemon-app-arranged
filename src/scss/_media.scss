@@ -8,8 +8,8 @@ $monitorBreakpoint: 1024px;
 
 // breakpoint定義（マップ定義）
 $breakPoint: (
-  tb: 'only screen and (min-width:' + $tabletBreakpoint + 'px)',
-  pc: 'only screen and (min-width:' + $monitorBreakpoint + 'px)',
+  tb: 'only screen and (min-width:768px)',
+  pc: 'only screen and (min-width:1024px)',
 );
 
 // ブレイクポイントを設定するミックスイン作成
