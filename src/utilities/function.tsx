@@ -48,6 +48,9 @@ export const asynchroFunction = async (url: string, setPreURL: setURL, setNextUR
     },
   );
 
+  // 画面をトップにスクロールして戻す
+  window.scroll({ top: 0 });
+
   // ローディング解除
   setIsLoading(false);
 };
