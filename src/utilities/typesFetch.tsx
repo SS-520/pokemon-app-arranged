@@ -182,7 +182,12 @@ export type PokemonDetailAndURL = Pick<PokemonListResponse, 'next' | 'previous'>
 
 // neverthrow で使用するエラー型
 export interface FetchError {
-  type: 'HTTP_ERROR' | 'NETWORK_ERROR' | 'PARSE_ERROR';
+  type: 'HTTP_ERROR' | 'NETWORK_ERROR' | 'PARSE_ERROR' | 'VALIDATION_ERROR';
   message: string;
   status?: number; // HTTPエラーの場合のみ
+  context?: {
+    url?: string;
+    responseSnippet?: string;
+    validationIssues?: string[];
+  };
 }
