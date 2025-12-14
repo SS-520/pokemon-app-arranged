@@ -180,9 +180,13 @@ export interface PokemonDetail {
 // 型
 export type PokemonDetailAndURL = Pick<PokemonListResponse, 'next' | 'previous'> & { pokemonDetailData: PokemonDetail[] };
 
+/*
+ * Fetch処理で使用する型
+ */
+
 // neverthrow で使用するエラー型
 export interface FetchError {
-  type: 'HTTP_ERROR' | 'NETWORK_ERROR' | 'PARSE_ERROR' | 'VALIDATION_ERROR';
+  type: 'HTTP_ERROR' | 'NETWORK_ERROR' | 'PARSE_ERROR' | 'UNKNOWN_ERROR' | 'BODY_READ_ERROR';
   message: string;
   status?: number; // HTTPエラーの場合のみ
   context?: {
