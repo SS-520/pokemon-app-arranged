@@ -1,12 +1,59 @@
 /* 各種機能記述ファイル */
 
 /* 設定・導入 */
-import type { Result } from 'neverthrow'; // 非同期処理用ライブラリ
-import type { FetchError, PokemonDetailAndURL } from './types-fetch'; // PokemonListResponse型を使用（type{型}）
-import type { setURL, setBoolean, setTypePokemonDetailData } from './types-utility';
-import { fetchPokemonData } from './fetchPokemon'; // getAllPokemon関数を呼び出し
+import type { Result, ResultAsync } from 'neverthrow'; // 非同期処理用ライブラリ
+import type { FetchError, PokemonDetailAndURL } from './typesFetch'; // PokemonListResponse型を使用（type{型}）
+import type { setBoolean, setURL, setTypePokemonDetailData } from './types-utility';
+import { getNowCount, fetchPokemonData } from './fetchPokemon'; // getAllPokemon関数を呼び出し
 
 /***  処理記述 ***/
+
+// 画面初回ロード時に行う処理
+/*** @name loadProcess
+ *   @function
+ *   @param initialURL:string(ポケモンAPI)
+ *   @param setPreURL:setURL(前ページURL更新,useState)
+ *   @param setNextURL:setURL(次ページURL更新,useState)
+ *   @param setIsLoading:setBoolean(ローディング判定,useState)
+ *   @param setPokemonDetailData:setTypePokemonDetailData(個々のポケモンデータの配列)
+ *   @return void
+ * 
+  1. fetchで更新があるか確認
+
+  2-1. 更新がない
+  2-2. ローカルストレージから表示用のデータを取得
+  2-3. 取得したデータを画面に表示
+
+  3-1. 更新がある
+  3-2. 最初の50件のデータを取得
+  3-3. 表示用データを画面に表示
+  3-4. バックグラウンドで残りのデータを50件ずつ取得・格納
+*/
+export const loadProcess = (initialURL: string, setIsLoading: setBoolean): void => {
+  // 1. fetchで更新があるか確認
+  firstDataCheck(initialURL);
+
+  // ローディング解除
+  setIsLoading(false);
+};
+
+// fetchで更新があるか確認
+/*** @name loadProcess
+ *   @function
+ *   @param initialURL:string(ポケモンAPI)
+ *   @param setPreURL:setURL(前ページURL更新,useState)
+ *   @param setNextURL:setURL(次ページURL更新,useState)
+ *   @param setIsLoading:setBoolean(ローディング判定,useState)
+ *   @param setPokemonDetailData:setTypePokemonDetailData(個々のポケモンデータの配列)
+ *   @return void
+ * 
+  1. fetchで更新があるか確認
+*/
+const firstDataCheck = (initialURL: string) => {
+  // ポケモンAPIからカウントを取得
+  const nowCount: ResultAsync<number, FetchError> = getNowCount(initialURL);
+  console.log(nowCount);
+};
 
 // ポケモンAPIから情報を取得する非同期処理
 /*** @name fetchPokemonData
