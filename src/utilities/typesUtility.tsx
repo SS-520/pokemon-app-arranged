@@ -21,3 +21,6 @@ export interface TypeDetails {
   name: string;
   imgURL: string;
 }
+
+// 全国図鑑番号を厳密に定義
+export type PokedexNumber = number & { readonly __brand: 'PokedexNumber' };
