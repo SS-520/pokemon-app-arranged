@@ -180,6 +180,88 @@ export interface PokemonDetail {
 // 型
 export type PokemonDetailAndURL = Pick<PokemonListResponse, 'next' | 'previous'> & { pokemonDetailData: PokemonDetail[] };
 
+export interface PokemonSpeciesDetail {
+  base_happiness: number; // モンボゲットにおける最大幸福度
+  capture_rate: number; // 基本捕獲率
+  // API内の検索色区分
+  color: {
+    name: string;
+    url: string;
+  };
+  // 卵グループ
+  egg_groups: {
+    name: string;
+    url: string;
+  }[];
+  // 図鑑解説文
+  flavor_text_entries: {
+    flavor_text: string;
+    language: {
+      name: string;
+      url: string;
+    };
+    version: {
+      name: string;
+      url: string;
+    };
+  }[];
+  form_descriptions: unknown[]; //形態説明
+  forms_switchable: boolean; // 形態変化の有無
+  gender_rate: number; // メスの確率（n/8%,性別無は-1）
+  // 種（○○ポケモン）
+  genera: {
+    genus: string;
+    language: {
+      name: string;
+      url: string;
+    };
+  };
+  // 初登場世代
+  generation: {
+    name: string;
+    url: string;
+  };
+  // 成長速度
+  growth_rate: {
+    name: string;
+    url: string;
+  };
+  // 生息地
+  habitat: {
+    name: string;
+    url: string;
+  };
+  has_gender_differences: boolean; // オスメス差分
+  hatch_counter: number; // 孵化サイクル数
+  id: number; // 識別番号
+  is_baby: boolean; // ベビーポケモン？
+  is_legendary: boolean; // 伝説ポケモン？
+  is_mythical: boolean; // 幻のポケモン？
+  name: string; // 英名
+  // 各国名
+  names: {
+    language: {
+      name: string;
+      url: string;
+    };
+    name: string;
+  }[];
+  order: number; // 並び順
+  // 地方別図鑑番号
+  pokedex_numbers: {
+    entry_number: number;
+    pokedex: {
+      name: string;
+      url: string;
+    };
+  }[];
+  // API内の検索形状区分
+  shape: {
+    name: string;
+    url: string;
+  };
+}
+
 /*
  * Fetch処理で使用する型
  */
