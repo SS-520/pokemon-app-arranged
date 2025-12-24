@@ -2,9 +2,9 @@
 
 // 個々のポケモンのデータ型
 // オブジェクト構造のため interfaceで定義
-export interface PokemonResult {
-  name: string;
-  url: string;
+export interface NameAndURL {
+  name: string; // 名称
+  url: string; // APIのURL
 }
 
 // ポケモンAPIから取得したデータをjsonに直した型
@@ -13,7 +13,7 @@ export interface PokemonListResponse {
   count: number; // ポケモンデータの総数
   next: string | null; // 次のページへのURL (文字列、または最終ページの場合は null)
   previous: string | null; // 前のページへのURL (文字列、または最初のページの場合は null)
-  results: PokemonResult[]; // ポケモン情報のリスト（上記で定義した PokemonResult 型の配列）
+  results: NameAndURL[]; // ポケモン情報のリスト（上記で定義した NameAndURL 型の配列）
 }
 
 /**
@@ -24,21 +24,12 @@ export interface PokemonListResponse {
 
 // 技の情報を表す型 (例: "scratch", "cut")
 interface PokemonMove {
-  move: {
-    name: string; // 技の名前
-    url: string; // 技の詳細URL
-  };
+  move: NameAndURL;
   version_group_details: {
     level_learned_at: number; // 覚えるレベル
-    move_learn_method: {
-      name: string;
-      url: string;
-    }[]; // 複数ある⇒配列
+    move_learn_method: NameAndURL[]; // 複数ある⇒配列
     order: number | null;
-    version_group: {
-      name: string; // ソフト名
-      url: string;
-    };
+    version_group: NameAndURL;
   };
 }
 
@@ -46,19 +37,13 @@ interface PokemonMove {
 interface PokemonStatus {
   base_stat: number; // 基本的なステータス値
   effort: number; // 努力値（戦闘で得られるステータス）
-  stat: {
-    name: string; // ステータスの名前 (hp, attack, defense など)
-    url: string;
-  };
+  stat: NameAndURL;
 }
 
 // タイプを表す情報
 interface PokemonTypes {
   slot: number; // メインタイプ
-  type: {
-    name: string; // タイプ種類
-    url: string;
-  };
+  type: NameAndURL;
 }
 
 // 鳴き声
@@ -69,10 +54,7 @@ interface PokemonCries {
 
 // 特性の情報
 interface PokemonAbilities {
-  ability: {
-    name: string;
-    url: string;
-  };
+  ability: NameAndURL;
   is_hidden: boolean;
   slot: number;
 }
@@ -82,60 +64,36 @@ interface PokemonAbilities {
 //  'ability' フィールドを null を許容する型で再定義(extends)します。
 interface PokemonPastAbility extends Omit<PokemonAbilities, 'ability'> {
   // abilityオブジェクト全体がnullを許容
-  ability: {
-    name: string;
-    url: string;
-  } | null;
-}
-
-// 姿の情報（？）
-interface PokemonForms {
-  name: string;
-  url: string;
+  ability: NameAndURL | null;
 }
 
 // ソフト情報
 interface PokemonGameIndices {
   game_index: number;
-  version: {
-    name: string;
-    url: string;
-  };
+  version: NameAndURL;
 }
 
 // ソフト別のアイテム所持確率
 interface HeldItemVersionDetails {
   rarity: number;
-  version: {
-    name: string;
-    url: string;
-  };
+  version: NameAndURL;
 }
 
 // 捕獲時所有アイテム情報
 interface PokemonHeldItems {
-  item: {
-    name: string;
-    url: string;
-  };
+  item: NameAndURL;
   version_details: HeldItemVersionDetails[];
 }
 
 // 過去の特性
 interface PokemonPastAbilities {
   abilities: PokemonPastAbility[]; // 過去世代からの変更に対応したextend型
-  generation: {
-    name: string;
-    url: string;
-  };
+  generation: NameAndURL;
 }
 
 // 過去バージョンでのタイプ
 interface PokemonPastTypes {
-  generation: {
-    name: string; // n世代目
-    url: string;
-  };
+  generation: NameAndURL;
   types: PokemonTypes[];
 }
 
@@ -166,7 +124,7 @@ export interface PokemonDetail {
   abilities: PokemonAbilities[]; // 特性
   base_experience: number; // 倒して得られる経験値
   cries: PokemonCries; // 鳴き声のURL
-  forms: PokemonForms[]; // 姿
+  forms: NameAndURL[]; // 姿
   game_indices: PokemonGameIndices[]; // ソフト情報
   held_items: PokemonHeldItems[]; // 所持アイテム
   is_default: boolean; // デフォルトの姿かどうか（メガシンカやリージョンフォームはfalse）
@@ -184,26 +142,14 @@ export interface PokemonSpeciesDetail {
   base_happiness: number; // モンボゲットにおける最大幸福度
   capture_rate: number; // 基本捕獲率
   // API内の検索色区分
-  color: {
-    name: string;
-    url: string;
-  };
+  color: NameAndURL;
   // 卵グループ
-  egg_groups: {
-    name: string;
-    url: string;
-  }[];
+  egg_groups: NameAndURL[];
   // 図鑑解説文
   flavor_text_entries: {
     flavor_text: string;
-    language: {
-      name: string;
-      url: string;
-    };
-    version: {
-      name: string;
-      url: string;
-    };
+    language: NameAndURL;
+    version: NameAndURL;
   }[];
   form_descriptions: unknown[]; //形態説明
   forms_switchable: boolean; // 形態変化の有無
@@ -211,26 +157,14 @@ export interface PokemonSpeciesDetail {
   // 種（○○ポケモン）
   genera: {
     genus: string;
-    language: {
-      name: string;
-      url: string;
-    };
+    language: NameAndURL;
   };
   // 初登場世代
-  generation: {
-    name: string;
-    url: string;
-  };
+  generation: NameAndURL;
   // 成長速度
-  growth_rate: {
-    name: string;
-    url: string;
-  };
+  growth_rate: NameAndURL;
   // 生息地
-  habitat: {
-    name: string;
-    url: string;
-  };
+  habitat: NameAndURL | null;
   has_gender_differences: boolean; // オスメス差分
   hatch_counter: number; // 孵化サイクル数
   id: number; // 識別番号
@@ -240,26 +174,17 @@ export interface PokemonSpeciesDetail {
   name: string; // 英名
   // 各国名
   names: {
-    language: {
-      name: string;
-      url: string;
-    };
+    language: NameAndURL;
     name: string;
   }[];
   order: number; // 並び順
   // 地方別図鑑番号
   pokedex_numbers: {
     entry_number: number;
-    pokedex: {
-      name: string;
-      url: string;
-    };
+    pokedex: NameAndURL;
   }[];
   // API内の検索形状区分
-  shape: {
-    name: string;
-    url: string;
-  };
+  shape: NameAndURL;
 }
 
 /*
