@@ -2,7 +2,7 @@
  * 各種パーツとして使用する関数を記述するファイル
  */
 import type { PokedexNumber } from './typesUtility';
-import type { NameAndURL } from './typesFetch';
+import type { NameAndURL, PokemonSpeciesDetail } from './typesFetch';
 
 /**
  * ローカル/セッションストレージが使用可能か確認する関数
@@ -76,28 +76,74 @@ export function toPokedexNumber(pokeNum: number): PokedexNumber {
  */
 export function getJaData<T extends { language: NameAndURL }>(apiArray: T[]): T[] {
   // 最後に日本語
-  let jaData: T[];
 
-  // 言語がjaに一致するものを返す
-  const jaIndex: number[] = apiArray.reduce((acc: number[], currentName, index) => {
-    if (currentName.language.name.match('ja')) {
-      acc.push(index);
-    }
-    return acc;
-  }, []); // []はaccの初期値
+  // 言語がjaに一致するものを返す（最優先）
+  const jaData = apiArray.find((item) => item.language.name === 'ja');
+  // jaが存在した時点で返す
+  if (jaData) return [jaData]; // 配列形式に変換して返す
 
-  // 言語がja-Hrktに一致するものを返す
-  const jaHrktIndex: number[] = apiArray.reduce((acc: number[], currentName, index) => {
-    if (currentName.language.name.match('ja-Hrkt')) {
-      acc.push(index);
-    }
-    return acc;
-  }, []); // []はaccの初期値
+  // jaが無かったらja-Hrktに一致するものを返す（次善）
+  const jaHrktData = apiArray.find((item) => item.language.name === 'ja');
+  // jaが存在した時点で返す
+  if (jaHrktData) return [jaHrktData]; // 配列形式に変換して返す
 
-  if (jaIndex.length > 0 || jaHrktIndex.length > 0) {
-    jaData = apiArray; // ja,ja-Hrktが両方ある⇒[0]ja,[1]ja-Hrktになる
-  } else {
-    jaData = [];
-  }
-  return jaData;
+  // どちらも該当しない→空配列を返す
+  return [];
 }
+
+/**
+ * 指定idのnull埋めオブジェクトを作成
+ * @param apiArray:T[] APIから返された、languageを含む型の配列
+ * @returns T[]:T型配列（null=[]で処理)
+ */
+export const createNullSpecies = (id: number): PokemonSpeciesDetail => ({
+  id: id,
+  base_happiness: 0,
+  capture_rate: 0,
+  color: {
+    name: '',
+    url: '',
+  },
+  egg_groups: [],
+  flavor_text_entries: [], // 配列などは空配列、それ以外はnullなど型に合わせて調整
+  form_descriptions: [],
+  forms_switchable: false,
+  gender_rate: 0,
+  genera: {
+    genus: '',
+    language: {
+      name: '',
+      url: '',
+    },
+  },
+  generation: {
+    name: '',
+    url: '',
+  },
+  growth_rate: {
+    name: '',
+    url: '',
+  },
+  habitat: null,
+  has_gender_differences: false,
+  hatch_counter: 0,
+  is_baby: false,
+  is_legendary: false,
+  is_mythical: false,
+  name: '',
+  names: [
+    {
+      name: '',
+      language: {
+        name: '',
+        url: '',
+      },
+    },
+  ],
+  order: 0,
+  pokedex_numbers: [],
+  shape: {
+    name: '',
+    url: '',
+  },
+});
