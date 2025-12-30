@@ -118,7 +118,7 @@ const checkHttpErrorStatus = (resFetch: Response, bodyText: string, url: string)
  *   @param url: string（APIのURL）
  *   @return 期待型のT or 失敗のFetchError
  */
-const parseJsonBody = <T,>(bodyText: string, url: string): Result<T, FetchError> => {
+export const parseJsonBody = <T,>(bodyText: string, url: string): Result<T, FetchError> => {
   // Result.fromThrowable の結果を明示的に Result<T, Error> として扱う
   // ※同期処理において例外がおきる可能性がある処理⇒fromThrowableを使用
   const parseResult: Result<T, Error> = Result.fromThrowable(
@@ -155,11 +155,11 @@ export function alertError<T>(result: Result<T, FetchError>): void {
   // そもそもエラー時のみ呼び出されるが、処理の関係上isErrを確定させる
   if (result.isErr() && result.error.type !== 'ABORTED_STOP') {
     // 画面にエラー内容表示
-    alert(`情報の取得に失敗しました。詳細は以下の通りです。
-      \n通信先：${result.error.context?.url}),
+    console.log(`情報の取得に失敗しました。詳細は以下の通りです。
+      \n通信先：${result.error.context?.url},
       \nエラータイプ：${result.error.type},
       \n通信ステータス：${result.error.status},
-      \nメッセージ：${result.error.message}),
+      \nメッセージ：${result.error.message},
       \nエラーボディ：${result.error.context?.responseSnippet}`);
   }
 }
