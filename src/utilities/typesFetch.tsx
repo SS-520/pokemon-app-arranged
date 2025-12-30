@@ -138,6 +138,7 @@ export interface PokemonDetail {
 // 型
 export type PokemonDetailAndURL = Pick<PokemonListResponse, 'next' | 'previous'> & { pokemonDetailData: PokemonDetail[] };
 
+// エンドポイント：pokemon-speciesから取得するデータ型
 export interface PokemonSpeciesDetail {
   base_happiness: number; // モンボゲットにおける最大幸福度
   capture_rate: number; // 基本捕獲率
@@ -193,7 +194,7 @@ export interface PokemonSpeciesDetail {
 
 // neverthrow で使用するエラー型
 export interface FetchError {
-  type: 'HTTP_ERROR' | 'NETWORK_ERROR' | 'PARSE_ERROR' | 'UNKNOWN_ERROR' | 'BODY_READ_ERROR';
+  type: 'HTTP_ERROR' | 'NETWORK_ERROR' | 'PARSE_ERROR' | 'UNKNOWN_ERROR' | 'BODY_READ_ERROR' | 'ABORTED_STOP';
   message: string;
   status?: number; // HTTPエラーの場合のみ
   context?: {
