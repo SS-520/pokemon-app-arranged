@@ -13,15 +13,28 @@ import type { FetchError } from './typesFetch';
  * @param url リクエストURL
  * @returns fetchの結果を保持する ResultAsync<Response, AppError>
  */
-export function fetchToResultAsync(url: string): ResultAsync<Response, FetchError> {
+export function fetchToResultAsync(url: string, signal: AbortSignal): ResultAsync<Response, FetchError> {
   // APIを叩いて結果をfetchPromiseに格納
-  const fetchPromise = fetch(url);
+  const fetchPromise = fetch(url, { signal });
 
   // fetchの結果を加工して返す
   // 成功：Response≒fetchのresolve
   // 失敗：rejectError:FetchError型≒fetchのreject
   return ResultAsync.fromPromise(fetchPromise, (rejectError) => {
     // ネットワークエラー（Promiseのreject = rejectError）をここで捕捉し、err に変換
+
+    // 1. AbortErrorによる強制エラーか確認
+    const isAbortError = rejectError instanceof Error && rejectError.name === 'AbortError';
+    if (isAbortError) {
+      // 強制終了（Abort）の場合は専用のタイプを返す
+      return {
+        type: 'ABORTED_STOP',
+        message: rejectError.message,
+        url: url,
+      } as FetchError;
+    }
+
+    // 通常エラー
     return {
       type: 'NETWORK_ERROR',
       message: `ネットワーク接続に失敗: ${rejectError instanceof Error ? rejectError.message : '不明なエラー'}`, // 三項演算子
@@ -128,3 +141,25 @@ const parseJsonBody = <T,>(bodyText: string, url: string): Result<T, FetchError>
     }),
   );
 };
+
+/*** @name alertError
+ *   ・非同期処理の結果がエラーだった場合、アラートを表示して処理を終わらせる
+ *   @function
+ *   @type ResultAsync<string, FetchError> ：箱（ResultAsync）だけ
+ *   @param bodyText: string(JSON変換前の文字列)
+ *   @param url: string（APIのURL）
+ *   @return 期待型のT or 失敗のFetchError
+ *  ※ジェネリクス型<T>との相性でアロー関数は使用せず通常のfunction構文として記述
+ */
+export function alertError<T>(result: Result<T, FetchError>): void {
+  // そもそもエラー時のみ呼び出されるが、処理の関係上isErrを確定させる
+  if (result.isErr() && result.error.type !== 'ABORTED_STOP') {
+    // 画面にエラー内容表示
+    alert(`情報の取得に失敗しました。詳細は以下の通りです。
+      \n通信先：${result.error.context?.url}),
+      \nエラータイプ：${result.error.type},
+      \n通信ステータス：${result.error.status},
+      \nメッセージ：${result.error.message}),
+      \nエラーボディ：${result.error.context?.responseSnippet}`);
+  }
+}
