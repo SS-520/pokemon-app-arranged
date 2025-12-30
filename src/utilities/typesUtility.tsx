@@ -9,6 +9,7 @@ import type { PokemonListResponse, PokemonDetail } from './types-fetch';
 export type setURL = Dispatch<SetStateAction<PokemonListResponse['previous']> | PokemonListResponse['next']>;
 export type setBoolean = Dispatch<SetStateAction<boolean>>;
 export type setTypePokemonDetailData = Dispatch<SetStateAction<PokemonDetail[]>>;
+export type setPokemonData = Dispatch<SetStateAction<LsPokemon[]>>;
 
 export interface BallDetails {
   number: number;
@@ -24,3 +25,14 @@ export interface TypeDetails {
 
 // 全国図鑑番号を厳密に定義
 export type PokedexNumber = number & { readonly __brand: 'PokedexNumber' };
+
+// ローカルストレージに格納するデータの型
+export interface LsPokemon {
+  id: number;
+  name: string | null;
+  type: number[] | null;
+  pokedex: PokedexNumber | null;
+  gene: number | null;
+  isGen: number | null;
+  egg: number[] | null;
+}
