@@ -3,6 +3,9 @@
 
 import type { BallDetails, TypeDetails } from './typesUtility';
 
+// 画像URLの共通部分
+export const commonImgURL: string = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/';
+
 // ボール
 export const balls: BallDetails[] = [
   {
