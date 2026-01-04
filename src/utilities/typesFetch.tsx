@@ -101,14 +101,36 @@ interface PokemonPastTypes {
 interface PokemonSprites {
   // shiny：色違い
   // ※雌雄同姿の場合、メス（female）はnull
-  front_default: string;
+  front_default: string | null;
   front_female: string | null;
-  front_shiny: string;
+  front_shiny: string | null;
   front_shiny_female: string | null;
-  back_default: string;
+  back_default: string | null;
   back_female: string | null;
-  back_shiny: string;
+  back_shiny: string | null;
   back_shiny_female: string | null;
+  other: {
+    home: {
+      front_default: string | null;
+      front_female: string | null;
+      front_shiny: string | null;
+      front_shiny_female: string | null;
+    };
+    'official-artwork': {
+      front_default: string | null;
+      front_shiny: string | null;
+    };
+    showdown: {
+      front_default: string | null;
+      front_female: string | null;
+      front_shiny: string | null;
+      front_shiny_female: string | null;
+      back_default: string | null;
+      back_female: string | null;
+      back_shiny: string | null;
+      back_shiny_female: string | null;
+    };
+  };
 }
 
 // ポケモン個別の詳細データを表すメインの型
@@ -132,6 +154,7 @@ export interface PokemonDetail {
   order: number; // 全国図鑑の番号
   past_abilities: PokemonPastAbilities[]; // 過去世代で持っていた特性一覧
   past_types: PokemonPastTypes[]; // 過去世代で持っていたタイプの一覧
+  species: NameAndURL;
 }
 
 // ポケモンの詳細データと前後20匹ずつのAPIのURLを格納した型
