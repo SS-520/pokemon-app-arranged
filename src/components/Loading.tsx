@@ -26,9 +26,10 @@ function Loading() {
     };
   }, []);
 
+  // imgはballType.imgURLが設定されてるときのみ表示
   return (
     <div className='loading'>
-      <img alt={`loadingAnimation（${ballType.name}）`} className='loadImg' src={ballType.imgURL} />
+      {ballType.imgURL ? <img alt={`loadingAnimation（${ballType.name}）`} className='loadImg' src={ballType.imgURL} /> : null}
       <p>Now Loading...</p>
     </div>
   );
