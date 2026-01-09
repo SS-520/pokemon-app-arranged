@@ -3,8 +3,8 @@
 /* 設定・導入 */
 import type { RefObject } from 'react';
 import { ok, type Result, type ResultAsync } from 'neverthrow'; // 非同期処理用ライブラリ
-import type { FetchError, PokemonListResponse, PokemonDetail, PokemonSpeciesDetail } from './typesFetch'; // PokemonListResponse型を使用（type{型}）
-import type { setBoolean, LsPokemon, PokedexNumber } from './typesUtility';
+import type { FetchError, PokemonListResponse, PokemonDetail, PokemonSpeciesDetail } from '../types/typesFetch'; // PokemonListResponse型を使用（type{型}）
+import type { setBoolean, LsPokemon, PokedexNumber } from '../types/typesUtility';
 import { getNowAPI, getPokemonDetail } from './fetchPokemon'; // fetchPokemonから各関数を呼び出し
 import { storageAvailable, getEndID, getNationalData, getJaData, getPokedexNumber, getDisplayImg, createNullSpecies, mergeAndUniqueById } from './utilityFunction';
 import { parseJsonBody, alertError } from './fetchFunction';

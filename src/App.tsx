@@ -3,8 +3,8 @@ import React, { useEffect, useRef, useState } from 'react';
 
 // 外部の関数・型定義ファイル
 // import type { PokemonListResponse } from './utilities/typesFetch'; // PokemonListResponse型を使用（type{型}）
-import type { LsPokemon } from './utilities/typesUtility';
-import { loadProcess } from './utilities/function'; // getAllPokemon関数を呼び出し
+import type { LsPokemon } from './utilities/types/typesUtility';
+import { loadProcess } from './utilities/function/loadFunction'; // getAllPokemon関数を呼び出し
 import './scss/App.scss'; // viteがコンパイル時にcssに自動で処理するので、importはscssでOK
 
 // 読み込むコンポーネント

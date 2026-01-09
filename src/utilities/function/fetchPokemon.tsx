@@ -1,6 +1,6 @@
 /* パーツとして使用する関数を記述 */
 import { errAsync, ok, ResultAsync } from 'neverthrow'; // neverthrowライブラリを読み込み
-import type { FetchError, PokemonListResponse } from './typesFetch'; // ユーザー定義型を読み込む（type{型}）
+import type { FetchError, PokemonListResponse } from '../types/typesFetch'; // ユーザー定義型を読み込む（type{型}）
 import { fetchToResultAsync, checkResponseAndParseJson } from './fetchFunction';
 
 //

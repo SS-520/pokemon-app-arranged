@@ -1,7 +1,7 @@
 // Cardコンポーネント
 
 import React from 'react';
-import type { LsPokemon } from '../utilities/typesUtility';
+import type { LsPokemon } from '../utilities/types/typesUtility';
 import { commonImgURL, types } from '../utilities/dataInfo';
 import '../scss/Card.scss';
 

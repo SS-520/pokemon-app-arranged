@@ -1,9 +1,9 @@
 /**
  * 各種パーツとして使用する関数を記述するファイル
  */
-import type { NameAndURL, PokemonSpeciesDetail, PokemonDetail } from './typesFetch';
-import { commonImgURL } from './dataInfo';
-import type { LsPokemon } from './typesUtility';
+import type { NameAndURL, PokemonSpeciesDetail, PokemonDetail } from '../types/typesFetch';
+import { commonImgURL } from '../dataInfo';
+import type { LsPokemon } from '../types/typesUtility';
 
 /**
  * ローカル/セッションストレージが使用可能か確認する関数
