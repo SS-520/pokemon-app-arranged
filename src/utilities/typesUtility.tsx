@@ -9,7 +9,6 @@ import type { PokemonListResponse, PokemonDetail } from './types-fetch';
 export type setURL = Dispatch<SetStateAction<PokemonListResponse['previous']> | PokemonListResponse['next']>;
 export type setBoolean = Dispatch<SetStateAction<boolean>>;
 export type setTypePokemonDetailData = Dispatch<SetStateAction<PokemonDetail[]>>;
-export type setPokemonData = Dispatch<SetStateAction<LsPokemon[]>>;
 
 export interface BallDetails {
   number: number;
