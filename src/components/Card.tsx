@@ -1,13 +1,14 @@
 // Cardコンポーネント
 
 import React from 'react';
-import type { PokemonDetail } from '../utilities/types';
+import type { LsPokemon } from '../utilities/typesUtility';
+import { commonImgURL, types } from '../utilities/dataInfo';
 import '../scss/Card.scss';
 
 // propsの定義
 interface CardProps {
   // Cardが受け取るべきプロパティ名とその型を定義
-  pokemon: PokemonDetail;
+  pokemon: LsPokemon;
 }
 /* 要素の記述内に直接関数を記述しない方向にする */
 // ⇒可読性を上げる
@@ -18,18 +19,44 @@ interface CardProps {
  *   @type function
  *   @props pokemon
  */
-const getTypes = ({ pokemon }: CardProps): React.ReactNode => {
-  // mapの結果を直接返すことで型がReact.ReactNodeになるように設定
-  // map機能を使用⇒エラー解消のためにReact.Fragmentでkey指定
-  return pokemon.types.map((eachType, index) => {
-    return (
-      <React.Fragment key={index}>
-        <div>
-          <span className='typeName'>{eachType.type.name}</span>
-        </div>
-      </React.Fragment>
-    );
-  });
+
+// サムネ画像作成
+const renderImg = ({ pokemon }: CardProps): React.ReactNode => {
+  if (pokemon.img && pokemon.name) {
+    // 画像URL：有
+    // 名前：有
+    return <img className='cardImg' src={commonImgURL + pokemon.img} alt={pokemon.name} />;
+  } else if (pokemon.name) {
+    // 画像URL：null
+    // 名前：有
+    return <p>{pokemon.name}</p>;
+  } else {
+    // 画像URL：null
+    // 名前：null
+    return <p>No Image</p>;
+  }
+};
+
+// フォルムチェンジなどの補足名
+const renderDifferentName = ({ pokemon }: CardProps): React.ReactNode => {
+  if (pokemon.difNm) {
+    // 別名がある
+    return <span className='difNm'> {pokemon.difNm}</span>;
+  }
+};
+
+// タイプ表示
+const renderTypes = ({ pokemon }: CardProps): React.ReactNode => {
+  if (pokemon.type) {
+    // タイプ別に画像表示
+    //  タイプの数に分mapでループ処理して返す（複合タイプ）
+    return pokemon.type.map((type: number) => {
+      // ポケモンのタイプ番号と一致するdataInfo.tsxのタイプオブジェクトを取得
+      const pokemonType = types.find((dataType) => dataType.number === type);
+      // タイプオブジェクトを組み込んでJSXを作成
+      return <img className='type' src={pokemonType?.imgURL} alt={pokemonType?.name} />;
+    });
+  }
 };
 
 /*** @name
@@ -39,15 +66,14 @@ const getTypes = ({ pokemon }: CardProps): React.ReactNode => {
  */
 const Card = ({ pokemon }: CardProps): React.ReactNode => {
   return (
-    <div className='card'>
-      <div className='cardImg'>
-        <img className='mainImg' src={pokemon.sprites.front_default} alt={`${pokemon.name}'s front img`} /> {/* JSX記法でtsを記述 */}
-      </div>
-      <h3 className='cardName'>{pokemon.name}</h3>
-      <div className='cardTypes'>
-        <div className='typeTitle'>タイプ</div>
-        <div className='typeDetail'>{getTypes({ pokemon })}</div>
-      </div>
+    <div className='card' id={pokemon.id.toString()}>
+      <h3>No.{pokemon.pokedex}</h3>
+      {renderImg({ pokemon })}
+      <h4 className='cardName'>
+        {pokemon.name}
+        {renderDifferentName({ pokemon })}
+      </h4>
+      <div className='cardTypes'>{renderTypes({ pokemon })}</div>
     </div>
   );
 };
