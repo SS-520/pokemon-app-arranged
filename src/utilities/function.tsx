@@ -72,7 +72,8 @@ export const loadProcess = async (initialURL: string, refPokemonData: RefObject<
   } else {
     // 上記３点を１つでも満たさない
     // ⇒APIからデータを取ってくる
-    getNowPokemonData(pokedexNumArray, refPokemonData, currentLsCount, 20, signal);
+    // 時間がかかる処理なので終わるまで次に進めない(await)
+    await getNowPokemonData(pokedexNumArray, refPokemonData, currentLsCount, 20, signal);
   }
 
   // ローディング画面解除
