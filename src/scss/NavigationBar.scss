@@ -3,7 +3,7 @@
 @use 'media'; // メディアクエリ読み込み
 
 @import url('https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap');
-nav {
+nav#navigation {
   background-color: #dd1e24;
   height: 10vh;
   position: sticky;

@@ -4,7 +4,7 @@ import logo from '../img/title.png';
 
 function NavigationBar() {
   return (
-    <nav>
+    <nav id='navigation'>
       <h1>
         <img className='titleLogo' src={logo} alt='読む！' />
         ポケモン図鑑
