@@ -1,14 +1,14 @@
 // 基本設定と拡張機能
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 // 外部の関数・型定義ファイル
-// import type { PokemonListResponse } from './utilities/typesFetch'; // PokemonListResponse型を使用（type{型}）
 import type { LsPokemon } from './utilities/types/typesUtility';
-import { loadProcess } from './utilities/function/loadFunction'; // getAllPokemon関数を呼び出し
+import { loadProcess } from './utilities/function/loadFunction';
+import { mainContents } from './utilities/function/renderFunction';
 import './scss/App.scss'; // viteがコンパイル時にcssに自動で処理するので、importはscssでOK
 
 // 読み込むコンポーネント
-import Card from './components/Card';
+
 import NavigationBar from './components/NavigationBar';
 import Loading from './components/Loading';
 
@@ -60,14 +60,6 @@ function App() {
   }, []);
 
   // 表示カードを作成
-  const mainContents = (pokemonAllData: LsPokemon[], displayStartNum: number, displayNum: number): React.ReactNode => {
-    const displayData = [...pokemonAllData].slice(displayStartNum, displayNum);
-    return displayData.map((pokemon: LsPokemon) => (
-      <div>
-        <Card pokemon={pokemon} />
-      </div>
-    ));
-  };
 
   // 変数loadingの状態で画面の表示を変更⇒短いのでifを使用せず３項演算子で済ませる
   // 条件文 ? trueの処理 : falseの処理
