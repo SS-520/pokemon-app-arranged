@@ -14,7 +14,7 @@
   box-shadow: 5px 5px 6px 0px rgba(96, 58, 136, 0.75);
 
   .cardImg {
-    width: 90%;
+    width: 80%;
     text-align: center;
   }
 
@@ -23,6 +23,10 @@
     font-size: 1.2rem;
     margin-top: 0;
     margin-bottom: 10px;
+
+    .difNm {
+      font-size: 0.8em;
+    }
   }
 
   .cardTypes {

@@ -41,7 +41,7 @@ const renderImg = ({ pokemon }: CardProps): React.ReactNode => {
 const renderDifferentName = ({ pokemon }: CardProps): React.ReactNode => {
   if (pokemon.difNm) {
     // 別名がある
-    return <span className='difNm'> {pokemon.difNm}</span>;
+    return <div className='difNm'> {pokemon.difNm}</div>;
   }
 };
 
@@ -50,11 +50,11 @@ const renderTypes = ({ pokemon }: CardProps): React.ReactNode => {
   if (pokemon.type) {
     // タイプ別に画像表示
     //  タイプの数に分mapでループ処理して返す（複合タイプ）
-    return pokemon.type.map((type: number) => {
+    return pokemon.type.map((type: number, index: number) => {
       // ポケモンのタイプ番号と一致するdataInfo.tsxのタイプオブジェクトを取得
       const pokemonType = types.find((dataType) => dataType.number === type);
       // タイプオブジェクトを組み込んでJSXを作成
-      return <img className='type' src={pokemonType?.imgURL} alt={pokemonType?.name} />;
+      return <img className='type' src={pokemonType?.imgURL} alt={pokemonType?.name} key={index} />;
     });
   }
 };
