@@ -15,28 +15,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(variables.$cardWidth + variables.$cardGap, 1fr));
   justify-items: center;
-  align-items: center;
+  align-items: self-start;
   gap: variables.$cardGap;
   margin: 2vw;
-}
-
-// ページ移動ボタン
-.btn {
-  padding: 30px 0;
-  @include mixins.itemCenter;
-
-  button {
-    margin: 10px 30px;
-    padding: 10px 30px;
-    background-color: floralwhite;
-    border: none;
-    border-radius: 3px;
-    box-shadow: 5px 5px 6px 0px rgba(96, 58, 136, 0.75);
-    cursor: pointer;
-    transition: all 0.15s;
-
-    &:hover {
-      transform: translateY(3px);
-    }
-  }
 }

@@ -1,0 +1,37 @@
+/* 全ページの基本設定 */
+@use 'sass:math';
+@use 'mixins'; // ミックスイン読み込み
+@use 'variables'; // 変数読み込み
+
+/* メインComponent用CSS */
+
+#paging {
+  padding: 30px 0;
+  justify-items: center;
+  align-items: center;
+
+  .pagination {
+    nav {
+      ul {
+        line-height: 40px;
+        justify-content: center;
+
+        button {
+          min-width: 22.5px;
+          background-color: darkgray;
+          color: #eee;
+          border: none;
+          border-radius: 3px;
+          box-shadow: 5px 5px 6px 0px rgba(96, 58, 136, 0.75);
+          cursor: pointer;
+          transition: all 0.15s;
+
+          &.Mui-selected {
+            color: #111;
+            background-color: floralwhite;
+          }
+        }
+      }
+    }
+  }
+}
