@@ -119,17 +119,17 @@ export const getPokedexNumber = (nums: PokemonSpeciesDetail['pokedex_numbers']):
  * オブジェクトから表示可能な画像を取得する関数
  * @param obj:PokemonDetail['sprites']
  * @returns string(URLの可変部分)
- * home > official-artwork > front_default > showdown の順に確認
+ * official-artwork > home > front_default > showdown の順に確認
  */
 export const getDisplayImg = (obj: PokemonDetail['sprites']): string | null => {
   // URL共通部分（切り出し部分）
   const commonURL: string = commonImgURL;
 
-  // 1. homeがあったらその時点で返す
-  if (obj.other.home.front_default !== null) return obj.other.home.front_default?.split(commonURL)[1];
-
-  // 2. official-artworkがあったらその時点で返す
+  // 1. official-artworkがあったらその時点で返す
   if (obj.other['official-artwork'].front_default !== null) return obj.other['official-artwork'].front_default.split(commonURL)[1];
+
+  // 2. homeがあったらその時点で返す
+  if (obj.other.home.front_default !== null) return obj.other.home.front_default?.split(commonURL)[1];
 
   // 3. 直下のデータがあったらその時点で返す
   if (obj.front_default !== null) return obj.front_default.split(commonURL)[1];
