@@ -5,6 +5,7 @@ import type { LsPokemon } from '../types/typesUtility';
 
 // 読み込むコンポーネント
 import Card from '../../components/Card';
+import MainModal from '../../components/MainModal';
 
 //
 /* 機能 */
@@ -12,7 +13,7 @@ import Card from '../../components/Card';
 
 // メインエリアの表示内容（カード）
 /*** @name loadProcess
- *   @function arrow, async/await
+ *   @function arrow
  *   @param allDisplayData:LsPokemon[] 表示対象の配列
  *   @param displayNum:number 表示件数
  *   @param pageNum:number ページ番号
@@ -31,4 +32,14 @@ export const mainContents = (allDisplayData: LsPokemon[], displayNum: number, pa
       <Card pokemon={pokemon} />
     </div>
   ));
+};
+
+// メインモーダルの表示内容
+/*** @name showDetail
+ *   @function arrow
+ *   @param
+ *   @return ReactNode
+ */
+export const showDetail = () => {
+  document.getElementById('mainModal').showModal();
 };
