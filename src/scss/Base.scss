@@ -16,6 +16,7 @@
   grid-template-columns: repeat(auto-fit, minmax(variables.$cardWidth + variables.$cardGap, 1fr));
   justify-items: center;
   align-items: self-start;
-  gap: variables.$cardGap;
+  row-gap: variables.$cardGap;
+  column-gap: math.div(variables.$cardGap, 2);
   margin: 2vw;
 }
