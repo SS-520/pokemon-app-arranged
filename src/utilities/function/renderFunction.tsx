@@ -1,11 +1,12 @@
 /* 描画関連の機能 */
+import { type RefObject } from 'react';
 
 // 読み込むファイル
 import type { LsPokemon } from '../types/typesUtility';
+import type { MainModalHandle } from '../types/typesUtility';
 
 // 読み込むコンポーネント
 import Card from '../../components/Card';
-import MainModal from '../../components/MainModal';
 
 //
 /* 機能 */
@@ -19,7 +20,7 @@ import MainModal from '../../components/MainModal';
  *   @param pageNum:number ページ番号
  *   @return ReactNode
  */
-export const mainContents = (allDisplayData: LsPokemon[], displayNum: number, pageNum: number): React.ReactNode => {
+export const mainContents = (allDisplayData: LsPokemon[], displayNum: number, pageNum: number, modalRef: RefObject<MainModalHandle | null>): React.ReactNode => {
   // 表示開始の配列index（配列は0から開始なので-1する）
   const startNum: number = displayNum * (pageNum - 1);
   // 表示終了のindex（配列は0から開始なので-1する）
@@ -28,18 +29,30 @@ export const mainContents = (allDisplayData: LsPokemon[], displayNum: number, pa
   // ページ移動の時は開始番号を変更
   const displayData = [...allDisplayData].slice(startNum, endNum);
   return displayData.map((pokemon: LsPokemon, index: number) => (
-    <div key={index}>
+    <div key={index} className='pokemonCard' onClick={() => showDetail(modalRef)}>
       <Card pokemon={pokemon} />
     </div>
   ));
 };
 
-// メインモーダルの表示内容
+// モーダルの表示
 /*** @name showDetail
  *   @function arrow
  *   @param
- *   @return ReactNode
+ *   @return void
  */
-export const showDetail = () => {
-  document.getElementById('mainModal').showModal();
+export const showDetail = (modalRef: RefObject<MainModalHandle | null>) => {
+  console.log({ modalRef });
+  modalRef.current?.showModal();
+};
+
+// ダイアログの外側がクリックされたかを判定して閉じる
+export const closeDetail = (event: React.MouseEvent<HTMLDialogElement>, dialogRef: RefObject<HTMLDialogElement | null>) => {
+  // クリック先がモーダル上なら何もしない
+  if (!dialogRef.current) return;
+
+  // ダイアログ背景をクリックしたら閉じる
+  if (event.target === dialogRef.current) {
+    dialogRef.current.close();
+  }
 };

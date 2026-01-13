@@ -42,3 +42,9 @@ export interface LsPokemon {
   img: string | null; // 表示用画像の可変部分URL
   difNm: string | null; // フォルムチェンジなど用
 }
+
+// モーダル開閉
+export interface MainModalHandle {
+  showModal: () => void;
+  closeModal: () => void;
+}
