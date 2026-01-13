@@ -2,12 +2,16 @@ import { useRef, useState } from 'react';
 import type { RefObject } from 'react';
 import { Pagination, Stack } from '@mui/material'; //ページング
 
-// 呼び出し関数
+// 呼び出し関数・型
 import type { LsPokemon } from '../utilities/types/typesUtility';
 import { mainContents } from '../utilities/function/renderFunction';
+import type { MainModalHandle } from '../utilities/types/typesUtility';
 
 // CSS呼び出し
 import {} from '../scss/Main.scss';
+
+// 呼び出しコンポーネント
+import MainModal from './MainModal';
 
 // props定義
 interface MainProps {
@@ -27,6 +31,9 @@ function Main({ allData, displayData }: MainProps) {
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(Math.ceil(allDisplayData.current / displayNum));
 
+  // モーダル開閉ハンドラ
+  const modalRef = useRef<MainModalHandle | null>(null);
+
   /**
    * ページ変更時のハンドラ
    * @param {React.ChangeEvent<unknown>} event
@@ -41,7 +48,7 @@ function Main({ allData, displayData }: MainProps) {
     setTotalPages(Math.ceil(displayData.current.length / displayNum));
 
     // ページ遷移に伴う表示内容変更
-    mainContents(displayData.current, displayNum, page);
+    mainContents(displayData.current, displayNum, page, modalRef);
     // 画面トップに戻す
     document.getElementById('root')?.scrollIntoView({
       behavior: 'instant',
@@ -53,7 +60,7 @@ function Main({ allData, displayData }: MainProps) {
   return (
     <>
       <div className='pokemonCardContainer' id='pokemonCardContainer'>
-        {mainContents(displayData.current, displayNum, page)}
+        {mainContents(displayData.current, displayNum, page, modalRef)}
       </div>
       <div className='btn' id='paging'>
         <Stack className='pagination'>
@@ -64,6 +71,7 @@ function Main({ allData, displayData }: MainProps) {
           <Pagination count={totalPages} page={page} onChange={handleChange} color='primary' size='medium' boundaryCount={1} siblingCount={1} showFirstButton showLastButton className='paginationNav' />
         </Stack>
       </div>
+      <MainModal ref={modalRef} />
     </>
   );
 }
