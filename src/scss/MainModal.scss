@@ -4,5 +4,21 @@
   margin: auto;
   width: 90vw;
   height: 85vh;
-  background-color: antiquewhite;
+  background-color: #fafafa;
+  border: 1px solid #faeafa;
+  border-radius: 5px;
+
+  // 内容エリア
+  .pokemonDetail {
+    padding: 5px;
+  }
+
+  .modalCloseButton {
+    // 閉じるボタン
+    padding: 10px;
+    border: 0;
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
 }

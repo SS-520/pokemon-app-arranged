@@ -34,6 +34,9 @@ function Main({ allData, displayData }: MainProps) {
   // モーダル開閉ハンドラ
   const modalRef = useRef<MainModalHandle | null>(null);
 
+  // モーダルに渡すポケモンの基本情報
+  const [selectPokemon, setSelectPokemon] = useState<LsPokemon | null>(null);
+
   /**
    * ページ変更時のハンドラ
    * @param {React.ChangeEvent<unknown>} event
@@ -48,7 +51,7 @@ function Main({ allData, displayData }: MainProps) {
     setTotalPages(Math.ceil(displayData.current.length / displayNum));
 
     // ページ遷移に伴う表示内容変更
-    mainContents(displayData.current, displayNum, page, modalRef);
+    mainContents(displayData.current, displayNum, page, modalRef, setSelectPokemon);
     // 画面トップに戻す
     document.getElementById('root')?.scrollIntoView({
       behavior: 'instant',
@@ -59,9 +62,9 @@ function Main({ allData, displayData }: MainProps) {
 
   return (
     <>
-      <div className='pokemonCardContainer' id='pokemonCardContainer'>
-        {mainContents(displayData.current, displayNum, page, modalRef)}
-      </div>
+      <main className='pokemonCardContainer' id='pokemonCardContainer'>
+        {mainContents(displayData.current, displayNum, page, modalRef, setSelectPokemon)}
+      </main>
       <div className='btn' id='paging'>
         <Stack className='pagination'>
           {/* count: 総ページ数
@@ -71,7 +74,7 @@ function Main({ allData, displayData }: MainProps) {
           <Pagination count={totalPages} page={page} onChange={handleChange} color='primary' size='medium' boundaryCount={1} siblingCount={1} showFirstButton showLastButton className='paginationNav' />
         </Stack>
       </div>
-      <MainModal ref={modalRef} />
+      {/* selectPokemonがnullかで処理分岐*/ selectPokemon ? <MainModal ref={modalRef} pokemon={selectPokemon} /> : <div>データ取得に失敗しました</div>}
     </>
   );
 }

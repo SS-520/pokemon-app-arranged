@@ -1,17 +1,23 @@
 import React, { useImperativeHandle, useRef } from 'react';
+import { VscChromeClose } from 'react-icons/vsc';
 
 // 呼び出し関数・型
-import type { MainModalHandle } from '../utilities/types/typesUtility';
+import type { LsPokemon, MainModalHandle } from '../utilities/types/typesUtility';
 import { closeDetail } from '../utilities/function/renderFunction';
 
 // スタイル読み込み
 import {} from '../scss/MainModal.scss';
 
 // propsの型設定
+interface MainModalProps {
+  ref: React.Ref<MainModalHandle>;
+  pokemon: LsPokemon;
+}
 
 // 親コンポーネントから子コンポーネントにrefを渡す：forwardRef使用
 // ⇒React19からはforwardRef非推奨（今回こっち）
-function MainModal({ ref }: { ref: React.Ref<MainModalHandle> }) {
+// pokemonデータがnullの時と両方の引数を定義
+function MainModal({ ref, pokemon }: MainModalProps) {
   console.log('MainModal');
   //
   // 開閉判定の変数設定
@@ -42,13 +48,16 @@ function MainModal({ ref }: { ref: React.Ref<MainModalHandle> }) {
       }}
       className='mainModal'
       id='mainModal'>
-      <p>ポケモンの詳細が出るよ</p>
       <button
+        className='modalCloseButton'
         onClick={() => {
           dialogRef.current?.close();
         }}>
-        閉じる
+        <VscChromeClose />
       </button>
+      <section className='pokemonDetail'>
+        <h4>{pokemon.name}</h4>
+      </section>
     </dialog>
   );
 }

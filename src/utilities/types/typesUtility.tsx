@@ -13,6 +13,7 @@ export type setBoolean = Dispatch<SetStateAction<boolean>>;
 export type setNumber = Dispatch<SetStateAction<number>>;
 
 export type setTypePokemonDetailData = Dispatch<SetStateAction<PokemonDetail[]>>;
+export type setSelectPokemon = Dispatch<SetStateAction<LsPokemon | null>>;
 
 export interface BallDetails {
   number: number;

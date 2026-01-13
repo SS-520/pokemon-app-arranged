@@ -3,7 +3,7 @@ import { type RefObject } from 'react';
 
 // 読み込むファイル
 import type { LsPokemon } from '../types/typesUtility';
-import type { MainModalHandle } from '../types/typesUtility';
+import type { setSelectPokemon, MainModalHandle } from '../types/typesUtility';
 
 // 読み込むコンポーネント
 import Card from '../../components/Card';
@@ -20,7 +20,7 @@ import Card from '../../components/Card';
  *   @param pageNum:number ページ番号
  *   @return ReactNode
  */
-export const mainContents = (allDisplayData: LsPokemon[], displayNum: number, pageNum: number, modalRef: RefObject<MainModalHandle | null>): React.ReactNode => {
+export const mainContents = (allDisplayData: LsPokemon[], displayNum: number, pageNum: number, modalRef: RefObject<MainModalHandle | null>, setSelectPokemon: setSelectPokemon): React.ReactNode => {
   // 表示開始の配列index（配列は0から開始なので-1する）
   const startNum: number = displayNum * (pageNum - 1);
   // 表示終了のindex（配列は0から開始なので-1する）
@@ -29,7 +29,7 @@ export const mainContents = (allDisplayData: LsPokemon[], displayNum: number, pa
   // ページ移動の時は開始番号を変更
   const displayData = [...allDisplayData].slice(startNum, endNum);
   return displayData.map((pokemon: LsPokemon, index: number) => (
-    <div key={index} className='pokemonCard' onClick={() => showDetail(modalRef)}>
+    <div key={index} className='pokemonCard' data-id={pokemon.id} onClick={() => showDetail(modalRef, pokemon, setSelectPokemon)}>
       <Card pokemon={pokemon} />
     </div>
   ));
@@ -41,8 +41,16 @@ export const mainContents = (allDisplayData: LsPokemon[], displayNum: number, pa
  *   @param
  *   @return void
  */
-export const showDetail = (modalRef: RefObject<MainModalHandle | null>) => {
-  console.log({ modalRef });
+export const showDetail = (modalRef: RefObject<MainModalHandle | null>, pokemon?: LsPokemon, setSelectPokemon?: setSelectPokemon) => {
+  console.log(pokemon);
+  if (pokemon && setSelectPokemon) {
+    // 渡されたポケモンの基礎情報を変数に格納
+    setSelectPokemon(pokemon);
+  }
+
+  console.log(pokemon);
+
+  // モーダルを開く
   modalRef.current?.showModal();
 };
 
@@ -51,8 +59,14 @@ export const closeDetail = (event: React.MouseEvent<HTMLDialogElement>, dialogRe
   // クリック先がモーダル上なら何もしない
   if (!dialogRef.current) return;
 
-  // ダイアログ背景をクリックしたら閉じる
-  if (event.target === dialogRef.current) {
+  // ダイアログ（コンテンツ部分）の矩形情報を取得
+  const rectModalArea = dialogRef.current.getBoundingClientRect();
+
+  // クリックされた座標が矩形の外側（背景部分）にあるか判定
+  const isInDialog = rectModalArea.top <= event.clientY && event.clientY <= rectModalArea.top + rectModalArea.height && rectModalArea.left <= event.clientX && event.clientX <= rectModalArea.left + rectModalArea.width;
+
+  // ダイアログの外側（背景部分）をクリックした場合のみ閉じる
+  if (!isInDialog) {
     dialogRef.current.close();
   }
 };
