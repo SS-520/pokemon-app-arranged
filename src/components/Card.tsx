@@ -66,7 +66,7 @@ const renderTypes = ({ pokemon }: CardProps): React.ReactNode => {
  */
 const Card = ({ pokemon }: CardProps): React.ReactNode => {
   return (
-    <div className='card' id={pokemon.id.toString()}>
+    <div className='card' data-id={pokemon.id.toString()}>
       <h3>No.{pokemon.pokedex}</h3>
       {renderImg({ pokemon })}
       <h4 className='cardName'>
