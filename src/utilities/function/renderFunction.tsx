@@ -42,14 +42,10 @@ export const mainContents = (allDisplayData: LsPokemon[], displayNum: number, pa
  *   @return void
  */
 export const showDetail = (modalRef: RefObject<MainModalHandle | null>, pokemon?: LsPokemon, setSelectPokemon?: setSelectPokemon) => {
-  console.log(pokemon);
   if (pokemon && setSelectPokemon) {
     // 渡されたポケモンの基礎情報を変数に格納
     setSelectPokemon(pokemon);
   }
-
-  console.log(pokemon);
-
   // モーダルを開く
   modalRef.current?.showModal();
 };
