@@ -183,7 +183,7 @@ const getNowPokemonData = async (pokedexNumArray: number[], refPokemonData: RefO
  *   @return Promise<ResultAsync<PokemonDetail[], FetchError>>
  *  ・詳細データの取得
  */
-async function getPokemonData<T>(runPokedexNumbers: number[], endPoint: string, signal: AbortSignal): Promise<ResultAsync<T[], FetchError>> {
+export async function getPokemonData<T>(runPokedexNumbers: number[], endPoint: string, signal: AbortSignal): Promise<ResultAsync<T[], FetchError>> {
   const pokemonDetailResults: Result<T[], FetchError> = await getPokemonDetail(runPokedexNumbers, endPoint, signal);
   // 一連のfetch中にエラー発生⇒先に戻す
   if (pokemonDetailResults.isErr()) {
@@ -252,6 +252,7 @@ const createBaseData = (pokemonDetails: PokemonDetail[], pokemonSpecies: Pokemon
     let setPokedex: LsPokemon['pokedex'] = null;
     let setSpecies: LsPokemon['sp'] = null;
     let setRegion: LsPokemon['region'] = null;
+    let setGeneration: LsPokemon['ge'] = null;
     let setIsGender: LsPokemon['isGen'] = null;
     let setEgg: LsPokemon['egg'] = null;
     let setImg: LsPokemon['img'] = null;
@@ -300,6 +301,9 @@ const createBaseData = (pokemonDetails: PokemonDetail[], pokemonSpecies: Pokemon
       // 登場する図鑑（全国図鑑を除く）
       setRegion = getPokedexNumber(numPokemonSpecies.pokedex_numbers);
 
+      // 初出世代
+      setGeneration = getEndID([numPokemonSpecies.generation]);
+
       // オスメス差分の有無取得
       setIsGender = Number(numPokemonSpecies.has_gender_differences);
 
@@ -317,6 +321,7 @@ const createBaseData = (pokemonDetails: PokemonDetail[], pokemonSpecies: Pokemon
       pokedex: setPokedex,
       sp: setSpecies,
       region: setRegion,
+      ge: setGeneration,
       isGen: setIsGender,
       egg: setEgg,
       img: setImg,

@@ -38,6 +38,7 @@ export interface LsPokemon {
   pokedex: PokedexNumber | null; // 全国図鑑番号
   sp: number | null; // Species番号
   region: number[] | null; // 登場図鑑
+  ge: number[] | null; // 初出世代
   isGen: number | null; // オスメス差分の有無(true:有)
   egg: number[] | null; // 卵グループ
   img: string | null; // 表示用画像の可変部分URL
