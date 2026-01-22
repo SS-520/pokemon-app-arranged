@@ -97,38 +97,134 @@ interface PokemonPastTypes {
   types: PokemonTypes[];
 }
 
-// 画像
-interface PokemonSprites {
+// 画像（正面）
+interface FrontImage {
   // shiny：色違い
   // ※雌雄同姿の場合、メス（female）はnull
   front_default: string | null;
   front_female: string | null;
   front_shiny: string | null;
   front_shiny_female: string | null;
+}
+
+// 画像（背景）
+interface BackImage {
+  // shiny：色違い
+  // ※雌雄同姿の場合、メス（female）はnull
   back_default: string | null;
   back_female: string | null;
   back_shiny: string | null;
   back_shiny_female: string | null;
+}
+
+// 画像
+interface PokemonSprites extends FrontImage, BackImage {
   other: {
-    home: {
-      front_default: string | null;
-      front_female: string | null;
-      front_shiny: string | null;
-      front_shiny_female: string | null;
-    };
+    home: FrontImage;
     'official-artwork': {
       front_default: string | null;
       front_shiny: string | null;
     };
-    showdown: {
-      front_default: string | null;
-      front_female: string | null;
-      front_shiny: string | null;
-      front_shiny_female: string | null;
-      back_default: string | null;
-      back_female: string | null;
-      back_shiny: string | null;
-      back_shiny_female: string | null;
+    showdown: FrontImage & BackImage;
+  };
+  versions: {
+    'generation-i': {
+      'red-blue': {
+        back_default: string | null;
+        back_gray: string | null;
+        back_transparent: string | null;
+        front_default: string | null;
+        front_gray: string | null;
+        front_transparent: string | null;
+      };
+      yellow: {
+        back_default: string | null;
+        back_gray: string | null;
+        back_transparent: string | null;
+        front_default: string | null;
+        front_gray: string | null;
+        front_transparent: string | null;
+      };
+    };
+    'generation-ii': {
+      crystal: {
+        back_default: string | null;
+        back_shiny: string | null;
+        back_shiny_transparent: string | null;
+        back_transparent: string | null;
+        front_default: string | null;
+        front_shiny: string | null;
+        front_shiny_transparent: string | null;
+        front_transparent: string | null;
+      };
+      gold: {
+        back_default: string | null;
+        back_shiny: string | null;
+        front_default: string | null;
+        front_shiny: string | null;
+        front_transparent: string | null;
+      };
+      silver: {
+        back_default: string | null;
+        back_shiny: string | null;
+        front_default: string | null;
+        front_shiny: string | null;
+        front_transparent: string | null;
+      };
+    };
+    'generation-iii': {
+      'ruby-sapphire': {
+        back_default: string | null;
+        back_shiny: string | null;
+        front_default: string | null;
+        front_shiny: string | null;
+      };
+      emerald: {
+        front_default: string | null;
+        front_shiny: string | null;
+      };
+      'firered-leafgreen': {
+        back_default: string | null;
+        back_shiny: string | null;
+        front_default: string | null;
+        front_shiny: string | null;
+      };
+    };
+    'generation-iv': {
+      'diamond-pearl': FrontImage & BackImage;
+      platinum: FrontImage & BackImage;
+      'heartgold-soulsilver': FrontImage & BackImage;
+    };
+    'generation-v': {
+      'black-white': FrontImage & BackImage;
+      animated: FrontImage & BackImage;
+    };
+    'generation-vi': {
+      'x-y': FrontImage;
+      'omegaruby-alphasapphire': FrontImage;
+    };
+    'generation-vii': {
+      'ultra-sun-ultra-moon': FrontImage;
+      icons: {
+        front_default: string | null;
+        front_female: string | null;
+      };
+    };
+    'generation-viii': {
+      'brilliant-diamond-shining-pearl': {
+        front_default: string | null;
+        front_female: string | null;
+      };
+      icons: {
+        front_default: string | null;
+        front_female: string | null;
+      };
+    };
+    'generation-ix': {
+      'scarlet-violet': {
+        front_default: string | string | null;
+        front_female: string | string | null;
+      };
     };
   };
 }
@@ -209,6 +305,106 @@ export interface PokemonSpeciesDetail {
   }[];
   // API内の検索形状区分
   shape: NameAndURL;
+  varieties: {
+    is_default: boolean;
+    pokemon: NameAndURL;
+  }[];
+}
+
+// 地方等々の基礎情報
+export interface OthersAll {
+  count: number;
+  results: NameAndURL[];
+}
+
+// 地方情報
+// https://pokeapi.co/api/v2/region/n/
+export interface RegionDetail {
+  id: number; // 管理番号
+  locations: NameAndURL[]; // 各マップ名
+  main_generation: NameAndURL;
+  name: string;
+  names: {
+    language: NameAndURL;
+    name: string;
+  }[];
+  pokedex: NameAndURL[]; // 登場する図鑑
+  version_groups: NameAndURL[]; // 登場するバージョングループ
+}
+
+// 図鑑情報
+// https://pokeapi.co/api/v2/pokedex/n/
+export interface PokedexDetail {
+  id: number;
+  is_main_series: boolean;
+  name: string;
+  names: {
+    language: NameAndURL;
+    name: string;
+  }[];
+  region: NameAndURL; // 該当地方
+  version_groups: NameAndURL[]; // 登場するバージョングループ
+}
+
+// バージョン情報
+// https://pokeapi.co/api/v2/version/n/
+export interface VersionDetail {
+  id: number;
+  name: string;
+  names: {
+    language: NameAndURL;
+    name: string;
+  }[];
+  version_groups: NameAndURL; // 登場するバージョングループ
+}
+
+// バージョングループ情報
+// https://pokeapi.co/api/v2/version-group/n/
+export interface VersionGroupDetail {
+  id: number;
+  generation: NameAndURL;
+  name: string;
+  order: number;
+  pokedexes: NameAndURL[]; // 登場図鑑
+  region: NameAndURL[]; // 登場図鑑
+  versions: NameAndURL[]; // 該当するバージョン群
+}
+
+// フォーム情報
+// https://pokeapi.co/api/v2/pokemon-form/n/
+export interface FormsDetail {
+  id: number;
+  form_name: string;
+  form_names: {
+    language: NameAndURL;
+    name: string;
+  }[];
+  names: {
+    language: NameAndURL;
+    name: string;
+  }[];
+  version_group: NameAndURL;
+  form_order: number;
+  is_default: boolean;
+  is_battle_only: boolean;
+  is_mega: boolean;
+  sprites: PokemonSprites; // ポケモンの画像
+}
+
+// 特性情報（fetch）
+// https://pokeapi.co/api/v2/ability/n/
+export interface AbilityDetail {
+  id: number;
+  name: string;
+  names: {
+    name: string;
+    language: NameAndURL;
+  }[];
+  flavor_text_entries: {
+    flavor_text: string;
+    language: NameAndURL;
+    version_group: NameAndURL;
+  }[];
 }
 
 /*
