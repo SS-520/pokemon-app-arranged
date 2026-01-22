@@ -92,8 +92,11 @@ export function getEndID<T extends { url: string }>(results: T[]): number[] {
   // ※results内のデータが多く100毎の複数チャンクに分割されているが、スルーして通常の配列処理でOK
   const endIDs: number[] = results.map((eachResult) => {
     // 「/」でURLを分割する
-    const parts: string[] = eachResult.url.split('/');
+    if (!eachResult) return 0; // nullなら抜ける;
+
     // 図鑑番号＝最後１つ前の配列を取得＋数値に明示変換して返す
+    const parts: string[] = eachResult.url.split('/');
+
     return Number(parts[parts.length - 2]);
   });
 

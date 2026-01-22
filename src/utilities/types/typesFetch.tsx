@@ -328,7 +328,7 @@ export interface RegionDetail {
     language: NameAndURL;
     name: string;
   }[];
-  pokedex: NameAndURL[]; // 登場する図鑑
+  pokedexes: NameAndURL[]; // 登場する図鑑
   version_groups: NameAndURL[]; // 登場するバージョングループ
 }
 
