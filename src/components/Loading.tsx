@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import '../scss/Loading.scss';
-import type { BallDetails } from '../utilities/typesUtility';
+import type { BallDetails } from '../utilities/types/typesUtility';
 import { balls } from '../utilities/dataInfo';
 
 // ランダムでボールのを選んでアイコンを表示
