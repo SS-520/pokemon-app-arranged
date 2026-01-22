@@ -4,6 +4,7 @@ import React from 'react';
 import type { LsPokemon } from '../utilities/types/typesUtility';
 import { commonImgURL, types } from '../utilities/dataInfo';
 import '../scss/Card.scss';
+import noImage from '../img/noImage.png';
 
 // propsの定義
 interface CardProps {
@@ -26,14 +27,10 @@ const renderImg = ({ pokemon }: CardProps): React.ReactNode => {
     // 画像URL：有
     // 名前：有
     return <img className='cardImg' src={commonImgURL + pokemon.img} alt={pokemon.name} />;
-  } else if (pokemon.name) {
-    // 画像URL：null
-    // 名前：有
-    return <p>{pokemon.name}</p>;
   } else {
     // 画像URL：null
     // 名前：null
-    return <p>No Image</p>;
+    return <img className='cardImg' src={noImage} alt='画像無し' />;
   }
 };
 
@@ -41,7 +38,10 @@ const renderImg = ({ pokemon }: CardProps): React.ReactNode => {
 const renderDifferentName = ({ pokemon }: CardProps): React.ReactNode => {
   if (pokemon.difNm) {
     // 別名がある
-    return <div className='difNm'> {pokemon.difNm}</div>;
+    return <div className='difNm'>{pokemon.difNm}</div>;
+  } else {
+    // 別名がない（高さ統一のため全角スペース挿入）
+    return <div className='difNm'>　</div>;
   }
 };
 
