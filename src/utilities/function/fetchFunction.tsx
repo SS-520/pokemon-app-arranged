@@ -1,5 +1,5 @@
 import { Result, ResultAsync, err, ok } from 'neverthrow'; // neverthrowライブラリを読み込み
-import type { FetchError } from '../typesFetch';
+import type { FetchError } from '../types/typesFetch';
 
 //
 //// fetch処理の共通部品

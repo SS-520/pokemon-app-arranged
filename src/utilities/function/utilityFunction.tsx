@@ -1,9 +1,15 @@
 /**
  * 各種パーツとして使用する関数を記述するファイル
  */
-import type { NameAndURL, PokemonSpeciesDetail, PokemonDetail } from '../types/typesFetch';
+import type { RefObject } from 'react';
+import { ok, type Result } from 'neverthrow';
+
 import { commonImgURL } from '../dataInfo';
+
+import type { NameAndURL, PokemonSpeciesDetail, PokemonDetail, FetchError, AbilityDetail } from '../types/typesFetch';
 import type { LsPokemon } from '../types/typesUtility';
+
+import { parseJsonBody } from './fetchFunction';
 
 /**
  * ローカル/セッションストレージが使用可能か確認する関数
@@ -37,6 +43,41 @@ export function storageAvailable(type: string): boolean {
       storage.length !== 0
     );
   }
+}
+
+//
+//
+// ローカルストレージからデータを取得する
+/*** @name getLsData
+ *   @function
+ *   @param refData:RefObject<T[]> LSから取得したデータの保管先
+ *   @param lsName:string 取得するLSのkey名
+ *   @return void
+ */
+export function getLsData<T>(refData: RefObject<T[]>, lsName: string): void {
+  // ローカルストレージの既存データを取得
+  const currentLsData = localStorage.getItem(lsName);
+
+  // 既存データがあればJSON変換
+  // 無い：「成功」の空配列（ok<LsPokemon[], FetchError>([])）を返す
+  const pokemonDataResult: Result<T[], FetchError> = currentLsData ? parseJsonBody<T[]>(currentLsData, `localStorage:${lsName}`) : ok<T[], FetchError>([]);
+
+  pokemonDataResult.match(
+    (pokemonData: T[]) => {
+      console.log('Jsonパース成功');
+
+      // 取得・JSON変換結果をアプリ内で使用データに格納
+      refData.current = pokemonData;
+    },
+    (resultError: FetchError) => {
+      console.log(`Jsonパースに失敗しました。詳細は以下の通りです。
+      \n通信先：${resultError.context?.url},
+      \nエラータイプ：${resultError.type},
+      \n通信ステータス：${resultError.status},
+      \nメッセージ：${resultError.message},
+      \nエラーボディ：${resultError.context?.responseSnippet}`);
+    },
+  );
 }
 
 // ポケモンAPIのURLから末尾のID番号を取り出す
@@ -74,12 +115,72 @@ export function getJaData<T extends { language: NameAndURL }>(apiArray: T[]): T[
   if (jaData) return [jaData]; // 配列形式に変換して返す
 
   // jaが無かったらja-Hrktに一致するものを返す（次善）
-  const jaHrktData = apiArray.find((item) => item.language.name === 'ja');
+  const jaHrktData = apiArray.find((item) => item.language.name === 'ja-Hrkt');
   // jaが存在した時点で返す
   if (jaHrktData) return [jaHrktData]; // 配列形式に変換して返す
 
   // どちらも該当しない→空配列を返す
   return [];
+}
+
+/**
+ * 配列の中から日本語のデータを全て取得する関数
+ * @param apiArray:T[] APIから返された、flavor_text_entriesの配列
+ * @returns T[]:T型配列（null=[]で処理)
+ * ・フレーバーテキスト取得がメイン
+ * AbilityDetail['flavor_text_entries'][number]⇒配列型AbilityDetail['flavor_text_entries']の配列を解除（要素だけ抜き出し）
+ */
+
+// abilityかspeciesのフレーバーテキストを使うのでユニオン型にまとめておく
+// 配列型[number]⇒「その配列の中にある数値インデックスのデータ（＝要素）」
+type Flavor = AbilityDetail['flavor_text_entries'][number] | PokemonSpeciesDetail['flavor_text_entries'][number];
+// 関数
+export function getAllJaData(apiArray: Flavor[]): { flavor_text: string; id: number[] }[] {
+  // 言語がjaに一致するものを返す
+  const jaData: Flavor[] = apiArray.filter((item: Flavor) => item.language.name === 'ja').filter((foundData): foundData is Flavor => foundData !== undefined);
+
+  // 累積データ＝配列を受け取る
+  const entriesResult: { flavor_text: string; id: number[] }[] = jaData.reduce(
+    (accumulator: { flavor_text: string; id: number[] }[], currentData: Flavor) => {
+      const fText = currentData.flavor_text; // フレーバーテキストを格納
+
+      // 引数の型でurlを含むオブジェクト名が分岐
+      // ⇒取得元切り替え処理
+      const currentProperty: NameAndURL = 'version_group' in currentData ? currentData.version_group : currentData.version;
+      // version_groupがプロパティにある？ 有：変数にversion_groupを入れる 無：変数にversionを入れる
+
+      // version_group / versionのURLから末尾の値を抽出
+      const versionId: number = getEndID([currentProperty])[0];
+
+      // 本格的にグルーピング
+      // 累積データ:accumulatorに既に一致するフレーバーテキストは登録されている？
+      const existData = accumulator.find((data) => data.flavor_text === fText);
+
+      // フレーバーテキストがある
+      if (existData) {
+        // この周におけるversionIdがaccumulatorに未登録
+        // （数値なので完全一致で判定）
+        if (!existData.id.includes(versionId)) {
+          // オブジェクトにversionIdを追加
+          existData.id.push(versionId);
+        }
+      } else {
+        // テキストがない⇒累積データに新規オブジェクトとして追加
+        accumulator.push({
+          flavor_text: fText,
+          id: [versionId],
+        });
+      }
+
+      // 累積データaccumulatorに、今回のaccumulatorをreturnして詰める
+      return accumulator;
+    },
+    [] as { flavor_text: string; id: number[] }[],
+    // []: 累積変数accumulatorの初期値;
+    // as 型[] ⇒ この型の配列が変えるよの宣言
+  );
+
+  return entriesResult;
 }
 
 /**
@@ -93,7 +194,7 @@ export function getNationalData(apiArray: PokemonSpeciesDetail['pokedex_numbers'
   // jaが存在した時点で返す
   if (national) return [national]; // 配列形式に変換して返す
 
-  // どちらも該当しない→空配列を返す
+  // 該当なし→空配列を返す
   return [];
 }
 
@@ -126,18 +227,66 @@ export const getDisplayImg = (obj: PokemonDetail['sprites']): string | null => {
   const commonURL: string = commonImgURL;
 
   // 1. official-artworkがあったらその時点で返す
-  if (obj.other['official-artwork'].front_default !== null) return obj.other['official-artwork'].front_default.split(commonURL)[1];
+  if (obj.other && obj.other['official-artwork'].front_default !== null) return obj.other['official-artwork'].front_default.split(commonURL)[1];
 
   // 2. homeがあったらその時点で返す
-  if (obj.other.home.front_default !== null) return obj.other.home.front_default?.split(commonURL)[1];
+  if (obj.other && obj.other.home.front_default !== null) return obj.other.home.front_default?.split(commonURL)[1];
 
   // 3. 直下のデータがあったらその時点で返す
   if (obj.front_default !== null) return obj.front_default.split(commonURL)[1];
 
   // 4. gifのデータがあったら返す（最終手段）
-  if (obj.other.showdown.front_default !== null) return obj.other.showdown.front_default.split(commonURL)[1];
+  if (obj.other && obj.other.showdown.front_default !== null) return obj.other.showdown.front_default.split(commonURL)[1];
+
+  // これでもないなら再帰的に掘り出す
+  const firstImage: string | null = getFirstValidImage(obj.versions);
 
   // 本当に何もないときはnullで返す
+  return firstImage ? firstImage.split(commonURL)[1] : null;
+};
+
+/**
+ * オブジェクトを再帰的に探索し、最初に見つかった null でない文字列を返す
+ * @param data:any  探索対象のオブジェクトや値 ※再帰的に見るので複雑化⇒大枠はanyで対応
+ * @returns :{string | null} 見つかった文字列、または全て null の場合は null
+ * ※再帰処理は関数宣言時のreturn型を要明示
+ */
+const getFirstValidImage = (data: unknown): string | null => {
+  // 1. 文字列を見つけた場合（nullやundefinedでない）
+  if (typeof data === 'string' && data.length > 0) {
+    return data;
+  }
+
+  // 2. null または オブジェクト/配列以外は無視
+  if (data === null || typeof data !== 'object') {
+    return null;
+  }
+
+  // 3. 配列またはオブジェクトとして処理
+  // data を Record<string, unknown> として扱うことで、どんなキーでもアクセス可能にする
+  const obj = data as Record<string, unknown>;
+  const keys: string[] = Object.keys(data);
+
+  // frontデータ優先
+  keys.sort((a, b) => {
+    // frontを含むオブジェクトを取得
+    const aHasFront = a.toLowerCase().includes('front');
+    const bHasFront = b.toLowerCase().includes('front');
+
+    // 比較・ソート
+    if (aHasFront && !bHasFront) return -1;
+    if (!aHasFront && bHasFront) return 1;
+    return 0;
+  });
+
+  // 列挙可能なすべてのプロパティをループ
+  for (const key of keys) {
+    // 再帰的に中身をチェック
+    const result = getFirstValidImage(obj[key]);
+    if (result) return result;
+  }
+
+  // 何も見つからなければ null
   return null;
 };
 
@@ -196,6 +345,7 @@ export const createNullSpecies = (id: number): PokemonSpeciesDetail => ({
     name: '',
     url: '',
   },
+  varieties: [],
 });
 
 /**
@@ -211,14 +361,10 @@ export const mergeAndUniqueById = (currentArray: LsPokemon[], addArray: LsPokemo
   // ⇒元のcurrentLsDataJSON配列を破壊せず、新しい配列としてupdateDataが作成される
   const mergeData: LsPokemon[] = [...currentArray, ...addArray];
 
-  // スプレッド構文で配列を複製＋id順に並べ直す
-  // idの中身a,bを比較して、小さい方を前に配列の前方要素に移していく
-  const sortData: LsPokemon[] = [...mergeData].sort((a, b) => a.id - b.id);
-
   // idが重複している要素があったら削除
   // ⇒まだ見たことがないIDならMapに記録する
   const uniqueData: LsPokemon[] = Array.from(
-    sortData
+    mergeData
       .reduce((map, pokemonData) => {
         // map=処理の集積
         // pokemonData=各要素
@@ -232,6 +378,33 @@ export const mergeAndUniqueById = (currentArray: LsPokemon[], addArray: LsPokemo
       // id:number, pokemonData:LsPokemonの明示
       .values(), // reduce().valueの形式
   );
+  // スプレッド構文で配列を複製＋id順に並べ直す
+  // 0. showOder値を比較
+  // 1. sp値を比較
+  // 2. id値を比較
+  // オブジェクトa,bを比較して、小さい方を前に配列の前方要素に移していく
+  const sortData: LsPokemon[] = [...uniqueData].sort((a, b) => {
+    // 第0キー
+    if (a.showOder !== b.showOder) {
+      return a.showOder - b.showOder;
+    }
 
-  return uniqueData;
+    // 第１キー
+    if (a.sp !== null && b.sp != null && a.sp !== b.sp) {
+      return a.sp - b.sp;
+    }
+    // 第２キー（第１キーの結果に拠らず実行）
+    return a.id - b.id;
+  });
+
+  return sortData;
+};
+
+/**
+ * 2. すべてが英字で構成されているか（空白なし）
+ * @param str 判定対象の文字列
+ * 対象：半角小文字大文字_-
+ */
+export const isOnlyAlphabet = (str: string): boolean => {
+  return /^[a-zA-Z_-]+$/.test(str);
 };

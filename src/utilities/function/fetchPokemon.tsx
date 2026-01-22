@@ -1,11 +1,37 @@
 /* パーツとして使用する関数を記述 */
-import { errAsync, ok, ResultAsync } from 'neverthrow'; // neverthrowライブラリを読み込み
-import type { FetchError, PokemonListResponse } from '../types/typesFetch'; // ユーザー定義型を読み込む（type{型}）
+import { errAsync, ok, Result, ResultAsync } from 'neverthrow'; // neverthrowライブラリを読み込み
+import type { FetchError } from '../types/typesFetch'; // ユーザー定義型を読み込む（type{型}）
 import { fetchToResultAsync, checkResponseAndParseJson } from './fetchFunction';
 
 //
 // 処理記載開始
 //
+
+//
+//
+// fetchで更新があるか確認
+/*** @name loadProcess
+ *   @function arrow, async/await
+ *   @param initialURL:string(ポケモンAPI)
+ *   @param signal:AbortSignal fetch操作を止めるシグナル
+ *   @return Promise<number>
+ *
+ */
+export async function fetchInitialData<T>(initialURL: string, signal: AbortSignal): Promise<ResultAsync<T, FetchError>> {
+  // ポケモンAPIからカウントを取得
+  const nowApiResult: Result<T, FetchError> = await getNowAPI<T>(initialURL, signal);
+
+  // 一連のfetch中にエラー発生⇒先に戻す
+  if (nowApiResult.isErr()) {
+    const fetchError: FetchError = nowApiResult.error;
+    console.error(`[データ取得失敗] エラータイプ: ${fetchError.type}`, fetchError);
+
+    return nowApiResult; // Errが返る
+  }
+
+  // 正常終了時⇒呼び出し元の処理を進める
+  return ok(nowApiResult.value);
+}
 
 // APIの更新があるか確認
 /*** @name getNowAPI
@@ -17,7 +43,7 @@ import { fetchToResultAsync, checkResponseAndParseJson } from './fetchFunction';
  *  neverthrow構文使用
  *  内部関数のエラーの結果は、すべてFetchErrorに格納されて排出される
  */
-export const getNowAPI = (initialURL: string, signal: AbortSignal): ResultAsync<PokemonListResponse, FetchError> => {
+export function getNowAPI<T>(initialURL: string, signal: AbortSignal): ResultAsync<T, FetchError> {
   return (
     // fetchを含む処理：fetchToResultAsync使用
     fetchToResultAsync(initialURL, signal)
@@ -31,10 +57,10 @@ export const getNowAPI = (initialURL: string, signal: AbortSignal): ResultAsync<
         //
         // ResultAsyncの「箱」とPromiseの「約束」が返ってくる
         // ⇒一旦変数resultCheckで受け取る
-        return checkResponseAndParseJson<PokemonListResponse>(resFetch, initialURL); // ResultAsyncの「箱」が返ってくる
+        return checkResponseAndParseJson<T>(resFetch, initialURL); // ResultAsyncの「箱」が返ってくる
       })
   );
-};
+}
 
 /*** @name getPokemonDetail
  *   @function
