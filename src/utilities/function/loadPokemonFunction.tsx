@@ -289,7 +289,7 @@ const createBaseData = (pokemonDetails: PokemonDetail[], pokemonSpecies: Pokemon
       }
       // 特殊ピカチュウは表示順を99にする
       if (getEndID([numPokemonDetail.species])[0] === 25 && !numPokemonDetail.is_default) {
-        setShowOder = 99;
+        setShowOder = 100;
       }
     }
 
