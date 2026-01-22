@@ -1,9 +1,10 @@
-import React, { useImperativeHandle, useRef } from 'react';
+import React, { useEffect, useImperativeHandle, useRef } from 'react';
 import { VscChromeClose } from 'react-icons/vsc';
 
 // 呼び出し関数・型
 import type { LsPokemon, MainModalHandle } from '../utilities/types/typesUtility';
 import { closeDetail } from '../utilities/function/renderFunction';
+import { fetchDetails } from '../utilities/function/mainModalFunction';
 
 // スタイル読み込み
 import {} from '../scss/MainModal.scss';
@@ -18,7 +19,6 @@ interface MainModalProps {
 // ⇒React19からはforwardRef非推奨（今回こっち）
 // pokemonデータがnullの時と両方の引数を定義
 function MainModal({ ref, pokemon }: MainModalProps) {
-  console.log('MainModal');
   //
   // 開閉判定の変数設定
   // HTMLDialogElement : <dialog> 要素を操作するメソッド
@@ -39,6 +39,15 @@ function MainModal({ ref, pokemon }: MainModalProps) {
     }),
     [],
   );
+
+  // 時間のかかるAPI通信処理をuseEffect内で実行
+  useEffect(() => {
+    const controller = new AbortController();
+
+    // 非同期通信コーナー
+    // ToDo 結果を受け取るかuseRefの値に詰め直す
+    fetchDetails(pokemon, controller.signal);
+  }, [pokemon]);
 
   return (
     <dialog
