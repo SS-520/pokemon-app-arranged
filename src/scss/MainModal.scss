@@ -11,6 +11,7 @@
   // 内容エリア
   .pokemonDetail {
     padding: 5px;
+    width: 100%;
   }
 
   .modalCloseButton {
@@ -20,5 +21,93 @@
     position: absolute;
     top: 0;
     right: 0;
+  }
+}
+
+.modalContents {
+  width: 100%;
+
+  .mainIntroduction {
+    .appearanceRegions {
+      font-size: 0.75em;
+      .regionName {
+        margin: 1px 2px;
+        padding: 2px 5px;
+        border: 1px solid;
+        border-radius: 5px;
+        background-color: #dcdcdc;
+        color: #fff;
+        &.yes {
+          background-color: #ee827c;
+        }
+      }
+    }
+    .appearanceVersions {
+      font-size: 0.75em;
+      .generations {
+        margin: 10px;
+
+        .version {
+          margin: 1px 2px;
+          padding: 2px 5px;
+          border: 1px solid;
+          border-radius: 5px;
+          background-color: #dcdcdc;
+          color: #fff;
+          &.appearance {
+            background-color: #16160e;
+          }
+        }
+      }
+    }
+    .special span {
+      margin: 1px 2px;
+      padding: 2px 5px;
+      border: 1px solid;
+      border-radius: 5px;
+      background-color: #dcdcdc;
+
+      color: #fff;
+      font-size: 0.75em;
+      &.yes {
+        background-color: #ee827c;
+      }
+    }
+    .genderRates > span {
+      margin: 1px 2px;
+      padding: 2px 5px;
+    }
+    .size span {
+      margin: 1px 2px;
+      padding: 2px 5px;
+    }
+    .eggGroup .eggName {
+      margin: 1px 2px;
+      padding: 2px 5px;
+      border: 1px solid;
+      border-radius: 5px;
+      background-color: #dcdcdc;
+
+      color: #fff;
+      font-size: 0.75em;
+      &.yes {
+        background-color: #16160e;
+      }
+    }
+  }
+  .imgDiff {
+    margin: 10px;
+    & > div {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      figure {
+        border: 0.1px solid #faeafa;
+        width: 100%;
+        figcaption {
+          margin: 10px auto -50px;
+          font-weight: bold;
+        }
+      }
+    }
   }
 }
