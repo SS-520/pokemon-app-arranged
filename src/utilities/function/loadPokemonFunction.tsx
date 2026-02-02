@@ -32,9 +32,9 @@ import { parseJsonBody, alertError } from './fetchFunction';
   2-3. 取得したデータを画面に表示
 
   3-1. 更新がある
-  3-2. 最初の50件のデータを取得
+  3-2. 最初の20件のデータを取得
   3-3. 表示用データを画面に表示
-  3-4. バックグラウンドで残りのデータを50件ずつ取得・格納
+  3-4. バックグラウンドで残りのデータを取得・格納
 */
 export const loadPokemonProcess = async (initialURL: string, refPokemonData: RefObject<LsPokemon[]>, setIsLoading: setBoolean, isBgLoading: RefObject<boolean>, signal: AbortSignal) => {
   // 一度に取得するAPIの数
@@ -139,14 +139,8 @@ const getNowPokemonData = async (pokedexNumArray: number[], refPokemonData: RefO
     },
   );
 
-  // ToDO formsがあったら形態情報（idと名前）取得
-  // pokemonDetails.value.map((detail) => {
-  //   if (!detail.is_default) return getEndID(detail.forms);
-  // });
-  // 1個だけなら名前を取ってくる
-  // 2個以上ならモーダル時に処理する（アンノーン・ビビヨン・）
   //
-  // 取得した結果から種類（species）番号を取得
+  // 取得した結果から形態（form）番号を取得
   const tmpFormNum: number[] = pokemonDetails.value.map((detail) => {
     return getEndID(detail.forms)[0];
     // getEndIDの戻り値は配列
@@ -214,6 +208,7 @@ export async function getPokemonData<T>(runPokedexNumbers: number[], endPoint: s
  *   @function arrow
  *   @param pokemonDetails[]:PokemonDetail[](基本データの配列)
  *   @param pokemonSpecies[]:PokemonSpeciesDetail[](固有データの配列)
+ *   @param pokemonForm[]:FormsDetail[](固有データの配列)
  *   @param runNumbers[]:number[](対象の管理番号配列)
  *   @return Promise<ResultAsync<PokemonDetail[], FetchError>>
  *  ・id:number(管理番号)
@@ -257,7 +252,7 @@ const createBaseData = (pokemonDetails: PokemonDetail[], pokemonSpecies: Pokemon
     let setPokedex: LsPokemon['pokedex'] = 0 as PokedexNumber;
     let setSpecies: LsPokemon['sp'] = 0;
     let setRegion: LsPokemon['region'] = [0];
-    let setGeneration: LsPokemon['ge'] = [0];
+    let setGeneration: LsPokemon['ge'] = 0;
     let setIsGender: LsPokemon['isGen'] = 0;
     let setEgg: LsPokemon['egg'] = [0];
     let setImg: LsPokemon['img'] = null;
@@ -287,8 +282,16 @@ const createBaseData = (pokemonDetails: PokemonDetail[], pokemonSpecies: Pokemon
         setShowOder = 99;
         setDifNm = 'ぬし（アローラ）';
       }
-      // 特殊ピカチュウは表示順を99にする
+      // 特殊ピカチュウは表示順を100にする
       if (getEndID([numPokemonDetail.species])[0] === 25 && !numPokemonDetail.is_default) {
+        setShowOder = 100;
+      }
+      // サトシゲッコウガも100！
+      if (numPokemonDetail.id === 10117) {
+        setShowOder = 100;
+      }
+      // ピカブイイーブイも100！
+      if (numPokemonDetail.id === 10159) {
         setShowOder = 100;
       }
     }
@@ -316,9 +319,6 @@ const createBaseData = (pokemonDetails: PokemonDetail[], pokemonSpecies: Pokemon
       // 登場する図鑑（全国図鑑を除く）
       setRegion = getPokedexNumber(numPokemonSpecies.pokedex_numbers);
 
-      // 初出世代
-      setGeneration = getEndID([numPokemonSpecies.generation]);
-
       // オスメス差分の有無取得
       setIsGender = Number(numPokemonSpecies.has_gender_differences);
 
@@ -327,8 +327,10 @@ const createBaseData = (pokemonDetails: PokemonDetail[], pokemonSpecies: Pokemon
     }
 
     // FormsDetailの情報を詰める用に加工
-    // todo 特殊個体の処理考える
     if (numPokemonForm) {
+      // 初出バージョングループ
+      setGeneration = getEndID([numPokemonForm.version_group])[0];
+
       // この時点で画像が空なら取得を試す
       setImg = setImg === null ? getDisplayImg(numPokemonForm.sprites) : setImg;
 
