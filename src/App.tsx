@@ -5,7 +5,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { AbilityData, LsPokemon, PokedexData } from './utilities/types/typesUtility';
 import { loadPokemonProcess } from './utilities/function/loadPokemonFunction';
 import { loadOtherInfoProcess } from './utilities/function/loadInfoFunction';
-import { LoadingStateContext } from './utilities/function/ContextDefine'; //context本体をインポート
 
 import './scss/App.scss'; // viteがコンパイル時にcssに自動で処理するので、importはscssでOK
 
@@ -70,13 +69,17 @@ function App() {
   }, []);
 
   // 表示カードを作成
-
-  // 変数loadingの状態で画面の表示を変更⇒短いのでifを使用せず３項演算子で済ませる
-  // 条件文 ? trueの処理 : falseの処理
+  console.log({ abilityData });
   return (
     <>
       <NavigationBar />
-      <div className='App'>{isLoading ? <Loading /> : <Main allData={pokemonAllData} displayData={pokemonDisplayData} />}</div>
+      <div className='App'>
+        {
+          // 変数loadingの状態で画面の表示を変更⇒短いのでifを使用せず３項演算子で済ませる
+          // 条件文 ? trueの処理 : falseの処理
+          isLoading ? <Loading /> : <Main allData={pokemonAllData} displayData={pokemonDisplayData} pokedexData={pokedexData} abilityData={abilityData} setIsLoading={setIsLoading} />
+        }
+      </div>
     </>
   );
 }
