@@ -27,6 +27,11 @@ export interface TypeDetails {
   imgURL: string;
 }
 
+export interface EggDetails {
+  number: number;
+  name: string;
+}
+
 // 全国図鑑番号を厳密に定義
 export type PokedexNumber = number & { readonly __brand: 'PokedexNumber' };
 
@@ -38,7 +43,7 @@ export interface LsPokemon {
   pokedex: PokedexNumber; // 全国図鑑番号
   sp: number; // Species番号
   region: number[]; // 登場図鑑
-  ge: number[]; // 初出世代
+  ge: number; // 初出世代
   isGen: number; // オスメス差分の有無(true:有)
   egg: number[]; // 卵グループ
   img: string | null; // 表示用画像の可変部分URL
@@ -70,4 +75,103 @@ export interface AbilityData {
     flavor_text: string;
     version_group: number[];
   }[];
+}
+
+// オスメス色違いの画像型
+export interface ImageObj {
+  defaultImg: string;
+  femaleImg: string | null;
+  shinyImg: string;
+  shinyFemaleImg: string | null;
+}
+// 出現バージョン・ソフトの型
+export interface PokedexObj {
+  regionNames: string[];
+  versionNames: {
+    id: number;
+    name: string;
+    generation: number;
+  }[];
+}
+// 特性情報の型
+export interface AbilityObj {
+  id: number;
+  is_hidden: boolean;
+  name: string;
+  text: {
+    text: string;
+    version: {
+      id: number;
+      name: string;
+      generation: number;
+    }[];
+  }[];
+}
+
+//フレーバーテキストの型
+export interface FlavorObj {
+  text: string;
+  version: {
+    id: number;
+    name: string;
+    generation: number;
+  }[];
+}
+
+// フレーバーテキストの処理で使用
+export interface FlavorInfo {
+  flavor_text: string;
+  version_group: number[];
+}
+
+// Speciesに含まれる別形態
+export interface DiffFormsSpecies {
+  id: number;
+  formName: string;
+  img: string;
+}
+
+// formsに含まれる別形態
+export interface DiffForms {
+  order: number;
+  formName: string;
+  img: string;
+}
+
+export interface DiffFormsObj {
+  variationResults: DiffFormsSpecies[];
+  formsResults: DiffForms[];
+  isDefault: boolean;
+}
+
+// 進化系統の情報（加工工程）
+export interface EvoProcess {
+  species: {
+    name: string;
+    url: string;
+  };
+  is_baby: boolean;
+  level: number;
+}
+
+// 進化系統の情報（出力結果）
+export interface EvoObj {
+  id: number; // 管理id
+  is_main: boolean; // メイン？
+  evoForm: string; // 進化状態
+  level: number; // 進化階層
+  is_baby: boolean; // べビポケ？
+  eggItem: string;
+  name: string;
+  img: string;
+}
+
+// モーダルレンダリングに使う情報
+export interface RenderObj {
+  imgObj: ImageObj;
+  pokedexObj: PokedexObj;
+  abilityObj: AbilityObj[];
+  flavorObj: FlavorObj[];
+  variationFormObj: DiffFormsObj;
+  evoObj: EvoObj[];
 }
