@@ -453,13 +453,9 @@ const normalizeAbility = (getData: AbilityDetail[], abilityData: RefObject<Abili
 
     // 型を一致させるためにもう一度map処理（共通関数はそのまま）
     const textObj = tmpTextObj.map((obj) => {
-      // フレーバーテキストの開業を削除
-      // eslint-disable-next-line no-irregular-whitespace
-      const replaceText = obj.flavor_text.replace(/[\n　]/g, '');
-
       //オブジェクトの要素名を再定義
       return {
-        flavor_text: replaceText,
+        flavor_text: obj.flavor_text,
         version_group: obj.id,
       };
     });
