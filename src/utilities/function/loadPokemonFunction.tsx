@@ -57,13 +57,13 @@ export const loadPokemonProcess = async (initialURL: string, refPokemonData: Ref
 
   // バックグラウンド処理に移行するかのフラグ
   let isContinue = true;
-  const currentLsCount = Number(localStorage.getItem('pokeRegNum'));
+  const currentLsCount = Number(localStorage.getItem('pokeRegCount'));
 
   console.log('LS: ' + storageAvailable('localStorage'));
-  console.log(localStorage.getItem('pokeRegNum'));
+  console.log(localStorage.getItem('pokeRegCount'));
   console.log(currentLsCount === nowFetchResult.value.count);
 
-  if (storageAvailable('localStorage') && localStorage.getItem('pokeRegNum') && currentLsCount === nowFetchResult.value.count) {
+  if (storageAvailable('localStorage') && localStorage.getItem('pokeRegCount') && currentLsCount === nowFetchResult.value.count) {
     // ・ローカルストレージが使える
     // ・ローカルストレージに既存データがある
     // ・ローカルストレージのデータ数とAPIのデータ数が同じ
@@ -253,7 +253,7 @@ const createBaseData = (pokemonDetails: PokemonDetail[], pokemonSpecies: Pokemon
     let setSpecies: LsPokemon['sp'] = 0;
     let setRegion: LsPokemon['region'] = [0];
     let setGeneration: LsPokemon['ge'] = 0;
-    let setIsGender: LsPokemon['isGen'] = 0;
+    let setIsGender: LsPokemon['isGen'] = Number(false);
     let setEgg: LsPokemon['egg'] = [0];
     let setImg: LsPokemon['img'] = null;
     let setDifNm: LsPokemon['difNm'] = null;
@@ -272,6 +272,11 @@ const createBaseData = (pokemonDetails: PokemonDetail[], pokemonSpecies: Pokemon
 
       // 表示用画像を取得
       setImg = getDisplayImg(numPokemonDetail.sprites);
+
+      // オスメス差分の有無取得
+      if (!numPokemonDetail.sprites.front_shiny) {
+        setIsGender = Number(true);
+      }
 
       // フォルムチェンジなど、特殊姿の場合
       if (!numPokemonDetail.is_default) {
@@ -318,9 +323,6 @@ const createBaseData = (pokemonDetails: PokemonDetail[], pokemonSpecies: Pokemon
 
       // 登場する図鑑（全国図鑑を除く）
       setRegion = getPokedexNumber(numPokemonSpecies.pokedex_numbers);
-
-      // オスメス差分の有無取得
-      setIsGender = Number(numPokemonSpecies.has_gender_differences);
 
       // 卵グループ取得
       setEgg = getEndID(numPokemonSpecies.egg_groups);
@@ -466,7 +468,7 @@ const updateLsData = (regLsData: LsPokemon[], refPokemonData: RefObject<LsPokemo
       localStorage.setItem('pokemonData', setPokemonDataJson);
 
       // 今回のポケモンデータ数を文字列に変換してローカルストレージに格納
-      localStorage.setItem('pokeRegNum', mergeAndSortJson.length.toString());
+      localStorage.setItem('pokeRegCount', mergeAndSortJson.length.toString());
     },
     (resultError: FetchError) => {
       // localStorage.removeItem('pokemonData');
