@@ -265,6 +265,8 @@ export interface PokemonSpeciesDetail {
   color: NameAndURL;
   // 卵グループ
   egg_groups: NameAndURL[];
+  // 進化
+  evolution_chain: { url: string };
   // 図鑑解説文
   flavor_text_entries: {
     flavor_text: string;
@@ -278,7 +280,7 @@ export interface PokemonSpeciesDetail {
   genera: {
     genus: string;
     language: NameAndURL;
-  };
+  }[];
   // 初登場世代
   generation: NameAndURL;
   // 成長速度
@@ -406,6 +408,37 @@ export interface AbilityDetail {
     version_group: NameAndURL;
   }[];
 }
+
+// 進化情報（fetch）
+// https://pokeapi.co/api/v2/evolution-chain/n/
+export interface EvoChainDetail {
+  id: number; // evolution-chainの管理番号
+  baby_trigger_item: NameAndURL | null; // 卵に必要なアイテム
+  chain: EvoChain;
+}
+
+// 進化詳細
+interface EvoChain {
+  evolves_to: EvoChain[]; // 進化先情報
+  is_baby: boolean;
+  species: NameAndURL;
+}
+
+// アイテム情報取得
+// null可にしたいのでinterfaceではなくtype使用
+export type ItemDetail = {
+  id: number;
+  name: string;
+  names: {
+    language: NameAndURL;
+    name: string;
+  }[];
+  flavor_text_entries: {
+    language: NameAndURL;
+    text: string;
+    version_group: NameAndURL;
+  }[];
+} | null;
 
 /*
  * Fetch処理で使用する型
