@@ -4,9 +4,9 @@ import React from 'react';
 import { type RefObject } from 'react';
 import { commonImgURL, eggs, types } from '../dataInfo';
 import type { AbilityObj, DiffForms, DiffFormsObj, DiffFormsSpecies, EggDetails, EvoObj, FlavorObj, ImageObj, LsPokemon, PokedexData, PokedexObj, RenderObj, TypeDetails } from '../types/typesUtility';
-import noImage from '../../img/noImage.png';
 import { getJaData } from './utilityFunction';
 import type { PokemonDetail, PokemonSpeciesDetail } from '../types/typesFetch';
+import noImage from '../../img/noImage.png';
 
 // アイコン
 import { BsStars } from 'react-icons/bs';
@@ -37,6 +37,7 @@ export const renderMainModal = (pokemon: LsPokemon, mergeResult: RenderObj, allD
 
   // 種族（○○ポケモン）
   const pokemonGenus: PokemonSpeciesDetail['genera'][number] = getJaData<PokemonSpeciesDetail['genera'][number]>(pokemonSpecies.genera)[0];
+  console.log({ pokemonGenus });
 
   // メインの画像
   const mainImage: string = pokemon.img ? commonImgURL + pokemon.img : noImage;
@@ -66,13 +67,13 @@ export const renderMainModal = (pokemon: LsPokemon, mergeResult: RenderObj, allD
 
   // べビ・幻・伝説判定
   const isBaby = (): React.ReactNode => {
-    return <span className={`baby ${pokemonSpecies.is_baby ? 'yes' : ''}`}>ベイビィ</span>;
+    return <span className={`baby ${pokemonSpecies.is_baby ? 'show' : ''}`}>ベイビィ</span>;
   };
   const isLegend = (): React.ReactNode => {
-    return <span className={`baby ${pokemonSpecies.is_legendary ? 'yes' : ''}`}>伝説</span>;
+    return <span className={`baby ${pokemonSpecies.is_legendary ? 'show' : ''}`}>伝説</span>;
   };
   const isMythic = (): React.ReactNode => {
-    return <span className={`baby ${pokemonSpecies.is_mythical ? 'yes' : ''}`}>幻</span>;
+    return <span className={`baby ${pokemonSpecies.is_mythical ? 'show' : ''}`}>幻</span>;
   };
 
   // サイズ
@@ -110,7 +111,7 @@ export const renderMainModal = (pokemon: LsPokemon, mergeResult: RenderObj, allD
   };
 
   // オスメス色違いの画像
-  const shoeImg = setImgs(image, pokemon.name);
+  const showImg = setImgs(image, pokemon.name);
 
   // 特性
   const showAbility: React.ReactNode = setAbility(ability);
@@ -122,9 +123,9 @@ export const renderMainModal = (pokemon: LsPokemon, mergeResult: RenderObj, allD
   const showEvoChain: React.ReactNode = setEvoChain(evolution);
   //  注釈
   const evoAnnotation = (): React.ReactNode => {
-    // メイン形態じゃない場合進化注釈
-    if (!variation.isDefault) {
-      return <p>※通常フォームにおける進化の流れを表示しています</p>;
+    // 進化有＋メイン形態じゃない場合進化注釈
+    if (!variation.isDefault && evolution.length > 1) {
+      return <p>※進化の流れは通常フォームにおけるものです</p>;
     } else {
       return <></>;
     }
@@ -133,10 +134,16 @@ export const renderMainModal = (pokemon: LsPokemon, mergeResult: RenderObj, allD
   // 別形態
   const showVariation: React.ReactNode = setVariation(variation);
 
+  // 描写内容（戻り値）
   return (
     <article className='modalContents'>
+      <header className='header'>
+        <div className='nationalPokedex'>全国図鑑 No.{pokemon.id}</div>
+        <h4 className='pokemonName'>{pokemon.name}</h4>
+        <span className='diffName'>{pokemon.difNm}</span>
+      </header>
       <div className='mainIntroduction'>
-        <p className='genus'>{pokemonGenus.genus}</p>
+        <p className='genus'>{pokemonGenus ? pokemonGenus.genus : ''}</p>
         <img src={mainImage} alt={`${mainImageAltComment}の画像`} className='modalMainImage' />
         <div className='pokemonTypes'>{typeImage()}</div>
         <div className='appearanceRegions'>生息地方：{showRegions}</div>
@@ -150,7 +157,7 @@ export const renderMainModal = (pokemon: LsPokemon, mergeResult: RenderObj, allD
         <div className='size'>{pokemonSize()}</div>
         <div className='eggGroup'>{showEggs}</div>
       </div>
-      <div className='imgDiff'>{shoeImg}</div>
+      <div className='imgDiff'>{showImg}</div>
       <div className='ability'>{showAbility}</div>
       <div className='flavorText'>{showFlavorText}</div>
       <div className='evolution'>
@@ -241,7 +248,7 @@ const getAppRegion = (pokedex: PokedexObj, pokedexData: PokedexData[]) => {
   return uniqueRegions.map((region, index) => {
     const isRegion: boolean = pokedex.regionNames.includes(region.name);
     return (
-      <span className={`regionName ${isRegion ? 'yes' : ''}`} key={index}>
+      <span className={`regionName ${isRegion ? 'show' : ''}`} key={index}>
         {region.name}
       </span>
     );
@@ -301,7 +308,7 @@ const setEggGroupList = (pokemon: LsPokemon): React.ReactNode => {
   return eggGroup.map((egg) => {
     const isEgg: boolean = pokemon.egg.includes(egg.number);
     return (
-      <span key={egg.number} className={`eggName ${isEgg ? 'yes' : ''}`}>
+      <span key={egg.number} className={`eggName ${isEgg ? 'show' : ''}`}>
         {egg.name}
       </span>
     );
@@ -349,7 +356,7 @@ const setImgs = (images: ImageObj, name: LsPokemon['name']) => {
         </div>
       </>
     );
-  } else {
+  } else if (images.defaultImg !== '') {
     return (
       <>
         <div className='commonImg'>
@@ -370,11 +377,32 @@ const setImgs = (images: ImageObj, name: LsPokemon['name']) => {
         </div>
       </>
     );
+  } else {
+    // 画像がない場合
+    <>
+      <div className='commonImg'>
+        <figure className='detail male'>
+          <figcaption>
+            <IoMdMale />
+            <IoMdFemale />
+          </figcaption>
+          <img src={noImage} alt={`未登録の${name}の画像`} />
+        </figure>
+        <figure className='shiny male'>
+          <figcaption>
+            <BsStars /> <IoMdMale />
+            <IoMdFemale />
+          </figcaption>
+          <img src={noImage} alt={`未登録の${name}の色違い画像`} />
+        </figure>
+      </div>
+    </>;
   }
 };
 
 // 特性表示
 const setAbility = (abilities: AbilityObj[]): React.ReactNode => {
+  // 途中で解説文かあるかで処理分岐
   return abilities.map((ability, index) => {
     return (
       <React.Fragment key={index}>
@@ -382,22 +410,26 @@ const setAbility = (abilities: AbilityObj[]): React.ReactNode => {
           {ability.name}
           {ability.is_hidden ? '（夢）' : ''}
         </div>
-        {ability.text.map((txt, txtIndex) => {
-          return (
-            <React.Fragment key={txtIndex}>
-              <div className='abilityText'>{txt.text}</div>
-              <div className='abilityVersionArea'>
-                {txt.version.map((ver, verIndex) => {
-                  return (
-                    <span className='abilityTextVersion' key={verIndex}>
-                      {ver.name}
-                    </span>
-                  );
-                })}
-              </div>
-            </React.Fragment>
-          );
-        })}
+        {ability.text.length > 0 ? (
+          ability.text.map((txt, txtIndex) => {
+            return (
+              <React.Fragment key={txtIndex}>
+                <div className='abilityText'>{txt.text ? txt.text : 'データ未登録'}</div>
+                <div className='abilityVersionArea'>
+                  {txt.version.map((ver, verIndex) => {
+                    return (
+                      <span className='abilityTextVersion' key={verIndex}>
+                        {ver.name}
+                      </span>
+                    );
+                  })}
+                </div>
+              </React.Fragment>
+            );
+          })
+        ) : (
+          <div className='abilityText'>特性説明文：未登録</div>
+        )}
       </React.Fragment>
     );
   });
@@ -405,61 +437,75 @@ const setAbility = (abilities: AbilityObj[]): React.ReactNode => {
 
 // 解説テキスト表示
 const setFlavorText = (flavorTextes: FlavorObj[]) => {
-  return (
-    <React.Fragment>
-      {flavorTextes.map((text, index) => {
-        return (
-          <React.Fragment key={index}>
-            <div className='flavorTextArea'>
-              <div className='flavorText'>{text.text}</div>
-              <div>
-                {text.version.map((ver, verIndex) => (
-                  <span className='flavorTextVersion' key={verIndex}>
-                    {ver.name}
-                  </span>
-                ))}
+  if (flavorTextes.length > 0) {
+    return (
+      <React.Fragment>
+        {flavorTextes.map((text, index) => {
+          return (
+            <React.Fragment key={index}>
+              <div className='flavorTextArea'>
+                <div className='flavorText'>{text.text ? text.text : 'データ未登録'}</div>
+                <div>
+                  {text.version.map((ver, verIndex) => (
+                    <span className='flavorTextVersion' key={verIndex}>
+                      {ver.name}
+                    </span>
+                  ))}
+                </div>
               </div>
-            </div>
-          </React.Fragment>
-        );
-      })}
-    </React.Fragment>
-  );
+            </React.Fragment>
+          );
+        })}
+      </React.Fragment>
+    );
+  } else {
+    return (
+      <div className='flavorTextArea'>
+        <div className='flavorText'>図鑑説明文：未登録</div>
+      </div>
+    );
+  }
 };
 
 // 進化系統
 const setEvoChain = (evolutions: EvoObj[]) => {
-  return (
-    <>
-      {evolutions.map((evo, index) => {
-        // 前周との進化段階比較
-        const preLevel = index > 0 ? evolutions[index - 1] : null;
-        // 接続記号を設定
-        let connector = null;
-        if (preLevel) {
-          // levelが前周と異なる場合は「⇒」、同じ場合は「or」
-          connector =
-            preLevel.level !== evo.level ? (
-              <span className='connecter'>
-                <PiArrowFatLinesRight />
-              </span>
-            ) : (
-              <span className='orMark'>or</span>
-            );
-        }
-        return (
-          <React.Fragment key={index}>
-            {connector}
-            <figure className='evoPokemon'>
-              <figcaption className='evoForm'>{evo.evoForm}</figcaption>
-              <img src={commonImgURL + evo.img} />
-              <figcaption className='name'>{evo.name}</figcaption>
-            </figure>
-          </React.Fragment>
-        );
-      })}
-    </>
-  );
+  if (evolutions.length > 1) {
+    // 進化有
+    return (
+      <>
+        {evolutions.map((evo, index) => {
+          // 前周との進化段階比較
+          const preLevel = index > 0 ? evolutions[index - 1] : null;
+          // 接続記号を設定
+          let connector = null;
+          if (preLevel) {
+            // levelが前周と異なる場合は「⇒」、同じ場合は「or」
+            connector =
+              preLevel.level !== evo.level ? (
+                <span className='connecter'>
+                  <PiArrowFatLinesRight />
+                </span>
+              ) : (
+                <span className='orMark'>or</span>
+              );
+          }
+          return (
+            <React.Fragment key={index}>
+              {connector}
+              <figure className='evoPokemon'>
+                <figcaption className='evoForm'>{evo.evoForm}</figcaption>
+                <img className='evoImg' src={commonImgURL + evo.img} alt={`${evo.name}の画像`} />
+                <figcaption className='name'>{evo.name}</figcaption>
+              </figure>
+            </React.Fragment>
+          );
+        })}
+      </>
+    );
+  } else {
+    // 進化無：evolutions.length=1⇒本人だけ
+    return <React.Fragment>進化無し</React.Fragment>;
+  }
 };
 
 // 別形態
@@ -475,13 +521,13 @@ const setVariation = (variation: { variationResults: DiffFormsSpecies[]; formsRe
         {variations.map((variation, varIndex) => (
           <figure className='form' data-id={variation.id} key={varIndex}>
             <figcaption className='formName'>{variation.formName}</figcaption>
-            <img src={commonImgURL + variation.img} className='formImg' />
+            <img src={commonImgURL + variation.img} className='formImg' alt={`${variation.formName}の画像`} />
           </figure>
         ))}
         {forms.map((form, formIndex) => (
           <figure className='form' data-id={form.order} key={formIndex}>
             <figcaption className='formName'>{form.formName}</figcaption>
-            <img src={commonImgURL + form.img} className='formImg' />
+            <img src={commonImgURL + form.img} className='formImg' alt={`${form.formName}の画像`} />
           </figure>
         ))}
       </>
@@ -492,7 +538,7 @@ const setVariation = (variation: { variationResults: DiffFormsSpecies[]; formsRe
         {variations.map((variation, varIndex) => (
           <figure className='form' data-id={variation.id} key={varIndex}>
             <figcaption className='formName'>{variation.formName}</figcaption>
-            <img src={commonImgURL + variation.img} className='formImg' />
+            <img src={variation.img !== '' ? commonImgURL + variation.img : noImage} className='formImg' />
           </figure>
         ))}
       </>
@@ -503,7 +549,7 @@ const setVariation = (variation: { variationResults: DiffFormsSpecies[]; formsRe
         {forms.map((form, formIndex) => (
           <figure className='form' data-id={form.order} key={formIndex}>
             <figcaption className='formName'>{form.formName}</figcaption>
-            <img src={commonImgURL + form.img} className='formImg' />
+            <img src={form.img !== '' ? commonImgURL + form.img : noImage} className='formImg' />
           </figure>
         ))}
       </>
