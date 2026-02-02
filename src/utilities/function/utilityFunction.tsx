@@ -123,6 +123,11 @@ export function getJaData<T extends { language: NameAndURL }>(apiArray: T[]): T[
   // jaが存在した時点で返す
   if (jaHrktData) return [jaHrktData]; // 配列形式に変換して返す
 
+  // jaが無かったらja-hrktに一致するものを返す（次善）
+  const jahrktData = apiArray.find((item) => item.language.name === 'ja-hrkt');
+  // jaが存在した時点で返す
+  if (jahrktData) return [jahrktData]; // 配列形式に変換して返す
+
   // どちらも該当しない→空配列を返す
   return [];
 }
