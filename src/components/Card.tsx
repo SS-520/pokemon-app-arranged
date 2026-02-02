@@ -41,6 +41,7 @@ const renderDifferentName = ({ pokemon }: CardProps): React.ReactNode => {
     return <div className='difNm'>{pokemon.difNm}</div>;
   } else {
     // 別名がない（高さ統一のため全角スペース挿入）
+    // eslint-disable-next-line no-irregular-whitespace
     return <div className='difNm'>　</div>;
   }
 };
