@@ -10,6 +10,7 @@ import { fetchDetails, mergePokemonDetails } from '../utilities/function/mainMod
 import {} from '../scss/MainModal.scss';
 import type { EvoChainDetail, FormsDetail, ItemDetail, PokemonDetail, PokemonSpeciesDetail } from '../utilities/types/typesFetch';
 import { renderMainModal } from '../utilities/function/renderMainModal';
+import Loading from './Loading';
 
 // propsの型設定
 interface MainModalProps {
@@ -111,10 +112,7 @@ function MainModal({ ref, pokemon, pokedexData, abilityData, allData }: MainModa
         }}>
         <VscChromeClose />
       </button>
-      <section className='pokemonDetail'>
-        <h4 className='pokemonName'>{pokemon.name}</h4>
-        {modalContent ? modalContent : <div className='loadingPlaceholder'>データを読み込み中...</div>}
-      </section>
+      <section className='pokemonDetail'>{modalContent ? modalContent : <Loading />}</section>
     </dialog>
   );
 }
