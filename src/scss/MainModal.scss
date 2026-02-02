@@ -1,5 +1,9 @@
 /* メインモーダルComponent用CSS */
 
+// 設定ファイル読み込み
+@use 'mixins'; // ミックスイン読み込み
+
+// スタイル記述
 .mainModal {
   margin: auto;
   width: 90vw;
@@ -29,48 +33,29 @@
 
   .mainIntroduction {
     .appearanceRegions {
-      font-size: 0.75em;
       .regionName {
-        margin: 1px 2px;
-        padding: 2px 5px;
-        border: 1px solid;
-        border-radius: 5px;
-        background-color: #dcdcdc;
-        color: #fff;
-        &.yes {
-          background-color: #ee827c;
+        @include mixins.displayTile;
+        &.show {
+          background-color: #c53d43;
         }
       }
     }
     .appearanceVersions {
-      font-size: 0.75em;
       .generations {
         margin: 10px;
 
         .version {
-          margin: 1px 2px;
-          padding: 2px 5px;
-          border: 1px solid;
-          border-radius: 5px;
-          background-color: #dcdcdc;
-          color: #fff;
+          @include mixins.displayTile;
           &.appearance {
-            background-color: #16160e;
+            background-color: #1e50a2;
           }
         }
       }
     }
     .special span {
-      margin: 1px 2px;
-      padding: 2px 5px;
-      border: 1px solid;
-      border-radius: 5px;
-      background-color: #dcdcdc;
-
-      color: #fff;
-      font-size: 0.75em;
-      &.yes {
-        background-color: #ee827c;
+      @include mixins.displayTile;
+      &.show {
+        background-color: #007b43;
       }
     }
     .genderRates > span {
@@ -82,16 +67,9 @@
       padding: 2px 5px;
     }
     .eggGroup .eggName {
-      margin: 1px 2px;
-      padding: 2px 5px;
-      border: 1px solid;
-      border-radius: 5px;
-      background-color: #dcdcdc;
-
-      color: #fff;
-      font-size: 0.75em;
-      &.yes {
-        background-color: #16160e;
+      @include mixins.displayTile;
+      &.show {
+        background-color: #e6b422;
       }
     }
   }
