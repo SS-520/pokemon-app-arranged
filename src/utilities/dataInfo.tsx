@@ -1,7 +1,7 @@
 // 各種アイテムデータまとめ
 // 頻繁に変わるものじゃないのでAPIの情報を事前にまとめておく
 
-import type { TypeDetails, BallDetails } from './types/typesUtility';
+import type { TypeDetails, BallDetails, EggDetails } from './types/typesUtility';
 
 // 画像URLの共通部分
 export const commonImgURL: string = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/`;
@@ -235,4 +235,23 @@ export const types: TypeDetails[] = [
     name: `フェアリー`,
     imgURL: `${commonTypeImgURL}18.png`,
   },
+];
+
+// 卵グループ
+export const eggs: EggDetails[] = [
+  { number: 1, name: 'かいじゅう' },
+  { number: 10, name: 'こうぶつ' },
+  { number: 7, name: 'しょくぶつ' },
+  { number: 2, name: 'すいちゅう１' },
+  { number: 12, name: 'すいちゅう２' },
+  { number: 9, name: 'すいちゅう３' },
+  { number: 14, name: 'ドラゴン' },
+  { number: 4, name: 'ひこう' },
+  { number: 8, name: 'ひとがた' },
+  { number: 11, name: 'ふていけい' },
+  { number: 3, name: 'むし' },
+  { number: 6, name: 'ようせい' },
+  { number: 5, name: 'りくじょう' },
+  { number: 13, name: 'メタモン' },
+  { number: 15, name: 'みはっけん' },
 ];
