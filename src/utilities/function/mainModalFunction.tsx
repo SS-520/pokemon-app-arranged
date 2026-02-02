@@ -496,7 +496,7 @@ const setForm = (pokemon: LsPokemon, variation: PokemonSpeciesDetail['varieties'
       } = getJaData(form.form_names)[0];
 
       // 画像
-      const imgUrl = form.sprites.front_default ? form.sprites.front_default.split(commonImgURL)[0] : '';
+      const imgUrl = form.sprites.front_default ? form.sprites.front_default.split(commonImgURL)[1] : '';
       // 戻り値
       return {
         order: form.form_order,
