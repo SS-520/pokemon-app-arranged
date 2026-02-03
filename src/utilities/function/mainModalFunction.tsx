@@ -646,3 +646,56 @@ function getEvoSpecies(evoData: EvoChainDetail['chain'], depts: number, result: 
   }
   return result;
 }
+
+// モーダル背景のスクロールをロックするカスタムフック
+/*** @name fetchDetails
+ *   @function
+ *   @param isLocked:boolean 表示対象基礎データ
+ *   @return void
+ */
+export function useScrollLock(isLocked: boolean, scrollPosRef: RefObject<number>): void {
+  useLayoutEffect(() => {
+    if (typeof document === 'undefined') return;
+    const { body, documentElement } = document;
+
+    if (isLocked) {
+      // 1. スタイル適用前に現在の位置を確定
+      const scrollY = window.pageYOffset || documentElement.scrollTop;
+      (scrollPosRef as React.RefObject<number>).current = scrollY;
+
+      const scrollBarWidth = window.innerWidth - documentElement.clientWidth;
+
+      // 2. bodyを固定
+      body.style.top = `-${scrollY}px`;
+      body.style.position = 'fixed';
+      body.style.left = '0';
+      body.style.width = '100%';
+      body.style.paddingRight = `${scrollBarWidth}px`;
+      body.style.overflowY = 'hidden';
+    } else {
+      // 3. 解除
+      const scrollY = scrollPosRef.current;
+
+      body.style.position = '';
+      body.style.top = '';
+      body.style.left = '';
+      body.style.width = '';
+      body.style.paddingRight = '';
+      body.style.overflowY = '';
+
+      // 4. 保存していた位置へ復元
+      if (scrollY !== undefined && scrollY > 0) {
+        window.scrollTo(0, scrollY);
+      }
+    }
+
+    return () => {
+      body.style.position = '';
+      body.style.top = '';
+      body.style.left = '';
+      body.style.width = '';
+      body.style.paddingRight = '';
+      body.style.overflowY = '';
+    };
+  }, [isLocked]);
+}
