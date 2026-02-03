@@ -77,7 +77,7 @@ function App() {
         {
           // 変数loadingの状態で画面の表示を変更⇒短いのでifを使用せず３項演算子で済ませる
           // 条件文 ? trueの処理 : falseの処理
-          isLoading ? <Loading /> : <Main allData={pokemonAllData} displayData={pokemonDisplayData} pokedexData={pokedexData} abilityData={abilityData} setIsLoading={setIsLoading} />
+          isLoading ? <Loading /> : <Main allData={pokemonAllData} displayData={pokemonDisplayData} pokedexData={pokedexData} abilityData={abilityData} />
         }
       </div>
     </>
