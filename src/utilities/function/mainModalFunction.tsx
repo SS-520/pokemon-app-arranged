@@ -7,6 +7,7 @@ import { getPokemonData } from './loadPokemonFunction';
 import { alertError } from './fetchFunction';
 import { getAllJaData, getEndID, getJaData, getVersions } from './utilityFunction';
 import { commonImgURL } from '../dataInfo';
+import { useEffect, useLayoutEffect, type RefObject } from 'react';
 
 // APIで表示対象のポケモン情報取得
 /*** @name fetchDetails
@@ -497,10 +498,17 @@ const setForm = (pokemon: LsPokemon, variation: PokemonSpeciesDetail['varieties'
 
       // 画像
       const imgUrl = form.sprites.front_default ? form.sprites.front_default.split(commonImgURL)[1] : '';
+
+      // デフォルト名（英名）
+      let formDefaultName: string = form.form_name;
+      if (pokemon.id === 869) {
+        // マホミル：英名のform_nameは'-sweetを取る'
+        formDefaultName = formDefaultName.replace('-sweet', '');
+      }
       // 戻り値
       return {
         order: form.form_order,
-        formName: formName ? formName.name : '',
+        formName: formName ? formName.name : formDefaultName,
         img: imgUrl,
       };
     });
