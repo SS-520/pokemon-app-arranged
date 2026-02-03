@@ -19,14 +19,13 @@ import { PiArrowFatLinesRight } from 'react-icons/pi';
  *   @function arrow
  *   @param pokemon:LsPokemon 対象基礎情報
  *   @param mergeResult :RenderObj API取得情報加工データ
- *   @param allData :LsPokemon[] ポケモン基礎データ全般
  *   @param pokedexData :PokedexData[] 図鑑・バージョン情報全般
  *   @param pokemonDetail :PokemonDetail 図鑑・バージョン情報全般
  *   @param pokemonSpecies :PokemonSpeciesDetail 図鑑・バージョン情報全般
  *   @return ReactNode
 
  */
-export const renderMainModal = (pokemon: LsPokemon, mergeResult: RenderObj, allData: LsPokemon[], pokedexData: RefObject<PokedexData[]>, pokemonDetail: PokemonDetail, pokemonSpecies: PokemonSpeciesDetail): React.ReactNode => {
+export const renderMainModal = (pokemon: LsPokemon, mergeResult: RenderObj, pokedexData: RefObject<PokedexData[]>, pokemonDetail: PokemonDetail, pokemonSpecies: PokemonSpeciesDetail): React.ReactNode => {
   // 引数を整理
   const image: ImageObj = mergeResult.imgObj;
   const pokedex: PokedexObj = mergeResult.pokedexObj;
@@ -67,13 +66,13 @@ export const renderMainModal = (pokemon: LsPokemon, mergeResult: RenderObj, allD
 
   // べビ・幻・伝説判定
   const isBaby = (): React.ReactNode => {
-    return <span className={`baby ${pokemonSpecies.is_baby ? 'show' : ''}`}>ベイビィ</span>;
+    return <span className={`baby tiles ${pokemonSpecies.is_baby ? 'show' : ''}`}>ベイビィ</span>;
   };
   const isLegend = (): React.ReactNode => {
-    return <span className={`baby ${pokemonSpecies.is_legendary ? 'show' : ''}`}>伝説</span>;
+    return <span className={`legend tiles ${pokemonSpecies.is_legendary ? 'show' : ''}`}>伝説</span>;
   };
   const isMythic = (): React.ReactNode => {
-    return <span className={`baby ${pokemonSpecies.is_mythical ? 'show' : ''}`}>幻</span>;
+    return <span className={`mythic tiles ${pokemonSpecies.is_mythical ? 'show' : ''}`}>幻</span>;
   };
 
   // サイズ
@@ -248,7 +247,7 @@ const getAppRegion = (pokedex: PokedexObj, pokedexData: PokedexData[]) => {
   return uniqueRegions.map((region, index) => {
     const isRegion: boolean = pokedex.regionNames.includes(region.name);
     return (
-      <span className={`regionName ${isRegion ? 'show' : ''}`} key={index}>
+      <span className={`regionName tiles ${isRegion ? 'show' : ''}`} key={index}>
         {region.name}
       </span>
     );
@@ -290,7 +289,7 @@ const showVersionList = (versions: PokedexData['vGroup'][number]['version'], pok
             // 登場バージョンに該当する？
             const isAppearing = pokeApp.includes(version.id);
             return (
-              <span key={version.id} data-version={version.id} className={`version ${isAppearing ? 'appearance' : 'notAppearance'}`}>
+              <span key={version.id} data-version={version.id} className={`version tiles ${isAppearing ? 'show' : ''}`}>
                 {version.name}
               </span>
             );
@@ -308,7 +307,7 @@ const setEggGroupList = (pokemon: LsPokemon): React.ReactNode => {
   return eggGroup.map((egg) => {
     const isEgg: boolean = pokemon.egg.includes(egg.number);
     return (
-      <span key={egg.number} className={`eggName ${isEgg ? 'show' : ''}`}>
+      <span key={egg.number} className={`eggName tiles ${isEgg ? 'show' : ''}`}>
         {egg.name}
       </span>
     );

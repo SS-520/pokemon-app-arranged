@@ -11,20 +11,30 @@
   background-color: #fafafa;
   border: 1px solid #faeafa;
   border-radius: 5px;
+  position: relative; // buttonのabsoluteの下準備
+  overflow: hidden; // モーダルの箱は動かさない
+
+  &:focus {
+    outline: none;
+  }
 
   // 内容エリア
   .pokemonDetail {
     padding: 5px;
     width: 100%;
+    height: 100%;
+    overflow-y: auto; // 中身エリアだけスクロール
   }
 
+  // 閉じるボタン
   .modalCloseButton {
-    // 閉じるボタン
     padding: 10px;
     border: 0;
     position: absolute;
     top: 0;
     right: 0;
+    z-index: 100;
+    cursor: pointer;
   }
 }
 
@@ -32,60 +42,29 @@
   width: 100%;
 
   .mainIntroduction {
-    .appearanceRegions {
-      .regionName {
-        @include mixins.displayTile;
-        &.show {
+    // 該当する対象だけ着色するタイル群
+    .tiles {
+      @include mixins.displayTile;
+      &.show {
+        &.regionName {
           background-color: #c53d43;
         }
-      }
-    }
-    .appearanceVersions {
-      .generations {
-        margin: 10px;
-
-        .version {
-          @include mixins.displayTile;
-          &.appearance {
-            background-color: #1e50a2;
-          }
+        &.version {
+          background-color: #1e50a2;
         }
-      }
-    }
-    .special span {
-      @include mixins.displayTile;
-      &.show {
-        background-color: #007b43;
-      }
-    }
-    .genderRates > span {
-      margin: 1px 2px;
-      padding: 2px 5px;
-    }
-    .size span {
-      margin: 1px 2px;
-      padding: 2px 5px;
-    }
-    .eggGroup .eggName {
-      @include mixins.displayTile;
-      &.show {
-        background-color: #e6b422;
+        &.special span {
+          background-color: #007b43;
+        }
+        &.eggName {
+          background-color: #e6b422;
+        }
       }
     }
   }
   .imgDiff {
-    margin: 10px;
     & > div {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      figure {
-        border: 0.1px solid #faeafa;
-        width: 100%;
-        figcaption {
-          margin: 10px auto -50px;
-          font-weight: bold;
-        }
-      }
     }
   }
 }
