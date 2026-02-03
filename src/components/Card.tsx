@@ -64,8 +64,9 @@ const renderTypes = ({ pokemon }: CardProps): React.ReactNode => {
  *   @function
  *   @type component
  *   @props pokemon
+ *  複数回実行＋処理軽量化のためメモ化処理
  */
-const Card = ({ pokemon }: CardProps): React.ReactNode => {
+const Card = React.memo(({ pokemon }: CardProps): React.ReactNode => {
   return (
     <div className='card' data-id={pokemon.id.toString()}>
       <h3>No.{pokemon.pokedex}</h3>
@@ -77,6 +78,6 @@ const Card = ({ pokemon }: CardProps): React.ReactNode => {
       <div className='cardTypes'>{renderTypes({ pokemon })}</div>
     </div>
   );
-};
+});
 
 export default Card;
