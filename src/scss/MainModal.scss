@@ -1,11 +1,14 @@
 /* メインモーダルComponent用CSS */
 
 // 設定ファイル読み込み
+@use 'sass:math';
 @use 'mixins'; // ミックスイン読み込み
+@use 'variables'; // 変数読み込み
 
 // スタイル記述
-.mainModal {
+dialog.mainModal {
   margin: auto;
+  // margin-top: variables.$safeTop;
   width: 90vw;
   height: 85vh;
   background-color: #fafafa;
@@ -21,30 +24,295 @@
   // 内容エリア
   .pokemonDetail {
     padding: 5px;
-    width: 100%;
     height: 100%;
     overflow-y: auto; // 中身エリアだけスクロール
+    scrollbar-width: none; // スクロールバー非表示(Firefox)
+  }
+  // スクロールバー非表示（Google Chrome、Safari）
+  .pokemonDetail::-webkit-scrollbar {
+    display: none;
   }
 
   // 閉じるボタン
   .modalCloseButton {
-    padding: 10px;
+    padding: 5px;
+    font-size: 1.5em;
     border: 0;
     position: absolute;
     top: 0;
     right: 0;
-    z-index: 100;
     cursor: pointer;
+    z-index: 10;
   }
 }
 
-.modalContents {
-  width: 100%;
+// モーダルのメイン
+// 色設定
+//    無彩色
+article.modalContents.black,
+article.modalContents.gray,
+article.modalContents.white {
+  --titleBorderColor: #2b2b2b;
+  --gradient0-3Color: #ececec;
+  --borderColor: #c0c0c0;
+}
+//    赤系
+article.modalContents.red,
+article.modalContents.pink,
+article.modalContents.brown {
+  --titleBorderColor: #f0908d;
+  --gradient0-3Color: #f6eeec;
+  --borderColor: #f0908d;
+}
 
+// 青
+article.modalContents.blue {
+  --titleBorderColor: #89c3eb;
+  --gradient0-3Color: #ebf0f5;
+  --borderColor: #89c3eb;
+}
+
+// 緑
+article.modalContents.green {
+  --titleBorderColor: #69b076;
+  --gradient0-3Color: #d6e9ca;
+  --borderColor: #69b076;
+}
+
+// 黄
+article.modalContents.yellow {
+  --titleBorderColor: #f8b500;
+  --gradient0-3Color: #f5f2eb;
+  --borderColor: #f8b500;
+}
+
+// 紫
+article.modalContents.purple {
+  --titleBorderColor: #a59aca;
+  --gradient0-3Color: #f2ebf5;
+  --borderColor: #a59aca;
+}
+
+article.modalContents {
+  width: 100%;
+  margin-bottom: 20px;
+
+  // 画像の基本設定
+  img {
+    width: 100%;
+    object-fit: contain;
+  }
+
+  // ヘッダー
+  .header {
+    position: relative; /* タイトル配置の基準 */
+    margin: 10px auto; /* 外側余白（上下・中央寄せ） */
+    border: 2px solid var(--titleBorderColor); /* 枠線 */
+    border-radius: 3px; /* 角丸 */
+    .nationalPokedex {
+      position: absolute; /* タイトル位置指定 */
+      top: -0.5em; /* 上に少し移動 */
+      left: 1em; /* 左端からの距離 */
+      background-color: #fff; /* タイトル背景色 */
+      color: var(--titleBorderColor); /* タイトル文字色 */
+      padding: 0 0.5em; /* 内側余白 */
+      font-weight: bold; /* 太字 */
+      line-height: 1; /* 行の高さ */
+      display: inline-block; /* 幅を内容に合わせる */
+      width: auto; /* 幅自動調整 */
+      max-width: calc(100% - 2em); /* 左右の余白を考慮 */
+      white-space: nowrap; /* 折り返さない */
+      overflow: hidden; /* はみ出し非表示 */
+      text-overflow: ellipsis; /* 省略記号表示 */
+    }
+    .pokemonName {
+      padding: 1em; /* 内側余白 */
+    }
+    .diffName {
+      font-size: 0.75em;
+    }
+  }
+
+  section {
+    margin-top: 10px;
+    h5 {
+      font-weight: normal;
+    }
+  }
+
+  // マステ風のスタイル管理
+  .maskingTapeStyleBase {
+    @include mixins.areaAppBase;
+    .maskingTapeStyleTitle {
+      @include mixins.areaAppTitle;
+    }
+    .maskingTapeStyleContents {
+      @include mixins.areaAppContents;
+    }
+  }
+
+  // 注釈
+  p.annotation {
+    font-size: 12px;
+    margin: 10px 5px;
+    overflow-wrap: break-word; /* 収まらない場合に折り返す */
+    word-break: normal; /* 単語の分割はデフォルトに依存 */
+    line-break: strict; /* 禁則処理を厳格に適用 */
+  }
+
+  // メインの詳細
   .mainIntroduction {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    grid-template-rows: repeat(9, auto);
+    row-gap: 5px;
+    column-gap: 10px;
+
+    // メイン画像
+    .mainImage {
+      grid-row: 1/ 6;
+      grid-column: 1;
+      width: 100%;
+      img {
+        width: 110%;
+      }
+    }
+
+    // ○○ポケモン
+    .genus {
+      grid-row: 1;
+      grid-column: 2;
+    }
+
+    // タイプ
+    .pokemonTypes {
+      grid-row: 2;
+      grid-column: 2;
+      display: flex;
+      justify-content: space-evenly;
+
+      img.type {
+        width: 45%;
+        object-fit: contain;
+      }
+    }
+
+    // サイズ
+    .size {
+      grid-row: 3;
+      grid-column: 2;
+      font-size: 0.9em;
+
+      display: flex;
+      justify-content: space-evenly;
+    }
+
+    // オスメス確率
+    .genderRates {
+      grid-row: 4;
+      grid-column: 2;
+
+      display: flex;
+      justify-content: space-evenly;
+
+      .male {
+        color: #1e50a2;
+      }
+      .female {
+        color: #c53d43;
+      }
+    }
+
+    // 特殊属性
+    .special {
+      grid-row: 5;
+      grid-column: 2;
+    }
+
+    // 生息地方
+    .appearanceRegions {
+      // グリッド位置
+      grid-row: 6;
+      grid-column: 1/-1;
+
+      // 色
+      background-color: #f6eeec; /* ボックス背景色 */
+
+      dt.maskingTapeStyleTitle {
+        background-image: repeating-linear-gradient(-45deg, #f6eeec 0, #f6eeec 3px, #fafafa 3px, #fafafa 6px); /* ストライプ模様 */
+      }
+      .ddContainer {
+        text-align: left;
+        padding-left: 1em;
+        padding-right: 1em;
+      }
+    }
+
+    // 登場バージョン
+    .appearanceVersions {
+      grid-row: 7;
+      grid-column: 1/-1;
+
+      background-color: #ebf0f5; /* ボックス背景色 */
+
+      dt.maskingTapeStyleTitle {
+        background-image: repeating-linear-gradient(-45deg, #ebf0f5 0, #ebf0f5 3px, #fafafa 3px, #fafafa 6px); /* ストライプ模様 */
+      }
+      // 世代別に整理
+      .ddContainer {
+        padding: 1.5em 0 0;
+        dd {
+          border-top: none;
+          display: grid;
+          grid-template-columns: 1fr 5fr;
+          padding: 4px 0;
+
+          .generationNumber {
+            font-size: 0.8em;
+            grid-column: 1;
+            align-self: center;
+          }
+          .generationGroup {
+            grid-column: 2;
+            text-align: left;
+            .version {
+              font-size: 0.7rem;
+              margin: 1px 1px;
+            }
+          }
+        }
+      }
+      dd:nth-child(even) {
+        background-color: #dce9f5; /* ボックス背景色 */
+      }
+    }
+
+    // 卵グループ
+    .eggGroup {
+      grid-row: 8;
+      grid-column: 1/-1;
+
+      background-color: #f5f2eb; /* ボックス背景色 */
+
+      dt.maskingTapeStyleTitle {
+        background-image: repeating-linear-gradient(-45deg, #f5f2eb 0, #f5f2eb 3px, #fafafa 3px, #fafafa 6px); /* ストライプ模様 */
+      }
+      .ddContainer {
+        text-align: left;
+      }
+    }
+
     // 該当する対象だけ着色するタイル群
     .tiles {
-      @include mixins.displayTile;
+      display: inline-block;
+      font-size: 0.75rem;
+      margin: 1px 2px;
+      padding: 2px 5px;
+      border: 1px solid transparent;
+      border-radius: 5px;
+      background-color: #dcdcdc;
+      color: #fff;
       &.show {
         &.regionName {
           background-color: #c53d43;
@@ -52,7 +320,9 @@
         &.version {
           background-color: #1e50a2;
         }
-        &.special span {
+        &.baby,
+        &.legend,
+        &.mythic {
           background-color: #007b43;
         }
         &.eggName {
@@ -61,10 +331,228 @@
       }
     }
   }
+
+  // オスメス色違い
   .imgDiff {
+    width: 100%;
+    border: none;
+    border: 1px solid var(--borderColor);
+    background-color: transparent;
+
+    .maskingTapeStyleTitle {
+      background-image: repeating-linear-gradient(-45deg, var(--gradient0-3Color) 0, var(--gradient0-3Color) 3px, #fafafa 3px, #fafafa 6px);
+    }
+
+    // 通常と色違いの２体
     & > div {
+      width: 100%;
+      display: flex;
+      padding-top: 1.5em;
+
+      figure {
+        padding: 5px 10px;
+        img {
+          width: 100%;
+        }
+      }
+    }
+  }
+
+  // 解説系エリア
+  section h5 {
+    font-size: 1.15em;
+    margin: 3px auto;
+  }
+  li::marker {
+    list-style-type: none;
+  }
+
+  // 共通処理
+  .ability,
+  .flavor,
+  .evolution,
+  .variation {
+    margin-top: 2em;
+  }
+
+  .ability,
+  .flavor {
+    padding: 1.5em 0 5px;
+    margin-bottom: 0;
+    .textArea {
+      .firstMark {
+        font-size: 0.85em;
+      }
+      text-align: left;
+    }
+    .versionArea {
+      text-align: right;
+      margin: 2px 5px;
+      .textVersion {
+        display: inline-block;
+        padding: 1px 2px;
+      }
+    }
+  }
+
+  // 単独処理
+  // 特性
+  .ability {
+    background-color: #d6e9ca; /* ボックス背景色 */
+
+    .maskingTapeStyleTitle {
+      background-image: repeating-linear-gradient(-45deg, #d6e9ca 0, #d6e9ca 3px, #fafafa 3px, #fafafa 6px); /* ストライプ模様 */
+    }
+
+    .abilityDetail {
+      margin: 5px auto;
+      .abilityName {
+        padding: 4px;
+        font-size: 0.95em;
+        font-weight: bold;
+        background-color: #007b43;
+        color: #fafafa;
+      }
+      .textArea {
+        margin: 10px 5px 0;
+        font-size: 14px;
+        text-indent: -1em;
+        padding-left: 1em;
+
+        word-break: normal; /* 単語の分割はデフォルトに依存 */
+        line-break: strict; /* 禁則処理を厳格に適用 */
+      }
+      .versionArea {
+        font-size: 12px;
+      }
+      .abilityNoText {
+        margin-top: 10px;
+      }
+    }
+  }
+
+  // フレーバーテキスト
+  .flavor {
+    background-color: #f0eaf4; /* ボックス背景色 */
+    padding-bottom: 0;
+
+    .maskingTapeStyleTitle {
+      background-image: repeating-linear-gradient(-45deg, #f0eaf4 0, #f0eaf4 3px, #fafafa 3px, #fafafa 6px); /* ストライプ模様 */
+    }
+    .flavorTextArea {
+      margin: 0;
+      padding: 7px 5px;
+    }
+    .flavorTextArea:nth-child(even) {
+      background-color: #e1d6eb;
+    }
+    .flavorText {
+      font-size: 14px;
+      text-indent: -1em;
+      padding-left: 1em;
+
+      overflow-wrap: break-word; /* 収まらない場合に折り返す */
+      word-break: normal; /* 単語の分割はデフォルトに依存 */
+      line-break: strict; /* 禁則処理を厳格に適用 */
+    }
+    .versionArea {
+      margin: 2px 0;
+      font-size: 12px;
+    }
+  }
+
+  // 進化系統
+  .evolution {
+    border: 1px solid var(--borderColor);
+    background-color: transparent;
+
+    .maskingTapeStyleTitle {
+      background-image: repeating-linear-gradient(-45deg, var(--gradient0-3Color) 0, var(--gradient0-3Color) 3px, #fafafa 3px, #fafafa 6px);
+    }
+
+    .evolutionDetail {
+      padding: 1.75em 0 10px;
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: auto;
+      grid-template-columns: auto;
+      align-items: end;
+      img {
+        width: 90%;
+        margin: 0 auto;
+      }
+      .evoForm {
+        font-size: 0.9em;
+        margin-bottom: 5px;
+      }
+      .name {
+        font-size: 0.95em;
+        font-weight: bold;
+      }
+      .connecter {
+        align-self: center;
+      }
+      .only.branch {
+        grid-row: 1/100;
+        align-self: center;
+      }
+
+      // 進化段階別処理
+      .level1 {
+        grid-column: 1;
+      }
+      .connecter.level2 {
+        grid-column: 2;
+      }
+      .level2 {
+        grid-column: 3;
+      }
+      .connecter.level3 {
+        grid-column: 4;
+      }
+      .level3 {
+        grid-column: 5;
+      }
+    }
+  }
+
+  // 形態違い
+  .variation {
+    border: 1px solid var(--borderColor);
+    background-color: transparent;
+
+    padding: 2em 2.5px 0.75em;
+    .maskingTapeStyleTitle {
+      background-image: repeating-linear-gradient(-45deg, var(--gradient0-3Color) 0, var(--gradient0-3Color) 3px, #fafafa 3px, #fafafa 6px);
+    }
+
+    .variationDetail {
+      hr {
+        border: none;
+        height: 1px;
+        width: 90%;
+        margin: 5px auto 10px;
+        align-self: center;
+        background-color: var(--borderColor);
+      }
+      & > div {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: auto;
+
+        figure {
+          display: grid;
+          grid-template-columns: 1;
+          grid-template-rows: 2;
+
+          .formName {
+            font-size: 0.9em;
+            align-self: center;
+          }
+          .formImg {
+            align-self: self-end;
+          }
+        }
+      }
     }
   }
 }
