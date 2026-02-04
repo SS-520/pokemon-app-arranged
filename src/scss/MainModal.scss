@@ -5,6 +5,9 @@
 @use 'mixins'; // ミックスイン読み込み
 @use 'variables'; // 変数読み込み
 
+// フォント読み込み
+@import url('https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=M+PLUS+Rounded+1c&family=Petit+Formal+Script&family=Zen+Maru+Gothic&display=swap');
+
 // スタイル記述
 dialog.mainModal {
   margin: auto;
@@ -105,6 +108,7 @@ article.modalContents {
 
   // ヘッダー
   .header {
+    font-family: 'M PLUS Rounded 1c', 'Zen Maru Gothic', system-ui, Avenir, Helvetica, Arial, sans-serif;
     position: relative; /* タイトル配置の基準 */
     margin: 10px auto; /* 外側余白（上下・中央寄せ） */
     border: 2px solid var(--titleBorderColor); /* 枠線 */
@@ -126,10 +130,12 @@ article.modalContents {
       text-overflow: ellipsis; /* 省略記号表示 */
     }
     .pokemonName {
-      padding: 1em; /* 内側余白 */
+      padding: 0.9em; /* 内側余白 */
+      font-weight: 600;
+      font-size: 1.2em;
     }
     .diffName {
-      font-size: 0.75em;
+      font-size: 0.7em;
     }
   }
 
@@ -145,6 +151,8 @@ article.modalContents {
     @include mixins.areaAppBase;
     .maskingTapeStyleTitle {
       @include mixins.areaAppTitle;
+      font-family: 'M PLUS Rounded 1c', 'Zen Maru Gothic', system-ui, Avenir, Helvetica, Arial, sans-serif;
+      font-weight: 600;
     }
     .maskingTapeStyleContents {
       @include mixins.areaAppContents;
