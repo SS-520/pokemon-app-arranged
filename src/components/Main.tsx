@@ -148,7 +148,7 @@ function Main({ allData, displayData, pokedexData, abilityData }: MainProps) {
       )}
 
       {/* selectPokemonがnullかで処理分岐*/}
-      {selectPokemon ? <MainModal ref={modalRef} pokemon={selectPokemon} pokedexData={pokedexData} abilityData={abilityData} allData={allData.current} /> : <></>}
+      {selectPokemon ? <MainModal ref={modalRef} pokemon={selectPokemon} pokedexData={pokedexData} abilityData={abilityData} allData={allData.current} onClose={() => setSelectPokemon(null)} /> : <></>}
     </>
   );
 }

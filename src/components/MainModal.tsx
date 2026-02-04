@@ -19,12 +19,13 @@ interface MainModalProps {
   pokedexData: RefObject<PokedexData[]>;
   abilityData: RefObject<AbilityData[]>;
   allData: LsPokemon[];
+  onClose: () => void;
 }
 
 // 親コンポーネントから子コンポーネントにrefを渡す：forwardRef使用
 // ⇒React19からはforwardRef非推奨（今回こっち）
 // pokemonデータがnullの時と両方の引数を定義
-function MainModal({ ref, pokemon, pokedexData, abilityData, allData }: MainModalProps) {
+function MainModal({ ref, pokemon, pokedexData, abilityData, allData, onClose }: MainModalProps) {
   //
   // 開閉判定の変数設定
   // HTMLDialogElement : <dialog> 要素を操作するメソッド
@@ -90,7 +91,7 @@ function MainModal({ ref, pokemon, pokedexData, abilityData, allData }: MainModa
     // ・モーダルの中身がある場合
     // ⇒何もしない
 
-    if (!pokemon || modalContent) return;
+    if (!pokemon) return;
 
     // fetchのコントローラー設定
     const controller = new AbortController();
@@ -123,6 +124,11 @@ function MainModal({ ref, pokemon, pokedexData, abilityData, allData }: MainModa
       setModalContent(resultContents);
     };
 
+    // すでにコンテンツがある場合は何もしない（冗長な通信を避ける）
+    if (!modalContent) {
+      loadModalData();
+    }
+
     // 非同期関数実行
     loadModalData();
 
@@ -151,8 +157,15 @@ function MainModal({ ref, pokemon, pokedexData, abilityData, allData }: MainModa
     if (dialogRef.current?.open) {
       dialogRef.current.close();
     }
+
     setIsLocked(false); // useScrollLock内のscrollToが発火し元の位置に戻る
     setModalContent(null); // モーダルの中身を空にする
+
+    // 親側の selectPokemon を null に更新する
+    // ⇒MainModalがアンマウントして消える
+    // ⇒MainModalが一度消える
+    // ⇒同じポケモンを再選択してもnull→pokemonで意図したとおりに動く
+    onClose();
   };
 
   /**
