@@ -25,13 +25,13 @@ function App() {
   // 初期値⇒リロード＝ローディング中＝true
   const [isLoading, setIsLoading] = useState<boolean>(true);
   // メモ化でオブジェクトの再生成を抑止
-  const isLoadingValue = useMemo(
-    () => ({
-      isLoading,
-      setIsLoading,
-    }),
-    [isLoading],
-  );
+  // const isLoadingValue = useMemo(
+  //   () => ({
+  //     isLoading,
+  //     setIsLoading,
+  //   }),
+  //   [isLoading],
+  // );
 
   // バックグラウンドでデータ取得中かの判定
   const isBgLoading = useRef<boolean>(true);

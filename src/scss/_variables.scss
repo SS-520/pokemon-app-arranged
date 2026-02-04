@@ -3,3 +3,11 @@
 // グリッド表示時
 $cardWidth: 150px; // カード幅
 $cardGap: 20px; // グリッドのギャップ
+
+// セーフエリア
+$paddingBottom: 44px;
+$safeTop: env(safe-area-inset-top, 0);
+$safeBottom: env(safe-area-inset-bottom, 0);
+
+// グリッド枠
+$modalGridBorderColor: #fff5ff;
