@@ -7,7 +7,7 @@ import { getPokemonData } from './loadPokemonFunction';
 import { alertError } from './fetchFunction';
 import { getAllJaData, getEndID, getJaData, getVersions } from './utilityFunction';
 import { commonImgURL } from '../dataInfo';
-import { useEffect, useLayoutEffect, type RefObject } from 'react';
+import { useLayoutEffect, type RefObject } from 'react';
 
 // APIで表示対象のポケモン情報取得
 /*** @name fetchDetails
@@ -560,7 +560,7 @@ const setEvoChain = (pokemon: LsPokemon, evoChain: EvoChainDetail['chain'], eggI
     if (formId === pokemon.sp) {
       // 表示対象の場合
       is_main = true;
-      evoForm = '';
+      evoForm = '　';
     } else {
       // 対象以外
       is_main = false;
