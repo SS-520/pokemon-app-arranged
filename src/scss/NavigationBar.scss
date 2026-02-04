@@ -1,14 +1,20 @@
 // ナビゲーションバーのスタイル
+
+// 設定読み込み
 @use 'mixins'; // ミックスイン読み込み
 @use 'media'; // メディアクエリ読み込み
+@use 'variables'; // 変数読み込み
 
+// フォント読み込み
 @import url('https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap');
+
+// スタイル記述
 header#navigation {
   background-color: #dd1e24;
   height: 10vh;
   position: sticky;
   top: 0;
-
+  padding-top: variables.$safeTop;
   h1 {
     height: 100%;
     font-family: 'Dela Gothic One', sans-serif;
