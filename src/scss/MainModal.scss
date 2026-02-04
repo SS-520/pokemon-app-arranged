@@ -366,6 +366,16 @@ article.modalContents {
     }
   }
 
+  // 画像比較
+  .compareDiff {
+    width: 100%;
+    border: none;
+    // border: 1px solid var(--borderColor);
+    .maskingTapeStyleTitle {
+      background-image: repeating-linear-gradient(-45deg, var(--gradient0-3Color) 0, var(--gradient0-3Color) 3px, #fafafa 3px, #fafafa 6px);
+    }
+  }
+
   // 解説系エリア
   section h5 {
     font-size: 1.15em;

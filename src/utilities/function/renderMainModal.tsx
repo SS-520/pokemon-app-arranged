@@ -14,6 +14,7 @@ import { IoMdMale, IoMdFemale } from 'react-icons/io';
 import { PiArrowFatLinesRight } from 'react-icons/pi';
 import { FaPenFancy } from 'react-icons/fa6';
 import { MdCatchingPokemon } from 'react-icons/md';
+import CompareImages from '../../components/CompareImages';
 
 /**
 // API取得の情報と各種情報を加工・突合する
@@ -113,6 +114,8 @@ export const renderMainModal = (pokemon: LsPokemon, mergeResult: RenderObj, poke
   // オスメス色違いの画像
   const showImg = setImgs(image, pokemon.name);
 
+  // 重ねて比較
+
   // 特性
   const showAbility: React.ReactNode = setAbility(ability);
 
@@ -203,6 +206,12 @@ export const renderMainModal = (pokemon: LsPokemon, mergeResult: RenderObj, poke
       <section className='imgDiff maskingTapeStyleBase'>
         <h5 className='diffImgTitle maskingTapeStyleTitle'>比較画像</h5>
         {showImg}
+      </section>
+      <section className='compareDiff maskingTapeStyleBase'>
+        <h5 className='compareDiffTitle maskingTapeStyleTitle'>重ねて比較！</h5>
+        <div className='maskingTapeStyleContents'>
+          <CompareImages images={image} name={pokemon.name} />
+        </div>
       </section>
       <section className='ability maskingTapeStyleBase'>
         <h5 className='abilityTitle title maskingTapeStyleTitle'>特性</h5>
@@ -381,7 +390,7 @@ const setEggGroupList = (pokemon: LsPokemon): React.ReactNode => {
 };
 
 // オスメス色違いの画像
-const setImgs = (images: ImageObj, name: LsPokemon['name']) => {
+const setImgs = (images: ImageObj, name: LsPokemon['name']): React.ReactNode => {
   // オスメス差分
 
   if (images.femaleImg && images.shinyFemaleImg) {
