@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 import type { ImageObj, LsPokemon } from '../utilities/types/typesUtility';
 
 // propsの型設定
