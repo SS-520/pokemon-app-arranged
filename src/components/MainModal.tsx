@@ -158,6 +158,19 @@ function MainModal({ ref, pokemon, pokedexData, abilityData, allData, onClose }:
     }
     setIsLocked(false); // useScrollLock内のscrollToが発火し元の位置に戻る
     setModalContent(null); // モーダルの中身を空にする
+
+    // 親側の selectPokemon を null に更新する
+    // ⇒MainModalがアンマウントして消える
+    // ⇒MainModalが一度消える
+    // ⇒同じポケモンを再選択してもnull→pokemonで意図したとおりに動く
+    //
+    // 重要なポイント:
+    // 親の state (selectPokemon) を null にするのを、
+    // 確実に現在の処理（スクロール位置復元など）が終わった後の次のフレームに遅延させる。
+    // これにより、アンマウントによる意図しないトップスクロールを防ぎます。
+    requestAnimationFrame(() => {
+      onClose();
+    });
   };
 
   /**
