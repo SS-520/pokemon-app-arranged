@@ -19,12 +19,13 @@ interface MainModalProps {
   pokedexData: RefObject<PokedexData[]>;
   abilityData: RefObject<AbilityData[]>;
   allData: LsPokemon[];
+  onClose: () => void;
 }
 
 // 親コンポーネントから子コンポーネントにrefを渡す：forwardRef使用
 // ⇒React19からはforwardRef非推奨（今回こっち）
 // pokemonデータがnullの時と両方の引数を定義
-function MainModal({ ref, pokemon, pokedexData, abilityData, allData }: MainModalProps) {
+function MainModal({ ref, pokemon, pokedexData, abilityData, allData, onClose }: MainModalProps) {
   //
   // 開閉判定の変数設定
   // HTMLDialogElement : <dialog> 要素を操作するメソッド
