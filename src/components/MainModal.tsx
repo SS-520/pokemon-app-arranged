@@ -91,7 +91,7 @@ function MainModal({ ref, pokemon, pokedexData, abilityData, allData, onClose }:
     // ・モーダルの中身がある場合
     // ⇒何もしない
 
-    if (!pokemon || modalContent) return;
+    if (!pokemon) return;
 
     // fetchのコントローラー設定
     const controller = new AbortController();
