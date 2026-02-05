@@ -3,15 +3,19 @@
   "compilerOptions": {
     "target": "ESNext",
     "lib": ["ES2024", "DOM"],
-    "module": "commonjs",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "strict": true,
     "esModuleInterop": true,
     "allowJs": true,
     "skipLibCheck": true, // 型定義ファイルのチェックをスキップ（高速化）
     "forceConsistentCasingInFileNames": true,
-    "noEmit": true // 「ファイルを作らない」という設定
+    "isolatedModules": true,
+    "noEmit": true,
+    "outDir": "./dist",
+    "declaration": true // <-- noEmitがtrueなら不要なので削除またはコメントアウト
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "build", "**/*.spec.ts", "**/*.test.ts", "coverage"],
+  "exclude": ["node_modules", "dist", "build", "**/*.spec.ts", "**/*.test.ts", "coverage", "**/*.d.ts"],
   "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }]
 }
