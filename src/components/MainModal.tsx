@@ -124,7 +124,12 @@ function MainModal({ ref, pokemon, pokedexData, abilityData, allData, onClose }:
     };
 
     // 非同期関数実行
-    loadModalData();
+    // すでにコンテンツがある場合は何もしない（冗長な通信を避ける）
+    if (!modalContent) {
+      loadModalData();
+    }
+
+    // loadModalData();
 
     console.log('mainModal end');
 
