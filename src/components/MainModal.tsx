@@ -129,7 +129,12 @@ function MainModal({ ref, pokemon, pokedexData, abilityData, allData, onClose }:
     }
 
     // 非同期関数実行
-    loadModalData();
+    // すでにコンテンツがある場合は何もしない（冗長な通信を避ける）
+    if (!modalContent) {
+      loadModalData();
+    }
+
+    // loadModalData();
 
     console.log('mainModal end');
 
@@ -164,7 +169,18 @@ function MainModal({ ref, pokemon, pokedexData, abilityData, allData, onClose }:
     // ⇒MainModalがアンマウントして消える
     // ⇒MainModalが一度消える
     // ⇒同じポケモンを再選択してもnull→pokemonで意図したとおりに動く
+<<<<<<< HEAD
     onClose();
+=======
+    //
+    // 重要なポイント:
+    // 親の state (selectPokemon) を null にするのを、
+    // 確実に現在の処理（スクロール位置復元など）が終わった後の次のフレームに遅延させる。
+    // これにより、アンマウントによる意図しないトップスクロールを防ぎます。
+    requestAnimationFrame(() => {
+      onClose();
+    });
+>>>>>>> develop
   };
 
   /**
