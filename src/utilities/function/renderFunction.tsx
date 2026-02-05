@@ -20,8 +20,6 @@ export const showDetail = (modalRef: RefObject<MainModalHandle | null>, pokemon?
     // 渡されたポケモンの基礎情報を変数に格納
     setSelectPokemon(pokemon);
   }
-  // モーダルを開く
-  modalRef.current?.showModal();
 };
 
 // ダイアログの外側がクリックされたかを判定して閉じる
