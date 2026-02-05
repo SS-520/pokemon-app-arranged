@@ -169,7 +169,6 @@ function MainModal({ ref, pokemon, pokedexData, abilityData, allData, onClose }:
     // ⇒MainModalがアンマウントして消える
     // ⇒MainModalが一度消える
     // ⇒同じポケモンを再選択してもnull→pokemonで意図したとおりに動く
-    onClose();
     //
     // 重要なポイント:
     // 親の state (selectPokemon) を null にするのを、
@@ -178,7 +177,6 @@ function MainModal({ ref, pokemon, pokedexData, abilityData, allData, onClose }:
     requestAnimationFrame(() => {
       onClose();
     });
->>>>>>> develop
   };
 
   /**
