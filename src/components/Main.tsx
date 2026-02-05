@@ -94,9 +94,6 @@ function Main({ allData, displayData, pokedexData, abilityData }: MainProps) {
     ));
   }, [displayData, page, modalRef]);
 
-  // 中間処理の結果をレンダリング変数にセット
-  const [renderMainContents, setRenderMainContents] = useState<React.ReactNode>(pokemonListContent);
-
   //
   /* ページ遷移時の処理 */
   useEffect(() => {
@@ -107,10 +104,6 @@ function Main({ allData, displayData, pokedexData, abilityData }: MainProps) {
       // 最大件数を最新に更新
       setTotalPages(Math.ceil(displayData.current.length / displayNum));
     }
-
-    // ページ遷移に伴う表示内容変更
-    const renderMainContents: React.ReactNode = pokemonListContent;
-    setRenderMainContents(renderMainContents);
 
     // ページが変わった時だけ画面トップに戻す
 
@@ -133,7 +126,7 @@ function Main({ allData, displayData, pokedexData, abilityData }: MainProps) {
       ) : (
         <>
           <main className='pokemonCardContainer' id='pokemonCardContainer'>
-            {renderMainContents}
+            {pokemonListContent}
           </main>
           <div className='btn' id='paging'>
             <Stack className='pagination'>
