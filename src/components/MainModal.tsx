@@ -1,5 +1,5 @@
 import React, { useEffect, useImperativeHandle, useRef, useState, type RefObject } from 'react';
-import { VscChromeClose } from 'react-icons/vsc';
+import { IoIosCloseCircleOutline } from 'react-icons/io';
 
 // 呼び出し関数・型
 import type { AbilityData, LsPokemon, MainModalHandle, PokedexData, RenderObj } from '../utilities/types/typesUtility';
@@ -170,7 +170,7 @@ function MainModal({ ref, pokemon, pokedexData, abilityData, allData }: MainModa
   return (
     <dialog ref={dialogRef} onCancel={handleClose} onClick={handleBackdropClick} className='mainModal' autoFocus={false} id='mainModal' tabIndex={-1}>
       <button className='modalCloseButton' onClick={handleClose}>
-        <VscChromeClose />
+        <IoIosCloseCircleOutline />
       </button>
       <section className='pokemonDetail'>{modalContent ? modalContent : <Loading />}</section>
     </dialog>
