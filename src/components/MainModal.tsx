@@ -3,7 +3,6 @@ import { IoIosCloseCircleOutline } from 'react-icons/io';
 
 // 呼び出し関数・型
 import type { AbilityData, LsPokemon, MainModalHandle, PokedexData, RenderObj } from '../utilities/types/typesUtility';
-// import { closeDetail } from '../utilities/function/renderFunction';
 import { fetchDetails, mergePokemonDetails, useScrollLock } from '../utilities/function/mainModalFunction';
 
 // スタイル読み込み
