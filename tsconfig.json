@@ -12,8 +12,13 @@
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
     "noEmit": true,
+<<<<<<< HEAD
     "outDir": "./dist"
     // "declaration": true, <-- noEmitがtrueなら不要なので削除またはコメントアウト
+=======
+    "outDir": "./dist",
+    "declaration": true // <-- noEmitがtrueなら不要なので削除またはコメントアウト
+>>>>>>> develop
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "build", "**/*.spec.ts", "**/*.test.ts", "coverage", "**/*.d.ts"],
