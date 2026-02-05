@@ -7,16 +7,23 @@
 .App {
   text-align: center;
   width: 100%;
+  padding-bottom: calc(variables.$paddingBottom + variables.$safeBottom);
+
+  // 配下のリストの初期化
+  .ul {
+    list-style: none;
+  }
 }
 
 // 各ポケモンのカードをグリッドで表示
 
 .pokemonCardContainer {
+  margin: 10px;
+  margin-left: 0;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(variables.$cardWidth + variables.$cardGap, 1fr));
   justify-items: center;
   align-items: self-start;
   row-gap: variables.$cardGap;
   column-gap: math.div(variables.$cardGap, 2);
-  margin: 2vw;
 }

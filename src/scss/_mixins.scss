@@ -5,12 +5,30 @@
   align-items: center;
 }
 
-@mixin displayTile {
-  font-size: 0.75em;
-  margin: 1px 2px;
-  padding: 2px 5px;
-  border: 1px solid;
-  border-radius: 5px;
-  background-color: #dcdcdc;
-  color: #fff;
+@mixin areaAppBase {
+  position: relative; /* タイトル配置の基準 */
+  margin: 1em auto 0.5em; /* 外側余白 */
+  background-color: #f6eeec; /* ボックス背景色 */
+}
+
+@mixin areaAppTitle {
+  background-image: repeating-linear-gradient(-45deg, #f6eeec 0, #f6eeec 3px, #fafafa 3px, #fafafa 6px); /* ストライプ模様 */
+  transform: rotate(-2deg); /* テープの傾き */
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.1); /* テープの影 */
+  padding: 0.5em 1em; /* 内側余白 */
+  line-height: 1; /* 行の高さ */
+  position: absolute; /* 親の左上に固定 */
+  top: -1em; /* 上位置 */
+  left: 1em; /* 左位置 */
+  display: inline-block; /* 内容幅に合わせる */
+  font-size: 0.9em; /* フォントサイズ */
+  width: auto; /* 幅自動調整 */
+  max-width: calc(100% - 2em); /* 最大幅調整 */
+  white-space: nowrap; /* 折り返さない */
+  overflow: hidden; /* はみ出し非表示 */
+  text-overflow: ellipsis; /* 省略記号表示 */
+}
+
+@mixin areaAppContents {
+  padding: 1.5em 5px 0.75em; /* 内側余白 */
 }
