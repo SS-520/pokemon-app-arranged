@@ -1,0 +1,19 @@
+// 画像比較画面用スタイル
+@use 'mixins'; // ミックスイン読み込み
+@use 'media'; // メディアクエリ読み込み
+@use 'variables'; // 変数読み込み
+
+.compareShiny {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  img.compareImg {
+    flex: 4;
+    width: 10%;
+  }
+  .switchArea {
+    @include mixins.imageOnOff;
+  }
+}
