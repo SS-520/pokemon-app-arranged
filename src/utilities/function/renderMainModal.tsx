@@ -14,7 +14,10 @@ import { IoMdMale, IoMdFemale } from 'react-icons/io';
 import { PiArrowFatLinesRight } from 'react-icons/pi';
 import { FaPenFancy } from 'react-icons/fa6';
 import { MdCatchingPokemon } from 'react-icons/md';
-import CompareImages from '../../components/CompareImages';
+
+// コンポーネント
+import CompareImagesShiny from '../../components/CompareImagesShiny';
+import CompareImagesAll from '../../components/CompareImagesAll';
 
 /**
 // API取得の情報と各種情報を加工・突合する
@@ -115,6 +118,29 @@ export const renderMainModal = (pokemon: LsPokemon, mergeResult: RenderObj, poke
   const showImg = setImgs(image, pokemon.name);
 
   // 重ねて比較
+  const compareImage = (): React.ReactNode => {
+    if (image.femaleImg) {
+      return (
+        <section className='compareDiff maskingTapeStyleBase'>
+          <h5 className='compareDiffTitle maskingTapeStyleTitle'>重ねて比較！</h5>
+          <div className='maskingTapeStyleContents'>
+            <CompareImagesAll images={image} name={pokemon.name} />
+          </div>
+        </section>
+      );
+    } else if (image.shinyImg) {
+      return (
+        <section className='compareDiff maskingTapeStyleBase'>
+          <h5 className='compareDiffTitle maskingTapeStyleTitle'>重ねて比較！</h5>
+          <div className='maskingTapeStyleContents'>
+            <CompareImagesShiny images={image} name={pokemon.name} />
+          </div>
+        </section>
+      );
+    } else {
+      <></>;
+    }
+  };
 
   // 特性
   const showAbility: React.ReactNode = setAbility(ability);
@@ -132,7 +158,7 @@ export const renderMainModal = (pokemon: LsPokemon, mergeResult: RenderObj, poke
     if (!pokemonDetail.is_default) {
       return (
         <div>
-          <p className='annotation'>※データの仕様上、通常／リージョンフォームが登場する全地方が表示されます</p>
+          <p className='annotation'>※通常／リージョンフォームが登場する全地方が表示されます</p>
         </div>
       );
     }
@@ -142,7 +168,7 @@ export const renderMainModal = (pokemon: LsPokemon, mergeResult: RenderObj, poke
     if (!pokemonDetail.is_default) {
       return (
         <div>
-          <p className='annotation'>※データの仕様上、通常／リージョンフォームが登場する全バージョンが表示されます</p>
+          <p className='annotation'>※通常／リージョンフォームが登場する全バージョンが表示されます</p>
         </div>
       );
     }
@@ -150,14 +176,14 @@ export const renderMainModal = (pokemon: LsPokemon, mergeResult: RenderObj, poke
   //  図鑑
   const flavorAnnotation = () => {
     if (!pokemonDetail.is_default) {
-      return <p className='annotation'>※データの仕様上、通常フォームのテキストが表示されます</p>;
+      return <p className='annotation'>※通常フォームのテキストが表示されます</p>;
     }
   };
   //  進化
   const evoAnnotation = (): React.ReactNode => {
     // 進化有＋メイン形態じゃない場合進化注釈
     if (evolution.length > 1) {
-      return <p className='annotation'>※仕様上、通常／リージョンフォームが混在する場合があります</p>;
+      return <p className='annotation'>※通常／リージョンフォームが混在する場合があります</p>;
     } else {
       return <></>;
     }
@@ -207,12 +233,8 @@ export const renderMainModal = (pokemon: LsPokemon, mergeResult: RenderObj, poke
         <h5 className='diffImgTitle maskingTapeStyleTitle'>比較画像</h5>
         {showImg}
       </section>
-      <section className='compareDiff maskingTapeStyleBase'>
-        <h5 className='compareDiffTitle maskingTapeStyleTitle'>重ねて比較！</h5>
-        <div className='maskingTapeStyleContents'>
-          <CompareImages images={image} name={pokemon.name} />
-        </div>
-      </section>
+      {/* 重ねて画像比較 */}
+      {compareImage()}
       <section className='ability maskingTapeStyleBase'>
         <h5 className='abilityTitle title maskingTapeStyleTitle'>特性</h5>
         {showAbility}
@@ -412,6 +434,7 @@ const setImgs = (images: ImageObj, name: LsPokemon['name']): React.ReactNode => 
             <img src={images.femaleImg} alt={`${name}・メスの画像`} />
           </figure>
         </div>
+        <hr />
         <div className='shinyImg'>
           <figure className='shiny male'>
             <figcaption>

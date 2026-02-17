@@ -1,0 +1,65 @@
+// 画像比較画面用スタイル
+@use 'mixins'; // ミックスイン読み込み
+@use 'media'; // メディアクエリ読み込み
+@use 'variables'; // 変数読み込み
+
+@use 'sass:color';
+
+// スタイル設定
+.compareImages {
+  padding: 0 5px 5px;
+  width: stretch;
+  display: grid;
+  grid-template-columns: 1fr 4fr;
+  grid-template-rows: repeat(2, 1fr);
+
+  & > button {
+    border: none;
+
+    // 非表示字
+    &.off {
+      background-color: #aaa;
+      border-right: var(--borderColor) 1px solid;
+    }
+    // 表示時
+    &.on {
+      border: var(--borderColor) 1px solid;
+      border-right: none;
+    }
+  }
+
+  .buttonGender {
+    grid-row: 1;
+    grid-column: 1;
+    border-top-left-radius: variables.$radiusSize;
+  }
+
+  .buttonShiny {
+    grid-row: 2;
+    grid-column: 1;
+    border-bottom-left-radius: variables.$radiusSize;
+  }
+
+  .imageArea {
+    grid-row: 1/-1;
+    grid-column: 2;
+    border: var(--borderColor) 1px solid;
+    border-left: none;
+    border-top-right-radius: variables.$radiusSize;
+    border-bottom-right-radius: variables.$radiusSize;
+
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    img.compareImg {
+      margin-left: 10px;
+      flex: 4;
+      width: 10%;
+    }
+    .switchArea {
+      @include mixins.imageOnOff;
+    }
+  }
+}
