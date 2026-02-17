@@ -364,15 +364,31 @@ article.modalContents {
         }
       }
     }
+    hr {
+      @include mixins.hrLine;
+      width: 95%;
+      height: 0.5px;
+    }
+    .shinyImg {
+      padding-top: 0;
+    }
   }
 
   // 画像比較
   .compareDiff {
     width: 100%;
     border: none;
+    background-color: var(--gradient0-3Color); /* ボックス背景色 */
     // border: 1px solid var(--borderColor);
     .maskingTapeStyleTitle {
       background-image: repeating-linear-gradient(-45deg, var(--gradient0-3Color) 0, var(--gradient0-3Color) 3px, #fafafa 3px, #fafafa 6px);
+    }
+    .maskingTapeStyleContents {
+      padding-bottom: 0em;
+
+      img {
+        margin: 5px;
+      }
     }
   }
 
@@ -545,12 +561,7 @@ article.modalContents {
 
     .variationDetail {
       hr {
-        border: none;
-        height: 1px;
-        width: 90%;
-        margin: 5px auto 10px;
-        align-self: center;
-        background-color: var(--borderColor);
+        @include mixins.hrLine;
       }
       & > div {
         display: grid;
