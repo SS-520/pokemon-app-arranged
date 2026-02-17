@@ -11,3 +11,12 @@ $safeBottom: env(safe-area-inset-bottom, 0);
 
 // グリッド枠
 $modalGridBorderColor: #fff5ff;
+
+// 重ねて比較の切り替えスイッチ
+$switchWidth: 74px;
+$switchHeight: 36px;
+$switchButtonSize: ($switchHeight - 6px);
+$switchMoveLeft: $switchHeight + 5px;
+
+// 重ねて比較の角丸
+$radiusSize: 10px;
