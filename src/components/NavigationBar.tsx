@@ -15,9 +15,16 @@ interface NavigationBarProps {
   setDisplayType: setBoolean;
   displayType: boolean;
 }
-function NavigationBar({ setDisplayNum, displayNum, setDisplayType, displayType }: NavigationBarProps) {
+function NavigationBar({
+  setDisplayNum,
+  displayNum,
+  setDisplayType,
+  displayType,
+}: NavigationBarProps) {
   // 表示件数変更時のハンドラ
-  const handleChangeDisplayNum = (event: React.ChangeEvent<HTMLSelectElement>): void => {
+  const handleChangeDisplayNum = (
+    event: React.ChangeEvent<HTMLSelectElement>,
+  ): void => {
     const displayNumValue = event.target.value;
     // 変更がない場合は処理を中断
     if (displayNumValue === displayNum.toString()) return;
@@ -44,30 +51,43 @@ function NavigationBar({ setDisplayNum, displayNum, setDisplayType, displayType 
 
   /* レンダリング結果 */
   return (
-    <div className="navArea">
-      <header id="navigation">
+    <div className='navArea'>
+      <header id='navigation'>
         <h1>
-          <img className="titleLogo" src={logo} alt="読む！" />
+          <img className='titleLogo' src={logo} alt='読む！' />
           ポケモン図鑑
         </h1>
       </header>
-      <div className="changeDisplayIcon icon" onClick={handleChangeDisplayType}>
-        <span className="iconImage">{displayType ? <FaList /> : <MdGridView />}</span>
-        <span className="iconText">view</span>
-      </div>
-      <div className="searchIcon icon">
-        <span className="iconImage">
+      <button
+        className='changeDisplayIcon icon'
+        onClick={handleChangeDisplayType}
+        type='button'
+        aria-label='表示形式切り替え'
+      >
+        <span className='iconImage'>
+          {displayType ? <FaList /> : <MdGridView />}
+        </span>
+        <span className='iconText'>view</span>
+      </button>
+      <div className='searchIcon icon'>
+        <span className='iconImage'>
           <FaSearch />
         </span>
-        <span className="iconText">search</span>
+        <span className='iconText'>search</span>
       </div>
-      <div className="showItemsNumber">
-        <label htmlFor="showNum">表示件数</label>
-        <select name="showNum" id="showNum" size={1} value={displayNum} onChange={handleChangeDisplayNum}>
-          <option value="30">30件</option>
-          <option value="60">60件</option>
-          <option value="90">90件</option>
-          <option value="120">120件</option>
+      <div className='showItemsNumber'>
+        <label htmlFor='showNum'>表示件数</label>
+        <select
+          name='showNum'
+          id='showNum'
+          size={1}
+          value={displayNum}
+          onChange={handleChangeDisplayNum}
+        >
+          <option value='30'>30件</option>
+          <option value='60'>60件</option>
+          <option value='90'>90件</option>
+          <option value='120'>120件</option>
         </select>
       </div>
     </div>

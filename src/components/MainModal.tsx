@@ -1,13 +1,35 @@
-import React, { useEffect, useImperativeHandle, useRef, useState, type RefObject } from 'react';
+import React, {
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+  type RefObject,
+} from 'react';
 import { IoIosCloseCircleOutline } from 'react-icons/io';
 
 // 呼び出し関数・型
-import type { AbilityData, LsPokemon, MainModalHandle, PokedexData, RenderObj } from '../utilities/types/typesUtility';
-import { fetchDetails, mergePokemonDetails, useScrollLock } from '../utilities/function/mainModalFunction';
+import type {
+  AbilityData,
+  LsPokemon,
+  MainModalHandle,
+  PokedexData,
+  RenderObj,
+} from '../utilities/types/typesUtility';
+import {
+  fetchDetails,
+  mergePokemonDetails,
+  useScrollLock,
+} from '../utilities/function/mainModalFunction';
 
 // スタイル読み込み
 import {} from '../scss/MainModal.scss';
-import type { EvoChainDetail, FormsDetail, ItemDetail, PokemonDetail, PokemonSpeciesDetail } from '../utilities/types/typesFetch';
+import type {
+  EvoChainDetail,
+  FormsDetail,
+  ItemDetail,
+  PokemonDetail,
+  PokemonSpeciesDetail,
+} from '../utilities/types/typesFetch';
 import { renderMainModal } from '../utilities/function/renderMainModal';
 import Loading from './Loading';
 
@@ -24,17 +46,29 @@ interface MainModalProps {
 // 親コンポーネントから子コンポーネントにrefを渡す：forwardRef使用
 // ⇒React19からはforwardRef非推奨（今回こっち）
 // pokemonデータがnullの時と両方の引数を定義
-function MainModal({ ref, pokemon, pokedexData, abilityData, allData, onClose }: MainModalProps) {
+
+// key属性の導入により、pokemon変更時のリセット用useEffectは削除
+function MainModal({
+  ref,
+  pokemon,
+  pokedexData,
+  abilityData,
+  allData,
+  onClose,
+}: MainModalProps) {
   //
   // 開閉判定の変数設定
   // HTMLDialogElement : <dialog> 要素を操作するメソッド
   const dialogRef = useRef<HTMLDialogElement | null>(null);
 
   // モーダルの表示内容
-  const [modalContent, setModalContent] = useState<React.ReactNode | null>(null);
+  const [modalContent, setModalContent] = useState<React.ReactNode | null>(
+    null,
+  );
 
   // 背景スクロール固定用ステート
-  const [isLocked, setIsLocked] = useState(false);
+  // 初期値をtrueにすることでマウント時の同期setStateを回避
+  const [isLocked, setIsLocked] = useState(true);
 
   /**
    * 背景スクロールロックの適用
@@ -43,6 +77,29 @@ function MainModal({ ref, pokemon, pokedexData, abilityData, allData, onClose }:
    */
   const scrollPosRef = useRef(0);
   useScrollLock(isLocked, scrollPosRef);
+
+  /**
+   * モーダルを閉じる共通処理
+   * setIsOpen(false) を呼ぶ⇒ useScrollLock 内部の解除ロジック（位置復元）を発火
+   */
+  const handleClose = () => {
+    // dialogRef.current?.close();
+    if (dialogRef.current?.open) {
+      dialogRef.current.close();
+    }
+    setIsLocked(false); // useScrollLock内のscrollToが発火し元の位置に戻る
+    setModalContent(null); // モーダルの中身を空にする
+
+    // 親側の selectPokemon を null に更新する
+    // ⇒MainModalがアンマウントして消える
+    // 重要なポイント:
+    // 親の state (selectPokemon) を null にするのを、
+    // 確実に現在の処理（スクロール位置復元など）が終わった後の次のフレームに遅延させる。
+    // これにより、アンマウントによる意図しないトップスクロールを防ぎます。
+    requestAnimationFrame(() => {
+      onClose();
+    });
+  };
 
   // useImperativeHandle で 親が子の内部メソッドを呼び出せる
   // useImperativeHandle(プロップスref, 公開関数, アクティブリスト（オプショナル）)
@@ -73,21 +130,11 @@ function MainModal({ ref, pokemon, pokedexData, abilityData, allData, onClose }:
     }
   }, [isLocked]);
 
-  // モーダルの開閉をuseEffectで管理
-  useEffect(() => {
-    if (pokemon && dialogRef.current) {
-      if (!dialogRef.current.open) {
-        setIsLocked(true);
-      }
-    }
-  }, [pokemon]);
-
   //
   // 時間のかかるAPI通信処理をuseEffect内で実行
   useEffect(() => {
     console.log('mainModal start');
     // ・ポケモンが選択されていない場合
-    // ・モーダルの中身がある場合
     // ⇒何もしない
 
     if (!pokemon) return;
@@ -112,66 +159,39 @@ function MainModal({ ref, pokemon, pokedexData, abilityData, allData, onClose }:
 
       // 成功時処理
       // awaitで確実に終わらせてから次へ
-      const mergeResult: RenderObj = await mergePokemonDetails(pokemon, result, pokedexData.current, abilityData.current, allData);
+      const mergeResult: RenderObj = await mergePokemonDetails(
+        pokemon,
+        result,
+        pokedexData.current,
+        abilityData.current,
+        allData,
+      );
       console.log('Fetched data:', result);
       console.log('merge data:', mergeResult);
 
       // モーダルの中身描画して取得
-      const resultContents: React.ReactNode = renderMainModal(pokemon, mergeResult, pokedexData, result.pokemonDetail, result.pokemonSpecies);
+      const resultContents: React.ReactNode = renderMainModal(
+        pokemon,
+        mergeResult,
+        pokedexData,
+        result.pokemonDetail,
+        result.pokemonSpecies,
+      );
 
       //モーダルの中身をmodalContentにセットして書き換え
       setModalContent(resultContents);
     };
 
     // 非同期関数実行
-    // すでにコンテンツがある場合は何もしない（冗長な通信を避ける）
-    if (!modalContent) {
-      loadModalData();
-    }
-
-    // loadModalData();
+    loadModalData();
 
     console.log('mainModal end');
 
-    // クリーンアップ処理
     return () => {
       controller.abort();
       setModalContent(null);
     };
-  }, [pokemon]);
-
-  /**
-   * ポケモン変更時にコンテンツをクリア
-   */
-  useEffect(() => {
-    setModalContent(null);
-  }, [pokemon]);
-
-  /**
-   * モーダルを閉じる共通処理
-   * setIsOpen(false) を呼ぶ⇒ useScrollLock 内部の解除ロジック（位置復元）を発火
-   */
-  const handleClose = () => {
-    // dialogRef.current?.close();
-    if (dialogRef.current?.open) {
-      dialogRef.current.close();
-    }
-    setIsLocked(false); // useScrollLock内のscrollToが発火し元の位置に戻る
-    setModalContent(null); // モーダルの中身を空にする
-
-    // 親側の selectPokemon を null に更新する
-    // ⇒MainModalがアンマウントして消える
-    // ⇒MainModalが一度消える
-    // ⇒同じポケモンを再選択してもnull→pokemonで意図したとおりに動く
-    //
-    // 重要なポイント:
-    // 親の state (selectPokemon) を null にするのを、
-    // 確実に現在の処理（スクロール位置復元など）が終わった後の次のフレームに遅延させる。
-    // これにより、アンマウントによる意図しないトップスクロールを防ぎます。
-    requestAnimationFrame(() => {
-      onClose();
-    });
-  };
+  }, [pokemon, abilityData, allData, pokedexData]);
 
   /**
    * ダイアログのバックドロップ（外側）クリック判定
@@ -186,11 +206,20 @@ function MainModal({ ref, pokemon, pokedexData, abilityData, allData, onClose }:
   if (!pokemon) return null;
 
   return (
-    <dialog ref={dialogRef} onCancel={handleClose} onClick={handleBackdropClick} className='mainModal' autoFocus={false} id='mainModal' tabIndex={-1}>
+    <dialog
+      ref={dialogRef}
+      onCancel={handleClose}
+      onClick={handleBackdropClick}
+      className='mainModal'
+      id='mainModal'
+      tabIndex={-1}
+    >
       <button className='modalCloseButton' onClick={handleClose}>
         <IoIosCloseCircleOutline />
       </button>
-      <section className='pokemonDetail'>{modalContent ? modalContent : <Loading />}</section>
+      <section className='pokemonDetail'>
+        {modalContent ? modalContent : <Loading />}
+      </section>
     </dialog>
   );
 }
