@@ -21,7 +21,7 @@ function App() {
   /** ローディング判定 **/
 
   // 画面の状態管理のためuseStateを使用
-  // ロード中/ロード済の二択なのでbooleanで判断
+  // ロード中orロード済の二択なのでbooleanで判断
   // 初期値⇒リロード＝ローディング中＝true
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
