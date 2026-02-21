@@ -815,6 +815,7 @@ const setVariation = (variation: {
               src={
                 variation.img !== '' ? commonImgURL + variation.img : noImage
               }
+              alt={`${variation.formName}の画像`}
               className='formImg'
             />
           </figure>
@@ -830,6 +831,7 @@ const setVariation = (variation: {
             <img
               src={form.img !== '' ? commonImgURL + form.img : noImage}
               className='formImg'
+              alt={`${form.formName}の画像`}
             />
           </figure>
         ))}
