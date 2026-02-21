@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import type { RefObject } from 'react';
 import { Pagination, Stack } from '@mui/material'; //ページング
 
 // 呼び出し関数・型
@@ -20,16 +19,14 @@ import Card from './Card';
 
 // props定義
 interface MainProps {
-  allData: RefObject<LsPokemon[]>;
-  displayData: RefObject<LsPokemon[]>;
-  pokedexData: RefObject<PokedexData[]>;
-  abilityData: RefObject<AbilityData[]>;
+  allData: LsPokemon[];
+  pokedexData: PokedexData[];
+  abilityData: AbilityData[];
   displayNum: number;
   displayType: boolean;
 }
 function Main({
   allData,
-  displayData,
   pokedexData,
   abilityData,
   displayNum,
@@ -53,8 +50,11 @@ function Main({
   // 最初の一回だけ実行⇒アロー関数でラップ
   const [page, setPage] = useState<number>(() => getPageFromUrl());
 
+  // 実際に表示するリスト
+  const [currentList, setCurrentList] = useState<LsPokemon[]>(allData);
+
   // 総ページ数（派生ステートとして計算）
-  const totalPages = Math.ceil((allData.current?.length || 0) / displayNum);
+  const totalPages = Math.ceil((allData.length || 0) / displayNum);
 
   // モーダル開閉ハンドラ
   const modalRef = useRef<MainModalHandle | null>(null);
@@ -88,10 +88,7 @@ function Main({
     const endNum: number = displayNum * page;
 
     // ページ移動の時は開始番号を変更
-    const currentDisplayData = (displayData.current || []).slice(
-      startNum,
-      endNum,
-    );
+    const currentDisplayData = (currentList || []).slice(startNum, endNum);
     return currentDisplayData.map((pokemon: LsPokemon) => (
       <div
         key={pokemon.id}
@@ -110,27 +107,24 @@ function Main({
         <Card pokemon={pokemon} />
       </div>
     ));
-  }, [displayData, page, modalRef, displayNum]);
+  }, [currentList, page, modalRef, displayNum]);
 
   //
   /* ページ遷移時の処理 */
   useEffect(() => {
-    console.log('useEffect Start');
     // 表示データを最新に更新
-    if (allData.current) {
-      displayData.current = allData.current;
+    if (allData) {
+      setCurrentList(allData); // 全データが対象の時
     }
 
     // ページが変わった時だけ画面トップに戻す
-
     document.getElementById('root')?.scrollIntoView({
       behavior: 'instant',
       block: 'start',
     });
 
-    console.log('useEffect End');
     console.log(`Page changed to: ${page}`);
-  }, [page, displayNum, allData, displayData]);
+  }, [page, displayNum, allData]);
 
   /* 描画内容 */
   return (
@@ -169,7 +163,7 @@ function Main({
           pokemon={selectPokemon}
           pokedexData={pokedexData}
           abilityData={abilityData}
-          allData={allData.current || []}
+          allData={allData || []}
           onClose={() => setSelectPokemon(null)}
           key={selectPokemon.id}
         />

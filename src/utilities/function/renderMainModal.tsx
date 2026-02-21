@@ -1,7 +1,6 @@
 /* メインモーダルの表示内容制御するファイル */
 
 import React from 'react';
-import { type RefObject } from 'react';
 import { commonImgURL, eggs, types } from '../dataInfo';
 import type {
   AbilityObj,
@@ -48,7 +47,7 @@ import CompareImagesAll from '../../components/CompareImagesAll';
 export const renderMainModal = (
   pokemon: LsPokemon,
   mergeResult: RenderObj,
-  pokedexData: RefObject<PokedexData[]>,
+  pokedexData: PokedexData[],
   pokemonDetail: PokemonDetail,
   pokemonSpecies: PokemonSpeciesDetail,
 ): React.ReactNode => {
@@ -88,9 +87,8 @@ export const renderMainModal = (
 
   // 登場バージョン（DLC含む）
   //  バージョン一覧を取得
-  const versions: PokedexData['vGroup'][number]['version'] = formatVersion(
-    pokedexData.current,
-  );
+  const versions: PokedexData['vGroup'][number]['version'] =
+    formatVersion(pokedexData);
   // 当該ポケモンの登場バージョンのidだけ抜き出し
   const pokeApp: number[] = pokedex.versionNames.map((version) => {
     return version.id;
@@ -98,10 +96,7 @@ export const renderMainModal = (
   const showVersions: React.ReactNode = showVersionList(versions, pokeApp);
 
   // 生息地方
-  const showRegions: React.ReactNode = getAppRegion(
-    pokedex,
-    pokedexData.current,
-  );
+  const showRegions: React.ReactNode = getAppRegion(pokedex, pokedexData);
 
   // べビ・幻・伝説判定
   const isBaby = (): React.ReactNode => {

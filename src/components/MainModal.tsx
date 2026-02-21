@@ -1,10 +1,4 @@
-import React, {
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
-  type RefObject,
-} from 'react';
+import React, { useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { IoIosCloseCircleOutline } from 'react-icons/io';
 
 // 呼び出し関数・型
@@ -37,8 +31,8 @@ import Loading from './Loading';
 interface MainModalProps {
   ref: React.Ref<MainModalHandle>;
   pokemon: LsPokemon;
-  pokedexData: RefObject<PokedexData[]>;
-  abilityData: RefObject<AbilityData[]>;
+  pokedexData: PokedexData[];
+  abilityData: AbilityData[];
   allData: LsPokemon[];
   onClose: () => void;
 }
@@ -162,8 +156,8 @@ function MainModal({
       const mergeResult: RenderObj = await mergePokemonDetails(
         pokemon,
         result,
-        pokedexData.current,
-        abilityData.current,
+        pokedexData,
+        abilityData,
         allData,
       );
       console.log('Fetched data:', result);

@@ -40,7 +40,6 @@ function App() {
 
   // 検索・表示に使用する全ポケモンデータを格納
   const pokemonAllData = useRef<LsPokemon[]>([]);
-  const pokemonDisplayData = useRef<LsPokemon[]>([]);
 
   const pokedexData = useRef<PokedexData[]>([]); // 図鑑・バージョン情報
   const abilityData = useRef<AbilityData[]>([]); // 特性情報
@@ -128,10 +127,9 @@ function App() {
             <Loading />
           ) : (
             <Main
-              allData={pokemonAllData}
-              displayData={pokemonDisplayData}
-              pokedexData={pokedexData}
-              abilityData={abilityData}
+              allData={pokemonAllData.current}
+              pokedexData={pokedexData.current}
+              abilityData={abilityData.current}
               displayNum={displayNum}
               displayType={displayType}
             />
