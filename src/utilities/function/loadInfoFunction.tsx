@@ -4,12 +4,31 @@
 import { type RefObject } from 'react';
 import { err, ok, Result } from 'neverthrow';
 
-import type { AbilityDetail, FetchError, OthersAll, PokedexDetail, RegionDetail, VersionDetail, VersionGroupDetail } from '../types/typesFetch';
-import type { AbilityData, PokedexData } from '../types/typesUtility';
+import type {
+  AbilityDetail,
+  FetchError,
+  OthersAll,
+  PokedexDetail,
+  RegionDetail,
+  VersionDetail,
+  VersionGroupDetail,
+} from '../types/typesFetch';
+import type {
+  AbilityData,
+  PokedexData,
+  setAbilityData,
+  setPokedexData,
+} from '../types/typesUtility';
 
 import { fetchInitialData } from './fetchPokemon';
 import { alertError } from './fetchFunction';
-import { getAllJaData, getEndID, getJaData, getLsData, storageAvailable } from './utilityFunction';
+import {
+  getAllJaData,
+  getEndID,
+  getJaData,
+  getLsData,
+  storageAvailable,
+} from './utilityFunction';
 import { getPokemonData } from './loadPokemonFunction';
 
 /***  処理記述 ***/
@@ -25,14 +44,21 @@ import { getPokemonData } from './loadPokemonFunction';
  *  ・特性情報の取得
  *  ※処理の大きな流れが同じ⇒独立かつまとめて処理
  */
-export const loadOtherInfoProcess = async (pokedexData: RefObject<PokedexData[]>, abilityData: RefObject<AbilityData[]>, isOILoading: RefObject<boolean>, signal: AbortSignal) => {
+export const loadOtherInfoProcess = async (
+  pokedexData: PokedexData[],
+  abilityData: AbilityData[],
+  setPokedexData: setPokedexData,
+  setAbilityData: setAbilityData,
+  isOILoading: RefObject<boolean>,
+  signal: AbortSignal,
+) => {
   //
   // 図鑑・バージョン情報
-  await getPokedexInfo(pokedexData, signal);
+  await getPokedexInfo(pokedexData, setPokedexData, signal);
 
   //
   // 特性情報
-  await getAbilityInfo(abilityData, signal);
+  await getAbilityInfo(abilityData, setAbilityData, signal);
 
   // 情報取得終了
   isOILoading.current = false;
@@ -45,10 +71,18 @@ export const loadOtherInfoProcess = async (pokedexData: RefObject<PokedexData[]>
  *   @param signal:AbortSignal fetch操作を止めるシグナル
  *   @return void
  */
-const getPokedexInfo = async (pokedexData: RefObject<PokedexData[]>, signal: AbortSignal) => {
+const getPokedexInfo = async (
+  pokedexData: PokedexData[],
+  setPokedexData: setPokedexData,
+  signal: AbortSignal,
+) => {
   // バージョン情報が一番追加頻度が高い
   // ⇒バージョン情報で最新か確認
-  const currentVersionApiResult: Result<OthersAll, FetchError> = await fetchInitialData<OthersAll>('https://pokeapi.co/api/v2/version?offset=0&limit=500', signal);
+  const currentVersionApiResult: Result<OthersAll, FetchError> =
+    await fetchInitialData<OthersAll>(
+      'https://pokeapi.co/api/v2/version?offset=0&limit=500',
+      signal,
+    );
 
   // 一連のfetch中のエラーここで最終処理
   if (currentVersionApiResult.isErr()) {
@@ -61,31 +95,39 @@ const getPokedexInfo = async (pokedexData: RefObject<PokedexData[]>, signal: Abo
   const currentLsPokedexCount = Number(localStorage.getItem('pokeVerCount'));
 
   // ローカルストレージに図鑑情報あるか確認
-  if (storageAvailable('localStorage') && localStorage.getItem('pokedex') && currentVersionApiResult.value.count === currentLsPokedexCount) {
+  if (
+    storageAvailable('localStorage') &&
+    localStorage.getItem('pokedex') &&
+    currentVersionApiResult.value.count === currentLsPokedexCount
+  ) {
     // ローカルストレージが使える
     // 既存図鑑データがある
     // 既存データと保存数値が同じ
     //
     // LSからデータ取ってきて変数pokedexDataに格納
-    getLsData<PokedexData>(pokedexData, 'pokedex');
+    getLsData<PokedexData>(setPokedexData, 'pokedex');
   } else {
     // 図鑑データがない or 数不一致
 
     // 図鑑・バージョン情報取得
     // await で中身の各種fetchがそれぞれ終わるの待つ
-    const getResult: Result<[RegionDetail[], PokedexDetail[], VersionDetail[], VersionGroupDetail[]], FetchError> = await getAllInfo(signal);
+    const getResult: Result<
+      [RegionDetail[], PokedexDetail[], VersionDetail[], VersionGroupDetail[]],
+      FetchError
+    > = await getAllInfo(signal);
 
     // fetch結果を加工
     // ここが完了してからLS登録処理⇒awaitで待機
     await getResult.match(
       // 全部成功⇒ 非同期処理の結果を受け取るのでasync/await構文
       async ([regions, pokedex, version, versionGroup]) => {
-        const normalizeResult: Result<PokedexData[], never> = await buildRegionInfoData(regions, pokedex, version, versionGroup);
+        const normalizeResult: Result<PokedexData[], never> =
+          await buildRegionInfoData(regions, pokedex, version, versionGroup);
 
         // 成功結果取り出し・格納
         normalizeResult.map((success) => {
-          pokedexData.current = success;
-          console.log(pokedexData.current);
+          setPokedexData(success);
+          // console.log(pokedexData.current);
         });
       },
       // 失敗有
@@ -97,11 +139,14 @@ const getPokedexInfo = async (pokedexData: RefObject<PokedexData[]>, signal: Abo
     // LSが使えるなら情報保存
     if (storageAvailable('localStorage')) {
       // バージョン数を保存
-      localStorage.setItem('pokeVerCount', currentVersionApiResult.value.count.toString());
+      localStorage.setItem(
+        'pokeVerCount',
+        currentVersionApiResult.value.count.toString(),
+      );
 
-      console.log({ pokedexData });
+      // console.log({ pokedexData });
       // 図鑑情報を文字列化して保存
-      localStorage.setItem('pokedex', JSON.stringify(pokedexData.current));
+      localStorage.setItem('pokedex', JSON.stringify(pokedexData));
     }
   }
 };
@@ -112,7 +157,14 @@ const getPokedexInfo = async (pokedexData: RefObject<PokedexData[]>, signal: Abo
  *   @param signal:AbortSignal fetch操作を止めるシグナル
  *   @return void
  */
-const getAllInfo = async (signal: AbortSignal): Promise<Result<[RegionDetail[], PokedexDetail[], VersionDetail[], VersionGroupDetail[]], FetchError>> => {
+const getAllInfo = async (
+  signal: AbortSignal,
+): Promise<
+  Result<
+    [RegionDetail[], PokedexDetail[], VersionDetail[], VersionGroupDetail[]],
+    FetchError
+  >
+> => {
   // 各種情報取得を並行処理・全て終わるのを待つ（Promise.all）
   const allResult = await Promise.all([
     getEachInfo<RegionDetail>('region', signal), // 地方
@@ -134,9 +186,16 @@ const getAllInfo = async (signal: AbortSignal): Promise<Result<[RegionDetail[], 
  *   @param signal:AbortSignal fetch操作を止めるシグナル
  *   @return Promise
  */
-async function getEachInfo<T>(endPoint: string, signal: AbortSignal): Promise<Result<T[], FetchError>> {
+async function getEachInfo<T>(
+  endPoint: string,
+  signal: AbortSignal,
+): Promise<Result<T[], FetchError>> {
   // 対象情報の全体数取得
-  const getInfoResult: Result<OthersAll, FetchError> = await fetchInitialData<OthersAll>(`https://pokeapi.co/api/v2/${endPoint}/?offset=0&limit=500`, signal);
+  const getInfoResult: Result<OthersAll, FetchError> =
+    await fetchInitialData<OthersAll>(
+      `https://pokeapi.co/api/v2/${endPoint}/?offset=0&limit=500`,
+      signal,
+    );
 
   // リスト取得失敗時のハンドリング
   if (getInfoResult.isErr()) {
@@ -147,7 +206,11 @@ async function getEachInfo<T>(endPoint: string, signal: AbortSignal): Promise<Re
   // IDリスト抽出
   const searchNum: number[] = getEndID(getInfoResult.value.results);
 
-  const infoDetails: Result<T[], FetchError> = await getPokemonData<T>(searchNum, endPoint, signal);
+  const infoDetails: Result<T[], FetchError> = await getPokemonData<T>(
+    searchNum,
+    endPoint,
+    signal,
+  );
 
   // エラー処理
   if (infoDetails.isErr()) {
@@ -167,7 +230,12 @@ async function getEachInfo<T>(endPoint: string, signal: AbortSignal): Promise<Re
  *   @param signal:AbortSignal fetch操作を止めるシグナル
  *   @return Promise
  */
-async function buildRegionInfoData(regions: RegionDetail[], pokedexes: PokedexDetail[], versions: VersionDetail[], versionGroups: VersionGroupDetail[]): Promise<Result<PokedexData[], never>> {
+async function buildRegionInfoData(
+  regions: RegionDetail[],
+  pokedexes: PokedexDetail[],
+  versions: VersionDetail[],
+  versionGroups: VersionGroupDetail[],
+): Promise<Result<PokedexData[], never>> {
   // 各情報を並列して整理
   const allTransformResult = await Promise.all([
     /* ok()でPromiseの箱に格納⇒Promise.allで簡単に処理できる */
@@ -185,14 +253,26 @@ async function buildRegionInfoData(regions: RegionDetail[], pokedexes: PokedexDe
     ok(transformVersionGroup(versionGroups)),
   ]);
   // 4関数の結果を引数に統合関数に渡して親関数に返す
-  return Result.combine(allTransformResult).map(([transformPokedex, transformRegion, transformVersion, transformVersionGroup]) => {
-    console.log({ transformPokedex });
-    console.log({ transformRegion });
-    console.log({ transformVersion });
-    console.log({ transformVersionGroup });
-    // PokedexData型配列を返す
-    return normalizeInfo(transformPokedex, transformRegion, transformVersion, transformVersionGroup);
-  });
+  return Result.combine(allTransformResult).map(
+    ([
+      transformPokedex,
+      transformRegion,
+      transformVersion,
+      transformVersionGroup,
+    ]) => {
+      console.log({ transformPokedex });
+      console.log({ transformRegion });
+      console.log({ transformVersion });
+      console.log({ transformVersionGroup });
+      // PokedexData型配列を返す
+      return normalizeInfo(
+        transformPokedex,
+        transformRegion,
+        transformVersion,
+        transformVersionGroup,
+      );
+    },
+  );
 }
 
 // 地方図鑑の情報加工
@@ -212,7 +292,8 @@ const transformPokedex = (pokedexes: PokedexDetail[]): TfPokedex[] => {
     const isMain: boolean = pokedex.is_main_series;
 
     const tmpName: PokedexDetail['names'] = getJaData(pokedex.names);
-    const name: string = tmpName && tmpName.length > 0 ? tmpName[0].name : pokedex.name;
+    const name: string =
+      tmpName && tmpName.length > 0 ? tmpName[0].name : pokedex.name;
 
     const region: number = getEndID([pokedex.region])[0];
     const vGroup: number[] = getEndID(pokedex.version_groups);
@@ -243,7 +324,8 @@ const transformRegion = (regions: RegionDetail[]): TfRegion[] => {
     const id: number = region.id;
     const mainGeneration = getEndID([region.main_generation])[0];
     const tmpName: RegionDetail['names'] = getJaData(region.names);
-    const name: string = tmpName && tmpName.length > 0 ? tmpName[0].name : region.name;
+    const name: string =
+      tmpName && tmpName.length > 0 ? tmpName[0].name : region.name;
     const pokedex = getEndID(region.pokedexes);
     const vGroup: number[] = getEndID(region.version_groups);
 
@@ -270,7 +352,8 @@ const transformVersion = (versions: VersionDetail[]): TfVersion[] => {
   const result: TfVersion[] = versions.map((version) => {
     const id: number = version.id;
     const tmpName: RegionDetail['names'] = getJaData(version.names);
-    const name: string = tmpName && tmpName.length > 0 ? tmpName[0].name : version.name;
+    const name: string =
+      tmpName && tmpName.length > 0 ? tmpName[0].name : version.name;
     const vGroup: number[] = getEndID([version.version_groups]);
 
     return {
@@ -308,7 +391,12 @@ const transformVersionGroup = (versionGroups: VersionGroupDetail[]): TfVG[] => {
 };
 
 // 統合
-const normalizeInfo = (tPokedex: TfPokedex[], tRegion: TfRegion[], tVersion: TfVersion[], tVersionGroup: TfVG[]): PokedexData[] => {
+const normalizeInfo = (
+  tPokedex: TfPokedex[],
+  tRegion: TfRegion[],
+  tVersion: TfVersion[],
+  tVersionGroup: TfVG[],
+): PokedexData[] => {
   // pokedexを基準にPokedexData型オブジェクト配列を生成・返す
   return tPokedex.flatMap((pokedex) => {
     //region情報
@@ -321,7 +409,12 @@ const normalizeInfo = (tPokedex: TfPokedex[], tRegion: TfRegion[], tVersion: TfV
         return tVersionGroup.find((tVG) => tVG.id === vg);
       })
       // returnの結果からundefinedを弾く（undefinedがないことを宣言）
-      .filter((vgFound): vgFound is { id: number; generation: number; version: number[] } => vgFound !== undefined);
+      .filter(
+        (
+          vgFound,
+        ): vgFound is { id: number; generation: number; version: number[] } =>
+          vgFound !== undefined,
+      );
     // vgFound:findでヒットしたvGroupの要素（filterにかける対象）
     // 「=> vgFound !== undefined」判定。true/false
     // 「: vgFound is {型}」: => 以降の判定がtrueなら、vgFoundは{型}で確定（型アサーション）
@@ -342,7 +435,10 @@ const normalizeInfo = (tPokedex: TfPokedex[], tRegion: TfRegion[], tVersion: TfV
 };
 
 // バージョングループに含まれるバージョンの情報を取得・格納
-const normalizeVersionAndVgroup = (targetVGs: TfVG[], tVersion: TfVersion[]): PokedexData['vGroup'] => {
+const normalizeVersionAndVgroup = (
+  targetVGs: TfVG[],
+  tVersion: TfVersion[],
+): PokedexData['vGroup'] => {
   // 1. 取得したバージョングループ情報の配列を回す
   return targetVGs.map((vgObj) => {
     // 2. vgObj内のversion[]を回す
@@ -363,7 +459,10 @@ const normalizeVersionAndVgroup = (targetVGs: TfVG[], tVersion: TfVersion[]): Po
         };
       })
       // returnの結果からnullを除外
-      .filter((matchIdObj): matchIdObj is NonNullable<typeof matchIdObj> => matchIdObj !== null);
+      .filter(
+        (matchIdObj): matchIdObj is NonNullable<typeof matchIdObj> =>
+          matchIdObj !== null,
+      );
 
     // 必要な情報を必要な形式に詰める
     // バージョングループ情報ごと詰める
@@ -381,9 +480,17 @@ const normalizeVersionAndVgroup = (targetVGs: TfVG[], tVersion: TfVersion[]): Po
  *   @param signal:AbortSignal fetch操作を止めるシグナル
  *   @return void
  */
-const getAbilityInfo = async (abilityData: RefObject<AbilityData[]>, signal: AbortSignal) => {
+const getAbilityInfo = async (
+  abilityData: AbilityData[],
+  setAbilityData: setAbilityData,
+  signal: AbortSignal,
+) => {
   // 特性情報取得
-  const currentAbilityApiResult: Result<OthersAll, FetchError> = await fetchInitialData<OthersAll>('https://pokeapi.co/api/v2/ability?offset=0&limit=1000', signal);
+  const currentAbilityApiResult: Result<OthersAll, FetchError> =
+    await fetchInitialData<OthersAll>(
+      'https://pokeapi.co/api/v2/ability?offset=0&limit=1000',
+      signal,
+    );
 
   // 一連のfetch中のエラーここで最終処理
   if (currentAbilityApiResult.isErr()) {
@@ -396,28 +503,36 @@ const getAbilityInfo = async (abilityData: RefObject<AbilityData[]>, signal: Abo
   const currentLsAbilityCount = Number(localStorage.getItem('abilityCount'));
 
   // ローカルストレージに特性情報あるか確認
-  if (storageAvailable('localStorage') && localStorage.getItem('ability') && currentAbilityApiResult.value.count === currentLsAbilityCount) {
+  if (
+    storageAvailable('localStorage') &&
+    localStorage.getItem('ability') &&
+    currentAbilityApiResult.value.count === currentLsAbilityCount
+  ) {
     // ローカルストレージが使える
     // 既存図鑑データがある
     // 既存データと保存数値が同じ
     //
     // LSからデータ取ってきて変数pokedexDataに格納
-    getLsData<AbilityData>(abilityData, 'ability');
+    getLsData<AbilityData>(setAbilityData, 'ability');
   }
 
-  if (!localStorage.getItem('ability') || currentAbilityApiResult.value.count !== currentLsAbilityCount) {
+  if (
+    !localStorage.getItem('ability') ||
+    currentAbilityApiResult.value.count !== currentLsAbilityCount
+  ) {
     // 特性データがない or 数不一致
 
     // 特性のIDリスト抽出
     const searchNum: number[] = getEndID(currentAbilityApiResult.value.results);
 
     // 特性取得
-    const abilityDetail: Result<AbilityDetail[], FetchError> = await getPokemonData<AbilityDetail>(searchNum, 'ability', signal);
+    const abilityDetail: Result<AbilityDetail[], FetchError> =
+      await getPokemonData<AbilityDetail>(searchNum, 'ability', signal);
 
     // 結果を加工
     await abilityDetail.match(
       async (success) => {
-        await normalizeAbility(success, abilityData);
+        await normalizeAbility(success, setAbilityData);
       },
       (resultError: FetchError) => console.log(resultError),
     ); // エラーだから返して終了)
@@ -425,10 +540,13 @@ const getAbilityInfo = async (abilityData: RefObject<AbilityData[]>, signal: Abo
     // LSが使えるなら情報保存
     if (storageAvailable('localStorage')) {
       // 特性数を保存
-      localStorage.setItem('abilityCount', currentAbilityApiResult.value.count.toString());
+      localStorage.setItem(
+        'abilityCount',
+        currentAbilityApiResult.value.count.toString(),
+      );
 
       // 特性情報を文字列化して保存
-      localStorage.setItem('ability', JSON.stringify(abilityData.current));
+      localStorage.setItem('ability', JSON.stringify(abilityData));
     }
   }
 };
@@ -440,7 +558,10 @@ const getAbilityInfo = async (abilityData: RefObject<AbilityData[]>, signal: Abo
  *   @param abilityData:RefObject(あとでLSに詰める特性関連データ,useRef)
  *   @return void
  */
-const normalizeAbility = (getData: AbilityDetail[], abilityData: RefObject<AbilityData[]>): AbilityData[] => {
+const normalizeAbility = (
+  getData: AbilityDetail[],
+  setAbilityData: setAbilityData,
+): AbilityData[] => {
   // 配列getDataの要素ability１つずつに加工処理
   const result: AbilityData[] = getData.map((ability) => {
     // 日本語名を取得
@@ -449,7 +570,9 @@ const normalizeAbility = (getData: AbilityDetail[], abilityData: RefObject<Abili
     console.log({ tmpName });
 
     // 日本語テキストとバージョングループidを取得
-    const tmpTextObj: { flavor_text: string; id: number[] }[] = getAllJaData(ability.flavor_text_entries);
+    const tmpTextObj: { flavor_text: string; id: number[] }[] = getAllJaData(
+      ability.flavor_text_entries,
+    );
 
     // 型を一致させるためにもう一度map処理（共通関数はそのまま）
     const textObj = tmpTextObj.map((obj) => {
@@ -467,6 +590,6 @@ const normalizeAbility = (getData: AbilityDetail[], abilityData: RefObject<Abili
     };
   });
 
-  abilityData.current = result;
+  setAbilityData(result);
   return result;
 };

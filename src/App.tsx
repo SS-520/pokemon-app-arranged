@@ -39,10 +39,10 @@ function App() {
   /** 画面表示 **/
 
   // 検索・表示に使用する全ポケモンデータを格納
-  const pokemonAllData = useRef<LsPokemon[]>([]);
+  const [pokemonAllData, setPokemonAllData] = useState<LsPokemon[]>([]);
 
-  const pokedexData = useRef<PokedexData[]>([]); // 図鑑・バージョン情報
-  const abilityData = useRef<AbilityData[]>([]); // 特性情報
+  const [pokedexData, setPokedexData] = useState<PokedexData[]>([]); // 図鑑・バージョン情報
+  const [abilityData, setAbilityData] = useState<AbilityData[]>([]); // 特性情報
 
   // URLから取得する情報（表示件数）
   const getDisplayNumFromUrl = (): number => {
@@ -90,6 +90,7 @@ function App() {
     loadPokemonProcess(
       initialURL,
       pokemonAllData,
+      setPokemonAllData,
       setIsLoading,
       isBgLoading,
       controller.signal,
@@ -99,6 +100,8 @@ function App() {
     loadOtherInfoProcess(
       pokedexData,
       abilityData,
+      setPokedexData,
+      setAbilityData,
       isOILoading,
       controller.signal,
     );
@@ -127,9 +130,9 @@ function App() {
             <Loading />
           ) : (
             <Main
-              allData={pokemonAllData.current}
-              pokedexData={pokedexData.current}
-              abilityData={abilityData.current}
+              allData={pokemonAllData}
+              pokedexData={pokedexData}
+              abilityData={abilityData}
               displayNum={displayNum}
               displayType={displayType}
             />
