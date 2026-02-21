@@ -3,7 +3,11 @@ import type { RefObject } from 'react';
 import { Pagination, Stack } from '@mui/material'; //ページング
 
 // 呼び出し関数・型
-import type { AbilityData, LsPokemon, PokedexData } from '../utilities/types/typesUtility';
+import type {
+  AbilityData,
+  LsPokemon,
+  PokedexData,
+} from '../utilities/types/typesUtility';
 import { showDetail } from '../utilities/function/renderFunction';
 import type { MainModalHandle } from '../utilities/types/typesUtility';
 
@@ -23,7 +27,14 @@ interface MainProps {
   displayNum: number;
   displayType: boolean;
 }
-function Main({ allData, displayData, pokedexData, abilityData, displayNum, displayType }: MainProps) {
+function Main({
+  allData,
+  displayData,
+  pokedexData,
+  abilityData,
+  displayNum,
+  displayType,
+}: MainProps) {
   /* 各種設定宣言 */
 
   // URLから取得する情報
@@ -36,8 +47,6 @@ function Main({ allData, displayData, pokedexData, abilityData, displayNum, disp
     // 確実に1か渡ってきた数値を返す
     return isNaN(page) || page < 1 ? 1 : page;
   };
-
-  displayData.current = allData.current;
 
   // ページ番号設定
   // URLパラメータのpage値があるならそれを設置
@@ -78,9 +87,25 @@ function Main({ allData, displayData, pokedexData, abilityData, displayNum, disp
     const endNum: number = displayNum * page;
 
     // ページ移動の時は開始番号を変更
-    const currentDisplayData = (displayData.current || []).slice(startNum, endNum);
+    const currentDisplayData = (displayData.current || []).slice(
+      startNum,
+      endNum,
+    );
     return currentDisplayData.map((pokemon: LsPokemon, index: number) => (
-      <div key={index} className="pokemonCard" data-id={pokemon.id} onClick={() => showDetail(modalRef, pokemon, setSelectPokemon)}>
+      <div
+        key={index}
+        className='pokemonCard'
+        data-id={pokemon.id}
+        onClick={() => showDetail(modalRef, pokemon, setSelectPokemon)}
+        role='button'
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            showDetail(modalRef, pokemon, setSelectPokemon);
+          }
+        }}
+        aria-label={`${pokemon.name}の詳細を表示`}
+      >
         <Card pokemon={pokemon} />
       </div>
     ));
@@ -109,21 +134,47 @@ function Main({ allData, displayData, pokedexData, abilityData, displayNum, disp
   /* 描画内容 */
   return (
     <React.Fragment>
-      <main className={`pokemonCardContainer ${displayType ? 'list' : 'grid'}`} id="pokemonCardContainer">
+      <main
+        className={`pokemonCardContainer ${displayType ? 'list' : 'grid'}`}
+        id='pokemonCardContainer'
+      >
         {pokemonListContent}
       </main>
-      <div className="btn" id="paging">
-        <Stack className="pagination">
+      <div className='btn' id='paging'>
+        <Stack className='pagination'>
           {/* count: 総ページ数
               boundaryCount: 最初と最後に表示する数
               siblingCount: 現在のページの左右に表示する数
             */}
-          <Pagination count={totalPages} page={page} onChange={handleChange} color="primary" size="medium" boundaryCount={1} siblingCount={1} showFirstButton showLastButton className="paginationNav" />
+          <Pagination
+            count={totalPages}
+            page={page}
+            onChange={handleChange}
+            color='primary'
+            size='medium'
+            boundaryCount={1}
+            siblingCount={1}
+            showFirstButton
+            showLastButton
+            className='paginationNav'
+          />
         </Stack>
       </div>
 
       {/* selectPokemonがnullかで処理分岐*/}
-      {selectPokemon ? <MainModal ref={modalRef} pokemon={selectPokemon} pokedexData={pokedexData} abilityData={abilityData} allData={allData.current || []} onClose={() => setSelectPokemon(null)} /> : <React.Fragment></React.Fragment>}
+      {selectPokemon ? (
+        <MainModal
+          ref={modalRef}
+          pokemon={selectPokemon}
+          pokedexData={pokedexData}
+          abilityData={abilityData}
+          allData={allData.current || []}
+          onClose={() => setSelectPokemon(null)}
+          key={selectPokemon.id}
+        />
+      ) : (
+        <React.Fragment></React.Fragment>
+      )}
     </React.Fragment>
   );
 }
