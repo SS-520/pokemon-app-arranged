@@ -14,7 +14,6 @@ import {} from '../scss/Main.scss';
 import MainModal from './MainModal';
 import Loading from './Loading';
 import Card from './Card';
-import List from './List';
 
 // props定義
 interface MainProps {
