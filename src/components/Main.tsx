@@ -50,7 +50,8 @@ function Main({
 
   // ページ番号設定
   // URLパラメータのpage値があるならそれを設置
-  const [page, setPage] = useState<number>(getPageFromUrl());
+  // 最初の一回だけ実行⇒アロー関数でラップ
+  const [page, setPage] = useState<number>(() => getPageFromUrl());
 
   // 総ページ数（派生ステートとして計算）
   const totalPages = Math.ceil((allData.current?.length || 0) / displayNum);

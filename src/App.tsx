@@ -2,7 +2,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 // 外部の関数・型定義ファイル
-import type { AbilityData, LsPokemon, PokedexData } from './utilities/types/typesUtility';
+import type {
+  AbilityData,
+  LsPokemon,
+  PokedexData,
+} from './utilities/types/typesUtility';
 import { loadPokemonProcess } from './utilities/function/loadPokemonFunction';
 import { loadOtherInfoProcess } from './utilities/function/loadInfoFunction';
 
@@ -16,7 +20,8 @@ import Main from './components/Main';
 // コンポーネントメイン記述
 function App() {
   // 土台になるポケモンAPIのURLを指定
-  const initialURL: string = 'https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0';
+  const initialURL: string =
+    'https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0';
 
   /** ローディング判定 **/
 
@@ -52,7 +57,10 @@ function App() {
 
   // 表示開始index番号
   // 表示件数（初期値：30匹）
-  const [displayNum, setDisplayNum] = useState<number>(getDisplayNumFromUrl());
+  // 最初の一回だけ実行⇒アロー関数でラップ
+  const [displayNum, setDisplayNum] = useState<number>(() =>
+    getDisplayNumFromUrl(),
+  );
 
   // URLから取得する情報（表示形式）
   const getDisplayTypeFromUrl = (): boolean => {
@@ -66,7 +74,10 @@ function App() {
   };
 
   // 表示形式
-  const [displayType, setDisplayType] = useState<boolean>(getDisplayTypeFromUrl()); // false: grid, true: list
+  // 最初の一回だけ実行⇒アロー関数でラップ
+  const [displayType, setDisplayType] = useState<boolean>(() =>
+    getDisplayTypeFromUrl(),
+  ); // false: grid, true: list
 
   // 画面に表示するポケモンデータ
 
@@ -77,10 +88,21 @@ function App() {
     const controller = new AbortController();
 
     // メインのポケモン一覧取得
-    loadPokemonProcess(initialURL, pokemonAllData, setIsLoading, isBgLoading, controller.signal);
+    loadPokemonProcess(
+      initialURL,
+      pokemonAllData,
+      setIsLoading,
+      isBgLoading,
+      controller.signal,
+    );
 
     // 地方・バージョンデータ取得
-    loadOtherInfoProcess(pokedexData, abilityData, isOILoading, controller.signal);
+    loadOtherInfoProcess(
+      pokedexData,
+      abilityData,
+      isOILoading,
+      controller.signal,
+    );
 
     return () => {
       // 1回目の実行（マウント）直後に呼ばれるため、リクエストをキャンセルする
@@ -92,12 +114,28 @@ function App() {
   console.log({ abilityData });
   return (
     <React.Fragment>
-      <NavigationBar setDisplayNum={setDisplayNum} displayNum={displayNum} setDisplayType={setDisplayType} displayType={displayType} />
-      <div className="App">
+      <NavigationBar
+        setDisplayNum={setDisplayNum}
+        displayNum={displayNum}
+        setDisplayType={setDisplayType}
+        displayType={displayType}
+      />
+      <div className='App'>
         {
           // 変数loadingの状態で画面の表示を変更⇒短いのでifを使用せず３項演算子で済ませる
           // 条件文 ? trueの処理 : falseの処理
-          isLoading ? <Loading /> : <Main allData={pokemonAllData} displayData={pokemonDisplayData} pokedexData={pokedexData} abilityData={abilityData} displayNum={displayNum} displayType={displayType} />
+          isLoading ? (
+            <Loading />
+          ) : (
+            <Main
+              allData={pokemonAllData}
+              displayData={pokemonDisplayData}
+              pokedexData={pokedexData}
+              abilityData={abilityData}
+              displayNum={displayNum}
+              displayType={displayType}
+            />
+          )
         }
       </div>
     </React.Fragment>
