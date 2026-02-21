@@ -9,32 +9,97 @@
 @import url('https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap');
 
 // スタイル記述
-header#navigation {
-  background-color: #dd1e24;
-  height: 10vh;
+.navArea {
   position: sticky;
   top: 0;
-  padding-top: variables.$safeTop;
-  h1 {
-    height: 100%;
-    font-family: 'Dela Gothic One', sans-serif;
-    color: #fff2f2;
-    font-size: 1.75rem;
-    padding-right: 10vw;
-    @include mixins.itemCenter;
+  display: grid;
+  grid-template-columns: 1fr repeat(2, auto);
+  grid-template-rows: 10vh auto;
 
-    @include media.media('tb') {
-      font-size: 5vh;
+  header#navigation {
+    grid-row: 1;
+    grid-column: 1/-1;
+
+    padding-top: variables.$safeTop;
+    h1 {
+      background-color: #dd1e24;
+      height: 100%;
+      font-family: 'Dela Gothic One', sans-serif;
+      color: #fff2f2;
+      font-size: 1.75rem;
+      padding-right: 10vw;
+      @include mixins.itemCenter;
+
+      @include media.media('tb') {
+        font-size: 5vh;
+      }
+
+      @include media.media('pc') {
+        padding-right: 0;
+        font-size: 4vh;
+      }
     }
-
-    @include media.media('pc') {
-      padding-right: 0;
-      font-size: 4vh;
+    .titleLogo {
+      height: 40%;
+      margin-bottom: 20px;
+      margin-right: 3px;
     }
   }
-  .titleLogo {
-    height: 40%;
-    margin-bottom: 20px;
-    margin-right: 3px;
+  .icon {
+    // 共通
+    grid-row: 1;
+    z-index: 10;
+    align-self: center;
+    justify-self: center;
+    color: #fff2f2;
+    margin: 5px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    // 個別
+    &.changeDisplayIcon {
+      grid-column: 2;
+      font-size: 1.5em;
+      .iconText {
+        margin-top: -10px;
+      }
+    }
+    &.searchIcon {
+      grid-column: 3;
+      font-size: 1.25em;
+      padding-right: 5px;
+    }
+    .iconText {
+      margin-top: -5px;
+      font-size: 0.75rem;
+    }
+  }
+
+  .showItemsNumber {
+    grid-column: 1/-1;
+    grid-row: 2;
+    position: relative;
+
+    width: 100%;
+    padding: 0px 10px 5px;
+    background-color: #fdf8f6;
+    text-align: right;
+    justify-self: flex-end;
+    align-self: center;
+    & > label {
+      margin-right: 5px;
+      font-size: 0.85em;
+    }
+
+    & > select {
+      // display: block;
+      border: 1px solid #cccccc;
+      margin: 5px 0px;
+      padding: 5px;
+      text-align: right;
+    }
   }
 }

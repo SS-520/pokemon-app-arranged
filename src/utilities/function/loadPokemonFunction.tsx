@@ -32,7 +32,7 @@ import { parseJsonBody, alertError } from './fetchFunction';
   2-3. 取得したデータを画面に表示
 
   3-1. 更新がある
-  3-2. 最初の20件のデータを取得
+  3-2. 最初の30件のデータを取得
   3-3. 表示用データを画面に表示
   3-4. バックグラウンドで残りのデータを取得・格納
 */
@@ -77,7 +77,7 @@ export const loadPokemonProcess = async (initialURL: string, refPokemonData: Ref
     // 上記３点を１つでも満たさない
     // ⇒APIからデータを取ってくる
     // 時間がかかる処理なので終わるまで次に進めない(await)
-    await getNowPokemonData(pokedexNumArray, refPokemonData, currentLsCount, 20, signal);
+    await getNowPokemonData(pokedexNumArray, refPokemonData, currentLsCount, 30, signal);
   }
 
   // ローディング画面解除
