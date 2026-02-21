@@ -213,6 +213,13 @@ function MainModal({
       className='mainModal'
       id='mainModal'
       tabIndex={-1}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          handleBackdropClick(
+            e as unknown as React.MouseEvent<HTMLDialogElement>,
+          );
+        }
+      }}
     >
       <button className='modalCloseButton' onClick={handleClose}>
         <IoIosCloseCircleOutline />
