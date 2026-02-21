@@ -83,10 +83,10 @@ export const renderMainModal = (pokemon: LsPokemon, mergeResult: RenderObj, poke
   // サイズ
   const pokemonSize = (): React.ReactNode => {
     return (
-      <>
+      <React.Fragment>
         <div className='height'>体長: {pokemonDetail.height / 10}m</div>
         <div>体重: {pokemonDetail.weight / 10}kg</div>
-      </>
+      </React.Fragment>
     );
   };
 
@@ -97,19 +97,19 @@ export const renderMainModal = (pokemon: LsPokemon, mergeResult: RenderObj, poke
   const rateGender = (): React.ReactNode => {
     const rate: number = pokemonSpecies.gender_rate;
     if (rate < 0) {
-      return <>性別無</>;
+      return <React.Fragment>性別無</React.Fragment>;
     } else {
       const maleRate: number = ((8 - rate) / 8) * 100;
       const femaleRate: number = (rate / 8) * 100;
       return (
-        <>
+        <React.Fragment>
           <div className='genderRate male'>
             <IoMdMale /> {maleRate}%
           </div>
           <div className='genderRate female'>
             <IoMdFemale /> {femaleRate}%
           </div>
-        </>
+        </React.Fragment>
       );
     }
   };
@@ -138,7 +138,7 @@ export const renderMainModal = (pokemon: LsPokemon, mergeResult: RenderObj, poke
         </section>
       );
     } else {
-      <></>;
+      <React.Fragment></React.Fragment>;
     }
   };
 
@@ -185,7 +185,7 @@ export const renderMainModal = (pokemon: LsPokemon, mergeResult: RenderObj, poke
     if (evolution.length > 1) {
       return <p className='annotation'>※通常／リージョンフォームが混在する場合があります</p>;
     } else {
-      return <></>;
+      return <React.Fragment></React.Fragment>;
     }
   };
 
@@ -374,7 +374,7 @@ const showVersionList = (versions: PokedexData['vGroup'][number]['version'], pok
 
   // 2. グループ化されたデータを元にレンダリング
   return (
-    <>
+    <React.Fragment>
       {/* 世代別にループ */}
       {Object.entries(groupedVersions).map(([generation, generationVersions]) => (
         <dd data-generation={generation} className={`generations gene${generation}`} key={Number(generation)}>
@@ -393,7 +393,7 @@ const showVersionList = (versions: PokedexData['vGroup'][number]['version'], pok
           </span>
         </dd>
       ))}
-    </>
+    </React.Fragment>
   );
 };
 
@@ -419,7 +419,7 @@ const setImgs = (images: ImageObj, name: LsPokemon['name']): React.ReactNode => 
     // オスメス＋それぞれ色違いの画像でオブジェクト
 
     return (
-      <>
+      <React.Fragment>
         <div className='defaultImg'>
           <figure className='detail male'>
             <figcaption>
@@ -451,11 +451,11 @@ const setImgs = (images: ImageObj, name: LsPokemon['name']): React.ReactNode => 
             <img src={images.shinyFemaleImg} alt={`${name}・メスの色違い画像`} />
           </figure>
         </div>
-      </>
+      </React.Fragment>
     );
   } else if (images.defaultImg !== '') {
     return (
-      <>
+      <React.Fragment>
         <div className='commonImg'>
           <figure className='detail male'>
             <figcaption>
@@ -472,11 +472,11 @@ const setImgs = (images: ImageObj, name: LsPokemon['name']): React.ReactNode => 
             <img src={images.shinyImg} alt={`${name}の色違い画像`} />
           </figure>
         </div>
-      </>
+      </React.Fragment>
     );
   } else {
     // 画像がない場合
-    <>
+    <React.Fragment>
       <div className='commonImg'>
         <figure className='detail male'>
           <figcaption>
@@ -493,7 +493,7 @@ const setImgs = (images: ImageObj, name: LsPokemon['name']): React.ReactNode => 
           <img src={noImage} alt={`未登録の${name}の色違い画像`} />
         </figure>
       </div>
-    </>;
+    </React.Fragment>;
   }
 };
 
@@ -590,7 +590,7 @@ const setEvoChain = (evolutions: EvoObj[]) => {
       }
     });
     return (
-      <>
+      <React.Fragment>
         {evolutions.map((evo, index) => {
           // 前後周との進化段階比較
           const preLevel = index > 0 ? evolutions[index - 1] : null;
@@ -627,7 +627,7 @@ const setEvoChain = (evolutions: EvoObj[]) => {
             </React.Fragment>
           );
         })}
-      </>
+      </React.Fragment>
     );
   } else {
     // 進化無：evolutions.length=1⇒本人だけ
