@@ -27,20 +27,31 @@ function CompareImagesShiny({ images, name }: CompareImagesShinyProps) {
   // 表示内容
   return (
     <div className='compareShiny'>
-      <img src={isShiny ? images.shinyImg : images.defaultImg} alt={`${isShiny ? '色違い' : '通常'}の${name}の画像`} className='compareImg' />
+      <img
+        src={isShiny ? images.shinyImg : images.defaultImg}
+        alt={`${isShiny ? '色違い' : '通常'}の${name}の画像`}
+        className='compareImg'
+      />
       <div className='switchArea'>
         <span className='iconWrap before'>
           <RxCircleBackslash />
         </span>
-        <div className={`switchBox toggle ${isShiny ? 'checked' : ''}`} onClick={handleToggle}>
+        <button
+          className={`switchBox toggle ${isShiny ? 'checked' : ''}`}
+          onClick={handleToggle}
+          type='button'
+          aria-label='色違い切り替えトグル'
+        >
           <input
             className='switch'
             type='checkbox'
             name='check'
             checked={isShiny}
             onChange={() => {}} // onClickで制御するため、警告回避の空関数
+            tabIndex={-1}
+            aria-hidden='true'
           />
-        </div>
+        </button>
         <span className='iconWrap after'>
           <BsStars />
         </span>

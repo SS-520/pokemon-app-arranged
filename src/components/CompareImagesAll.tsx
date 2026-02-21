@@ -48,20 +48,31 @@ function CompareImagesAll({ images, name }: CompareImagesAllProps) {
   const showGender = () => {
     return (
       <React.Fragment>
-        <img src={isGender ? images.femaleImg! : images.defaultImg} alt={`${isGender ? 'メス' : 'オス'}の${name}の画像`} className='compareImg' />
+        <img
+          src={isGender ? images.femaleImg! : images.defaultImg}
+          alt={`${isGender ? 'メス' : 'オス'}の${name}の画像`}
+          className='compareImg'
+        />
         <div className='switchArea'>
           <span className='iconWrap before'>
             <IoMdMale />
           </span>
-          <div className={`switchBox toggle ${isGender ? 'checked' : ''}`} onClick={() => handleToggle('gender')}>
+          <button
+            className={`switchBox toggle ${isGender ? 'checked' : ''}`}
+            onClick={() => handleToggle('gender')}
+            type='button'
+            aria-label='性別切り替えトグル'
+          >
             <input
               className='switch'
               type='checkbox'
               name='check'
               checked={isGender}
               onChange={() => {}} // onClickで制御するため、警告回避の空関数
+              tabIndex={-1}
+              aria-hidden='true'
             />
-          </div>
+          </button>
           <span className='iconWrap after'>
             <IoMdFemale />
           </span>
@@ -74,20 +85,31 @@ function CompareImagesAll({ images, name }: CompareImagesAllProps) {
   const showShiny = () => {
     return (
       <React.Fragment>
-        <img src={isShiny ? images.shinyImg : images.defaultImg} alt={`${isShiny ? '色違い' : '通常'}の${name}の画像`} className='compareImg' />
+        <img
+          src={isShiny ? images.shinyImg : images.defaultImg}
+          alt={`${isShiny ? '色違い' : '通常'}の${name}の画像`}
+          className='compareImg'
+        />
         <div className='switchArea'>
           <span className='iconWrap before'>
             <RxCircleBackslash />
           </span>
-          <div className={`switchBox toggle ${isShiny ? 'checked' : ''}`} onClick={() => handleToggle('shiny')}>
+          <button
+            className={`switchBox toggle ${isShiny ? 'checked' : ''}`}
+            onClick={() => handleToggle('shiny')}
+            type='button'
+            aria-label='色違い切り替えトグル'
+          >
             <input
               className='switch'
               type='checkbox'
               name='check'
               checked={isShiny}
               onChange={() => {}} // onClickで制御するため、警告回避の空関数
+              tabIndex={-1}
+              aria-hidden='true'
             />
-          </div>
+          </button>
           <span className='iconWrap after'>
             <BsStars />
           </span>
@@ -99,11 +121,17 @@ function CompareImagesAll({ images, name }: CompareImagesAllProps) {
   /* レンダリング結果 */
   return (
     <div className='compareImages'>
-      <button className={`buttonGender ${isShow ? 'off' : 'on'}`} onClick={() => changeToGender()}>
+      <button
+        className={`buttonGender ${isShow ? 'off' : 'on'}`}
+        onClick={() => changeToGender()}
+      >
         <IoMdMale />
         <IoMdFemale />
       </button>
-      <button className={`buttonShiny ${isShow ? 'on' : 'off'}`} onClick={() => changeToShiny()}>
+      <button
+        className={`buttonShiny ${isShow ? 'on' : 'off'}`}
+        onClick={() => changeToShiny()}
+      >
         <BsStars />
       </button>
       <div className='imageArea'>{isShow ? showShiny() : showGender()}</div>
