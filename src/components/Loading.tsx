@@ -1,35 +1,30 @@
-import { useEffect, useState } from 'react';
-import '../scss/Loading.scss';
+import { useState } from 'react';
 import type { BallDetails } from '../utilities/types/typesUtility';
 import { balls } from '../utilities/dataInfo';
 
+// スタイル
+import '../scss/Loading.scss';
+
 // ランダムでボールのを選んでアイコンを表示
-
 function Loading() {
-  // ボール種類をセット
-  // ※index[0]=初期化用ダミーデータ
-  const [ballType, setBallType] = useState<BallDetails>(balls[0]);
-
   // どのボールを表示するかランダムで選ぶ
-  const randomBallSelect = (): void => {
-    const randomBallNum: number = Math.floor(Math.random() * balls.length) + 1;
-    setBallType(balls[randomBallNum]);
+  const randomBallSelect = (): BallDetails => {
+    //  Math.random() * (個数) で、欲しい範囲の数を作る
+    const randomBallNum: number = Math.floor(Math.random() * balls.length - 1) + 1;
+    return balls[randomBallNum];
   };
 
-  // コンポーネントを呼び出す初回だけrandom処理実行
-  useEffect(() => {
-    const controller = new AbortController();
-    randomBallSelect();
-    return () => {
-      // 1回目の実行（マウント）直後に呼ばれるため、リクエストをキャンセルする
-      controller.abort();
-    };
-  }, []);
+  // ボール種類をセット
+  // ※index[0]=初期化用ダミーデータ
+  // 再セットはしないのでsetBallTypeは不要
+  const [ballType] = useState<BallDetails>(randomBallSelect);
+  // ※「()」をつけない
+  // ⇒関数の内容だけ渡して、必要な時だけ実行される
 
   // imgはballType.imgURLが設定されてるときのみ表示
   return (
-    <div className='loading'>
-      {ballType.imgURL ? <img alt={`loadingAnimation（${ballType.name}）`} className='loadImg' src={ballType.imgURL} /> : null}
+    <div className="loading">
+      {ballType.imgURL ? <img alt={`loadingAnimation（${ballType.name}）`} className="loadImg" src={ballType.imgURL} /> : null}
       <p>Now Loading...</p>
     </div>
   );
