@@ -92,9 +92,9 @@ function Main({
       startNum,
       endNum,
     );
-    return currentDisplayData.map((pokemon: LsPokemon, index: number) => (
+    return currentDisplayData.map((pokemon: LsPokemon) => (
       <div
-        key={index}
+        key={pokemon.id}
         className='pokemonCard'
         data-id={pokemon.id}
         onClick={() => showDetail(modalRef, pokemon, setSelectPokemon)}
