@@ -1,5 +1,5 @@
 // 基本設定と拡張機能
-import { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 // 外部の関数・型定義ファイル
 import type { AbilityData, LsPokemon, PokedexData } from './utilities/types/typesUtility';
@@ -24,14 +24,6 @@ function App() {
   // ロード中/ロード済の二択なのでbooleanで判断
   // 初期値⇒リロード＝ローディング中＝true
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  // メモ化でオブジェクトの再生成を抑止
-  // const isLoadingValue = useMemo(
-  //   () => ({
-  //     isLoading,
-  //     setIsLoading,
-  //   }),
-  //   [isLoading],
-  // );
 
   // バックグラウンドでデータ取得中かの判定
   const isBgLoading = useRef<boolean>(true);
@@ -47,6 +39,34 @@ function App() {
 
   const pokedexData = useRef<PokedexData[]>([]); // 図鑑・バージョン情報
   const abilityData = useRef<AbilityData[]>([]); // 特性情報
+
+  // URLから取得する情報（表示件数）
+  const getDisplayNumFromUrl = (): number => {
+    // URLパラメータを取得
+    const params = new URLSearchParams(window.location.search);
+    // 負の数や小数点が入ってきたら修正
+    const displayNum = parseInt(params.get('Num') ?? '30', 10); // 10は10進数として処理⇒小数点なども整数に直す
+    // 確実に1か渡ってきた数値を返す
+    return isNaN(displayNum) || displayNum < 1 ? 1 : displayNum;
+  };
+
+  // 表示開始index番号
+  // 表示件数（初期値：30匹）
+  const [displayNum, setDisplayNum] = useState<number>(getDisplayNumFromUrl());
+
+  // URLから取得する情報（表示形式）
+  const getDisplayTypeFromUrl = (): boolean => {
+    // URLパラメータを取得
+    const params = new URLSearchParams(window.location.search);
+    // 負の数や小数点が入ってきたら修正
+    const displayType: number = parseInt(params.get('Type') ?? '0', 10); // 10は10進数として処理⇒小数点なども整数に直す
+    // false: grid, true: list
+    // 'true'で渡ってきたとき以外は全てfalse扱いになる
+    return Boolean(displayType);
+  };
+
+  // 表示形式
+  const [displayType, setDisplayType] = useState<boolean>(getDisplayTypeFromUrl()); // false: grid, true: list
 
   // 画面に表示するポケモンデータ
 
@@ -71,16 +91,16 @@ function App() {
   // 表示カードを作成
   console.log({ abilityData });
   return (
-    <>
-      <NavigationBar />
-      <div className='App'>
+    <React.Fragment>
+      <NavigationBar setDisplayNum={setDisplayNum} displayNum={displayNum} setDisplayType={setDisplayType} displayType={displayType} />
+      <div className="App">
         {
           // 変数loadingの状態で画面の表示を変更⇒短いのでifを使用せず３項演算子で済ませる
           // 条件文 ? trueの処理 : falseの処理
-          isLoading ? <Loading /> : <Main allData={pokemonAllData} displayData={pokemonDisplayData} pokedexData={pokedexData} abilityData={abilityData} />
+          isLoading ? <Loading /> : <Main allData={pokemonAllData} displayData={pokemonDisplayData} pokedexData={pokedexData} abilityData={abilityData} displayNum={displayNum} displayType={displayType} />
         }
       </div>
-    </>
+    </React.Fragment>
   );
 }
 
