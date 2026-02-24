@@ -10,9 +10,6 @@ import type {
   PokedexData,
   RenderObj,
 } from '../utilities/types/typesUtility';
-import {
-  useScrollLock,
-} from '../utilities/function/mainModalFunction';
 import { loadModalData } from '../utilities/function/mainModalFunction';
 import { renderMainModal } from '../utilities/function/renderMainModal';
 
@@ -51,19 +48,6 @@ function MainModal({
   // HTMLDialogElement : <dialog> 要素を操作するメソッド
   const dialogRef = useRef<HTMLDialogElement | null>(null);
 
-
-  // 背景スクロール固定用ステート
-  // 初期値をtrueにすることでマウント時の同期setStateを回避
-  const [isLocked, setIsLocked] = useState(true);
-
-  /**
-   * 背景スクロールロックの適用
-   * useScrollLock(isLocked) により、isLockedがtrueの間bodyをfixedにする。
-   * 解除時にwindow.scrollToで元の位置に戻る前提の実装。
-   */
-  const scrollPosRef = useRef(0);
-  useScrollLock(isLocked, scrollPosRef);
-
   /**
    * モーダルを閉じる共通処理
    * setIsOpen(false) を呼ぶ⇒ useScrollLock 内部の解除ロジック（位置復元）を発火
@@ -73,8 +57,6 @@ function MainModal({
     if (dialogRef.current?.open) {
       dialogRef.current.close();
     }
-    setIsLocked(false); // useScrollLock内のscrollToが発火し元の位置に戻る
-    setModalContent(null); // モーダルの中身を空にする
 
     // 親側の selectPokemon を null に更新する
     // ⇒MainModalがアンマウントして消える
@@ -94,10 +76,7 @@ function MainModal({
     // 親側で変数を叩くと子側の機能が発火
 
     // モーダルを開く
-    showModal: () => {
-      // スクロール位置を確定させてからロックをかける
-      setIsLocked(true);
-    },
+    showModal: () => {},
     // モーダルを閉じる
     closeModal: () => {
       handleClose();
@@ -109,7 +88,7 @@ function MainModal({
    * preventScroll: true を使用して初回トップ戻りを防止
    */
   useEffect(() => {
-    if (isLocked && dialogRef.current && !dialogRef.current.open) {
+    if (dialogRef.current && !dialogRef.current.open) {
       dialogRef.current.showModal();
       // フォーカスによる自動スクロール移動を防止
       dialogRef.current.focus({ preventScroll: true });
