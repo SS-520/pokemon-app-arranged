@@ -50,9 +50,6 @@ function Main({
   // 最初の一回だけ実行⇒アロー関数でラップ
   const [page, setPage] = useState<number>(() => getPageFromUrl());
 
-  // 実際に表示するリスト
-  const [currentList, setCurrentList] = useState<LsPokemon[]>(allData);
-
   // 総ページ数（派生ステートとして計算）
   const totalPages = Math.ceil((allData.length || 0) / displayNum);
 
@@ -88,7 +85,7 @@ function Main({
     const endNum: number = displayNum * page;
 
     // ページ移動の時は開始番号を変更
-    const currentDisplayData = (currentList || []).slice(startNum, endNum);
+    const currentDisplayData = (allData || []).slice(startNum, endNum);
     return currentDisplayData.map((pokemon: LsPokemon) => (
       <div
         key={pokemon.id}
@@ -107,16 +104,10 @@ function Main({
         <Card pokemon={pokemon} />
       </div>
     ));
-  }, [currentList, page, modalRef, displayNum]);
+  }, [allData, page, modalRef, displayNum]);
 
-  //
   /* ページ遷移時の処理 */
   useEffect(() => {
-    // 表示データを最新に更新
-    if (allData) {
-      setCurrentList(allData); // 全データが対象の時
-    }
-
     // ページが変わった時だけ画面トップに戻す
     document.getElementById('root')?.scrollIntoView({
       behavior: 'instant',
@@ -124,7 +115,7 @@ function Main({
     });
 
     console.log(`Page changed to: ${page}`);
-  }, [page, displayNum, allData]);
+  }, [page, displayNum]);
 
   /* 描画内容 */
   return (
