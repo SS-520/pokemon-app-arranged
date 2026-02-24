@@ -17,7 +17,7 @@ dialog.mainModal {
   background-color: #fafafa;
   border: 1px solid #faeafa;
   border-radius: 5px;
-  position: relative; // buttonのabsoluteの下準備
+  position: fixed; // buttonのabsoluteの下準備＋モーダルオープン時の背景位置固定
   overflow: hidden; // モーダルの箱は動かさない
 
   &:focus {

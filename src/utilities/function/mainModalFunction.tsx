@@ -1,14 +1,75 @@
-/* メインモーダル関連の処理 */
+/* メインモーダルに表示する情報を取得する処理 */
 
 import type { Result } from 'neverthrow';
-import type { EvoChainDetail, FetchError, FormsDetail, ItemDetail, NameAndURL, PokemonDetail, PokemonSpeciesDetail } from '../types/typesFetch';
-import type { AbilityData, AbilityObj, DiffForms, DiffFormsObj, DiffFormsSpecies, EvoObj, EvoProcess, FlavorInfo, FlavorObj, ImageObj, LsPokemon, PokedexData, PokedexObj, RenderObj } from '../types/typesUtility';
+import type {
+  EvoChainDetail,
+  FetchError,
+  FormsDetail,
+  ItemDetail,
+  NameAndURL,
+  PokemonDetail,
+  PokemonSpeciesDetail,
+} from '../types/typesFetch';
+import type {
+  AbilityData,
+  AbilityObj,
+  DiffForms,
+  DiffFormsObj,
+  DiffFormsSpecies,
+  EvoObj,
+  EvoProcess,
+  FlavorInfo,
+  FlavorObj,
+  ImageObj,
+  LsPokemon,
+  ModalFetchResult,
+  PokedexData,
+  PokedexObj,
+  RenderObj,
+} from '../types/typesUtility';
 import { getPokemonData } from './loadPokemonFunction';
 import { alertError } from './fetchFunction';
-import { getAllJaData, getEndID, getJaData, getVersions } from './utilityFunction';
+import {
+  getAllJaData,
+  getEndID,
+  getJaData,
+  getVersions,
+} from './utilityFunction';
 import { commonImgURL } from '../dataInfo';
-import { useLayoutEffect, type RefObject } from 'react';
 
+/* メインの流れ */
+export const loadModalData = async (
+  pokemon: LsPokemon,
+  pokedexData: PokedexData[],
+  abilityData: AbilityData[],
+  allData: LsPokemon[],
+  signal: AbortSignal,
+) => {
+  // fetchDetailsを呼び出してポケモンの詳細データを取得
+  const result: ModalFetchResult = await fetchDetails(pokemon, signal);
+
+  // undefined⇒エラーを返してMainModal.tsx側でcatchしてrefetch
+  if (!result) throw new Error('データ取得に失敗');
+
+  // 処理中止の号令（aborted）⇒エラーを返してMainModal.tsx側でcatchしてrefetch
+  if (signal.aborted) throw new Error('処理中止');
+
+  // 成功時処理
+  // awaitで確実に終わらせてから次へ
+  const mergeResult: RenderObj = await mergePokemonDetails(
+    pokemon,
+    result,
+    pokedexData,
+    abilityData,
+    allData,
+  );
+
+  console.log({ result, mergeResult });
+
+  return { result, mergeResult };
+};
+
+/* 各情報の取得 */
 // APIで表示対象のポケモン情報取得
 /*** @name fetchDetails
  *   @function arrow async/await
@@ -645,57 +706,4 @@ function getEvoSpecies(evoData: EvoChainDetail['chain'], depts: number, result: 
     });
   }
   return result;
-}
-
-// モーダル背景のスクロールをロックするカスタムフック
-/*** @name fetchDetails
- *   @function
- *   @param isLocked:boolean 表示対象基礎データ
- *   @return void
- */
-export function useScrollLock(isLocked: boolean, scrollPosRef: RefObject<number>): void {
-  useLayoutEffect(() => {
-    if (typeof document === 'undefined') return;
-    const { body, documentElement } = document;
-
-    if (isLocked) {
-      // 1. スタイル適用前に現在の位置を確定
-      const scrollY = window.pageYOffset || documentElement.scrollTop;
-      (scrollPosRef as React.RefObject<number>).current = scrollY;
-
-      const scrollBarWidth = window.innerWidth - documentElement.clientWidth;
-
-      // 2. bodyを固定
-      body.style.top = `-${scrollY}px`;
-      body.style.position = 'fixed';
-      body.style.left = '0';
-      body.style.width = '100%';
-      body.style.paddingRight = `${scrollBarWidth}px`;
-      body.style.overflowY = 'hidden';
-    } else {
-      // 3. 解除
-      const scrollY = scrollPosRef.current;
-
-      body.style.position = '';
-      body.style.top = '';
-      body.style.left = '';
-      body.style.width = '';
-      body.style.paddingRight = '';
-      body.style.overflowY = '';
-
-      // 4. 保存していた位置へ復元
-      if (scrollY !== undefined && scrollY > 0) {
-        window.scrollTo(0, scrollY);
-      }
-    }
-
-    return () => {
-      body.style.position = '';
-      body.style.top = '';
-      body.style.left = '';
-      body.style.width = '';
-      body.style.paddingRight = '';
-      body.style.overflowY = '';
-    };
-  }, [isLocked]);
 }

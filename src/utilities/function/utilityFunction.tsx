@@ -1,12 +1,17 @@
 /**
  * 各種パーツとして使用する関数を記述するファイル
  */
-import { type RefObject } from 'react';
 import { ok, type Result } from 'neverthrow';
 
 import { commonImgURL } from '../dataInfo';
 
-import type { NameAndURL, PokemonSpeciesDetail, PokemonDetail, FetchError, AbilityDetail } from '../types/typesFetch';
+import type {
+  NameAndURL,
+  PokemonSpeciesDetail,
+  PokemonDetail,
+  FetchError,
+  AbilityDetail,
+} from '../types/typesFetch';
 import type { LsPokemon, PokedexData } from '../types/typesUtility';
 
 import { parseJsonBody } from './fetchFunction';
@@ -54,31 +59,21 @@ export function storageAvailable(type: string): boolean {
  *   @param lsName:string 取得するLSのkey名
  *   @return void
  */
-export function getLsData<T>(refData: RefObject<T[]>, lsName: string): void {
+export function getLsData<T>(lsName: string): Result<T[], FetchError> {
   // ローカルストレージの既存データを取得
   const currentLsData = localStorage.getItem(lsName);
 
   // 既存データがあればJSON変換
   // 無い：「成功」の空配列（ok<LsPokemon[], FetchError>([])）を返す
-  const pokemonDataResult: Result<T[], FetchError> = currentLsData ? parseJsonBody<T[]>(currentLsData, `localStorage:${lsName}`) : ok<T[], FetchError>([]);
+  const pokemonDataResult: Result<T[], FetchError> = currentLsData
+    ? parseJsonBody<T[]>(currentLsData, `localStorage:${lsName}`)
+    : ok<T[], FetchError>([]);
 
-  pokemonDataResult.match(
-    (pokemonData: T[]) => {
-      console.log('Jsonパース成功');
+  // パース失敗時の処理はparseJsonBodyが行ってるので省略
+  // パース成功時は成功結果をそのまま返す
+  console.log({ pokemonDataResult });
 
-      // 取得・JSON変換結果をアプリ内で使用データに格納
-      refData.current = pokemonData;
-      console.log({ refData });
-    },
-    (resultError: FetchError) => {
-      console.log(`Jsonパースに失敗しました。詳細は以下の通りです。
-      \n通信先：${resultError.context?.url},
-      \nエラータイプ：${resultError.type},
-      \n通信ステータス：${resultError.status},
-      \nメッセージ：${resultError.message},
-      \nエラーボディ：${resultError.context?.responseSnippet}`);
-    },
-  );
+  return pokemonDataResult;
 }
 
 // ポケモンAPIのURLから末尾のID番号を取り出す
@@ -110,7 +105,9 @@ export function getEndID<T extends { url: string }>(results: T[]): number[] {
  * @param apiArray:T[] APIから返された、languageを含む型の配列
  * @returns T[]:T型配列（null=[]で処理)
  */
-export function getJaData<T extends { language: NameAndURL }>(apiArray: T[]): T[] {
+export function getJaData<T extends { language: NameAndURL }>(
+  apiArray: T[],
+): T[] {
   // 最後に日本語
 
   // 言語がjaに一致するものを返す（最優先）
@@ -142,20 +139,32 @@ export function getJaData<T extends { language: NameAndURL }>(apiArray: T[]): T[
 
 // abilityかspeciesのフレーバーテキストを使うのでユニオン型にまとめておく
 // 配列型[number]⇒「その配列の中にある数値インデックスのデータ（＝要素）」
-type Flavor = AbilityDetail['flavor_text_entries'][number] | PokemonSpeciesDetail['flavor_text_entries'][number];
+type Flavor =
+  | AbilityDetail['flavor_text_entries'][number]
+  | PokemonSpeciesDetail['flavor_text_entries'][number];
 // 関数
-export function getAllJaData(apiArray: Flavor[]): { flavor_text: string; id: number[] }[] {
+export function getAllJaData(
+  apiArray: Flavor[],
+): { flavor_text: string; id: number[] }[] {
   // 言語がjaに一致するものを返す
-  const jaData: Flavor[] = apiArray.filter((item: Flavor) => item.language.name === 'ja').filter((foundData): foundData is Flavor => foundData !== undefined);
+  const jaData: Flavor[] = apiArray
+    .filter((item: Flavor) => item.language.name === 'ja')
+    .filter((foundData): foundData is Flavor => foundData !== undefined);
 
   // 累積データ＝配列を受け取る
   const entriesResult: { flavor_text: string; id: number[] }[] = jaData.reduce(
-    (accumulator: { flavor_text: string; id: number[] }[], currentData: Flavor) => {
+    (
+      accumulator: { flavor_text: string; id: number[] }[],
+      currentData: Flavor,
+    ) => {
       const fText = currentData.flavor_text.replace(/[\n]/g, '　'); // フレーバーテキストを格納＋改行を全角に変換
 
       // 引数の型でurlを含むオブジェクト名が分岐
       // ⇒取得元切り替え処理
-      const currentProperty: NameAndURL = 'version_group' in currentData ? currentData.version_group : currentData.version;
+      const currentProperty: NameAndURL =
+        'version_group' in currentData
+          ? currentData.version_group
+          : currentData.version;
       // version_groupがプロパティにある？ 有：変数にversion_groupを入れる 無：変数にversionを入れる
 
       // version_group / versionのURLから末尾の値を抽出
@@ -197,7 +206,9 @@ export function getAllJaData(apiArray: Flavor[]): { flavor_text: string; id: num
  * @param apiArray:PokemonSpeciesDetail[] pokedexを含む型の配列
  * @returns PokemonSpeciesDetail[]:実質1要素だけ返す（null=[]で処理)
  */
-export function getNationalData(apiArray: PokemonSpeciesDetail['pokedex_numbers']): PokemonSpeciesDetail['pokedex_numbers'] {
+export function getNationalData(
+  apiArray: PokemonSpeciesDetail['pokedex_numbers'],
+): PokemonSpeciesDetail['pokedex_numbers'] {
   // 言語がnational(全国図鑑)に一致するものを返す
   const national = apiArray.find((item) => item.pokedex.name === 'national');
   // jaが存在した時点で返す
@@ -212,9 +223,12 @@ export function getNationalData(apiArray: PokemonSpeciesDetail['pokedex_numbers'
  * @param apiArray:PokemonSpeciesDetail[] pokedexを含む型の配列
  * @returns PokemonSpeciesDetail[]:実質1要素だけ返す（null=[]で処理)
  */
-export const getPokedexNumber = (nums: PokemonSpeciesDetail['pokedex_numbers']): number[] => {
+export const getPokedexNumber = (
+  nums: PokemonSpeciesDetail['pokedex_numbers'],
+): number[] => {
   // 図鑑リストから全国図鑑を抜く
-  const pokedexExNational: PokemonSpeciesDetail['pokedex_numbers'] = nums.filter((num) => num.pokedex.name !== 'national');
+  const pokedexExNational: PokemonSpeciesDetail['pokedex_numbers'] =
+    nums.filter((num) => num.pokedex.name !== 'national');
 
   // 全国図鑑以外の番号を取得
   const pokedex: number[] = pokedexExNational.map((obj) => {
@@ -236,16 +250,19 @@ export const getDisplayImg = (obj: PokemonDetail['sprites']): string | null => {
   const commonURL: string = commonImgURL;
 
   // 1. official-artworkがあったらその時点で返す
-  if (obj.other && obj.other['official-artwork'].front_default !== null) return obj.other['official-artwork'].front_default.split(commonURL)[1];
+  if (obj.other && obj.other['official-artwork'].front_default !== null)
+    return obj.other['official-artwork'].front_default.split(commonURL)[1];
 
   // 2. homeがあったらその時点で返す
-  if (obj.other && obj.other.home.front_default !== null) return obj.other.home.front_default?.split(commonURL)[1];
+  if (obj.other && obj.other.home.front_default !== null)
+    return obj.other.home.front_default?.split(commonURL)[1];
 
   // 3. 直下のデータがあったらその時点で返す
   if (obj.front_default !== null) return obj.front_default.split(commonURL)[1];
 
   // 4. gifのデータがあったら返す（最終手段）
-  if (obj.other && obj.other.showdown.front_default !== null) return obj.other.showdown.front_default.split(commonURL)[1];
+  if (obj.other && obj.other.showdown.front_default !== null)
+    return obj.other.showdown.front_default.split(commonURL)[1];
 
   // これでもないなら再帰的に掘り出す
   const firstImage: string | null = getFirstValidImage(obj.versions);
@@ -366,7 +383,10 @@ export const createNullSpecies = (id: number): PokemonSpeciesDetail => ({
  * @param addArray:LsPokemon[] 追加する配列
  * @returns LsPokemon[]:整理が終わった配列
  */
-export const mergeAndUniqueById = (currentArray: LsPokemon[], addArray: LsPokemon[]): LsPokemon[] => {
+export const mergeAndUniqueById = (
+  currentArray: LsPokemon[],
+  addArray: LsPokemon[],
+): LsPokemon[] => {
   // 既存データに取得したデータをマージ
   // currentLsDataJSONの配列、regLsDataの配列を解体＋全て結合
   // ※「...」のスプレッド構文を使用
@@ -427,7 +447,10 @@ export const isOnlyAlphabet = (str: string): boolean => {
  * @param vGroupArray:number[] バージョングループidの配列
  * @returns PokedexData['vGroup'][number]['version'] バージョンを一意に整理したオブジェクト配列
  */
-export const getVersions = (pokedexes: PokedexData[], vGroupArray: number[]): PokedexData['vGroup'][number]['version'] => {
+export const getVersions = (
+  pokedexes: PokedexData[],
+  vGroupArray: number[],
+): PokedexData['vGroup'][number]['version'] => {
   // 図鑑・バージョン情報をディープコピー
   const pokedex = structuredClone(pokedexes);
   // 図鑑データからバージョングループを取り出す
@@ -438,10 +461,14 @@ export const getVersions = (pokedexes: PokedexData[], vGroupArray: number[]): Po
     .flat(); // 二重配列にならないよう平坦化
 
   // 対象のバージョングループidと一致するデータを抽出
-  const targetVGroups: PokedexData['vGroup'] = [...vGroups].filter((group) => vGroupArray.includes(group.id));
+  const targetVGroups: PokedexData['vGroup'] = [...vGroups].filter((group) =>
+    vGroupArray.includes(group.id),
+  );
 
   // バージョン情報だけ抜く
-  const getVersions: PokedexData['vGroup'][number]['version'] = [...targetVGroups]
+  const getVersions: PokedexData['vGroup'][number]['version'] = [
+    ...targetVGroups,
+  ]
     .map((vGroup) => {
       return vGroup.version;
     })
@@ -450,7 +477,9 @@ export const getVersions = (pokedexes: PokedexData[], vGroupArray: number[]): Po
   // id:44,45,46（日本版赤緑青）があったら
   // id:1,2（グローバル赤青）と置き換える
 
-  const japanVersions: PokedexData['vGroup'][number]['version'] = [...getVersions].flatMap((version) => {
+  const japanVersions: PokedexData['vGroup'][number]['version'] = [
+    ...getVersions,
+  ].flatMap((version) => {
     // グローバル1,2を弾く
     if (version.id === 1 || version.id === 2) return [];
 
@@ -466,7 +495,9 @@ export const getVersions = (pokedexes: PokedexData[], vGroupArray: number[]): Po
   });
 
   // 世代、id順にソート
-  const sortedVersions: PokedexData['vGroup'][number]['version'] = [...japanVersions].sort((a, b) => {
+  const sortedVersions: PokedexData['vGroup'][number]['version'] = [
+    ...japanVersions,
+  ].sort((a, b) => {
     // 第１キー：世代
     if (a.generation !== b.generation) {
       return a.generation - b.generation;
@@ -478,7 +509,10 @@ export const getVersions = (pokedexes: PokedexData[], vGroupArray: number[]): Po
 
   // 重複削除
   // Set(配列)だとオブジェクトごとに別物判定⇒idを基準にMapで確実に処理
-  const uniqueMap = new Map<number, PokedexData['vGroup'][number]['version'][number]>();
+  const uniqueMap = new Map<
+    number,
+    PokedexData['vGroup'][number]['version'][number]
+  >();
   [...sortedVersions].forEach((version) => {
     uniqueMap.set(version.id, version);
   });

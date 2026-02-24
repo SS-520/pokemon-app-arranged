@@ -1,19 +1,34 @@
 // ユーザー定義の型の集積ファイル
 
 import type { Dispatch, SetStateAction } from 'react';
-import type { PokemonListResponse, PokemonDetail } from './typesFetch';
+import type {
+  PokemonListResponse,
+  PokemonDetail,
+  PokemonSpeciesDetail,
+  FormsDetail,
+  EvoChainDetail,
+  ItemDetail,
+} from './typesFetch';
 // ＊外部から呼び出すのが全体の定義⇒export を付与
 
 //// 状態変数の定義
 // useStateのの中身を更新するための型
-export type setURL = Dispatch<SetStateAction<PokemonListResponse['previous']> | PokemonListResponse['next']>;
+export type setURL = Dispatch<
+  SetStateAction<PokemonListResponse['previous']> | PokemonListResponse['next']
+>;
 
 export type setBoolean = Dispatch<SetStateAction<boolean>>;
 
 export type setNumber = Dispatch<SetStateAction<number>>;
 
-export type setTypePokemonDetailData = Dispatch<SetStateAction<PokemonDetail[]>>;
 export type setSelectPokemon = Dispatch<SetStateAction<LsPokemon | null>>;
+export type setTypePokemonDetailData = Dispatch<
+  SetStateAction<PokemonDetail[]>
+>;
+
+export type setPokemonAllData = Dispatch<SetStateAction<LsPokemon[]>>;
+export type setPokedexData = Dispatch<SetStateAction<PokedexData[]>>;
+export type setAbilityData = Dispatch<SetStateAction<AbilityData[]>>;
 
 export interface BallDetails {
   number: number;
@@ -63,7 +78,10 @@ export interface PokedexData {
   name: string;
   isMain: boolean;
   region: { id: number; name: string; mainGene: number };
-  vGroup: { id: number; version: { id: number; name: string; generation: number }[] }[];
+  vGroup: {
+    id: number;
+    version: { id: number; name: string; generation: number }[];
+  }[];
 }
 
 // 特性情報（fetch）
@@ -165,6 +183,17 @@ export interface EvoObj {
   name: string;
   img: string;
 }
+
+// fetchDetailsの返却値
+export type ModalFetchResult =
+  | {
+      pokemonDetail: PokemonDetail;
+      pokemonSpecies: PokemonSpeciesDetail;
+      pokemonForms: FormsDetail[];
+      pokemonEvoChain: EvoChainDetail;
+      pokemonEggItem: ItemDetail;
+    }
+  | undefined;
 
 // モーダルレンダリングに使う情報
 export interface RenderObj {

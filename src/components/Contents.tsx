@@ -1,34 +1,38 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import type { RefObject } from 'react';
 import { Pagination, Stack } from '@mui/material'; //ページング
 
 // 呼び出し関数・型
-import type { AbilityData, LsPokemon, PokedexData } from '../utilities/types/typesUtility';
+import type {
+  AbilityData,
+  LsPokemon,
+  PokedexData,
+} from '../utilities/types/typesUtility';
 import { showDetail } from '../utilities/function/renderFunction';
 import type { MainModalHandle } from '../utilities/types/typesUtility';
 
 // CSS呼び出し
-import {} from '../scss/Main.scss';
+import {} from '../scss/Contents.scss';
 
 // 呼び出しコンポーネント
 import MainModal from './MainModal';
-import Loading from './Loading';
 import Card from './Card';
 
 // props定義
-interface MainProps {
-  allData: RefObject<LsPokemon[]>;
-  displayData: RefObject<LsPokemon[]>;
-  pokedexData: RefObject<PokedexData[]>;
-  abilityData: RefObject<AbilityData[]>;
+interface ContentsProps {
+  allData: LsPokemon[];
+  pokedexData: PokedexData[];
+  abilityData: AbilityData[];
   displayNum: number;
   displayType: boolean;
 }
-function Main({ allData, displayData, pokedexData, abilityData, displayNum, displayType }: MainProps) {
+function Contents({
+  allData,
+  pokedexData,
+  abilityData,
+  displayNum,
+  displayType,
+}: ContentsProps) {
   /* 各種設定宣言 */
-
-  // この画面のローディング
-  const [isMainLoading, setIsMainLoading] = useState<boolean>(true);
 
   // URLから取得する情報
   //  ページ番号
@@ -41,15 +45,13 @@ function Main({ allData, displayData, pokedexData, abilityData, displayNum, disp
     return isNaN(page) || page < 1 ? 1 : page;
   };
 
-  displayData.current = allData.current;
-  const allDisplayData = useRef<number>(displayData.current.length); //全件数
-
   // ページ番号設定
   // URLパラメータのpage値があるならそれを設置
-  const [page, setPage] = useState<number>(getPageFromUrl());
+  // 最初の一回だけ実行⇒アロー関数でラップ
+  const [page, setPage] = useState<number>(() => getPageFromUrl());
 
-  // 総ページ数設定
-  const [totalPages, setTotalPages] = useState<number>(Math.ceil(allDisplayData.current / displayNum));
+  // 総ページ数（派生ステートとして計算）
+  const totalPages = Math.ceil((allData.length || 0) / displayNum);
 
   // モーダル開閉ハンドラ
   const modalRef = useRef<MainModalHandle | null>(null);
@@ -63,7 +65,6 @@ function Main({ allData, displayData, pokedexData, abilityData, displayNum, disp
    * @param {number} value 新しいページ番号
    */
   const handleChange = (_event: React.ChangeEvent<unknown>, value: number) => {
-    setIsMainLoading(true);
     console.log('start');
     //ページ番号をセット
     setPage(value);
@@ -84,34 +85,34 @@ function Main({ allData, displayData, pokedexData, abilityData, displayNum, disp
     const endNum: number = displayNum * page;
 
     // ページ移動の時は開始番号を変更
-    const currentDisplayData = [...displayData.current].slice(startNum, endNum);
-    return currentDisplayData.map((pokemon: LsPokemon, index: number) => (
-      <div key={index} className="pokemonCard" data-id={pokemon.id} onClick={() => showDetail(modalRef, pokemon, setSelectPokemon)}>
+    const currentDisplayData = (allData || []).slice(startNum, endNum);
+    return currentDisplayData.map((pokemon: LsPokemon) => (
+      <div
+        key={pokemon.id}
+        className='pokemonCard'
+        data-id={pokemon.id}
+        onClick={() => showDetail(modalRef, pokemon, setSelectPokemon)}
+        role='button'
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            showDetail(modalRef, pokemon, setSelectPokemon);
+          }
+        }}
+        aria-label={`${pokemon.name}の詳細を表示`}
+      >
         <Card pokemon={pokemon} />
       </div>
     ));
-  }, [displayData, page, modalRef, displayNum, displayType]);
+  }, [allData, page, modalRef, displayNum]);
 
-  //
   /* ページ遷移時の処理 */
   useEffect(() => {
-    console.log('useEffect Start');
-    // 表示データを最新に更新
-    if (allData.current) {
-      displayData.current = allData.current;
-      // 最大件数を最新に更新
-      setTotalPages(Math.ceil(displayData.current.length / displayNum));
-    }
-
     // ページが変わった時だけ画面トップに戻す
-
     document.getElementById('root')?.scrollIntoView({
       behavior: 'instant',
       block: 'start',
     });
-
-    console.log('useEffect End');
-    setIsMainLoading(false);
 
     console.log(`Page changed to: ${page}`);
   }, [page, displayNum]);
@@ -119,29 +120,49 @@ function Main({ allData, displayData, pokedexData, abilityData, displayNum, disp
   /* 描画内容 */
   return (
     <React.Fragment>
-      {isMainLoading ? (
-        <Loading />
-      ) : (
-        <React.Fragment>
-          <main className={`pokemonCardContainer ${displayType ? 'list' : 'grid'}`} id="pokemonCardContainer">
-            {pokemonListContent}
-          </main>
-          <div className="btn" id="paging">
-            <Stack className="pagination">
-              {/* count: 総ページ数
+      <main
+        className={`pokemonCardContainer ${displayType ? 'list' : 'grid'}`}
+        id='pokemonCardContainer'
+      >
+        {pokemonListContent}
+      </main>
+      <div className='btn' id='paging'>
+        <Stack className='pagination'>
+          {/* count: 総ページ数
               boundaryCount: 最初と最後に表示する数
               siblingCount: 現在のページの左右に表示する数
             */}
-              <Pagination count={totalPages} page={page} onChange={handleChange} color="primary" size="medium" boundaryCount={1} siblingCount={1} showFirstButton showLastButton className="paginationNav" />
-            </Stack>
-          </div>
-        </React.Fragment>
-      )}
+          <Pagination
+            count={totalPages}
+            page={page}
+            onChange={handleChange}
+            color='primary'
+            size='medium'
+            boundaryCount={1}
+            siblingCount={1}
+            showFirstButton
+            showLastButton
+            className='paginationNav'
+          />
+        </Stack>
+      </div>
 
       {/* selectPokemonがnullかで処理分岐*/}
-      {selectPokemon ? <MainModal ref={modalRef} pokemon={selectPokemon} pokedexData={pokedexData} abilityData={abilityData} allData={allData.current} onClose={() => setSelectPokemon(null)} /> : <React.Fragment></React.Fragment>}
+      {selectPokemon ? (
+        <MainModal
+          ref={modalRef}
+          pokemon={selectPokemon}
+          pokedexData={pokedexData}
+          abilityData={abilityData}
+          allData={allData || []}
+          onClose={() => setSelectPokemon(null)}
+          key={selectPokemon.id}
+        />
+      ) : (
+        <React.Fragment></React.Fragment>
+      )}
     </React.Fragment>
   );
 }
 
-export default Main;
+export default Contents;

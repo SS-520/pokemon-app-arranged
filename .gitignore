@@ -26,3 +26,5 @@ src/utilities/*.d.ts
 *.sln
 *.sw?
 src/utilities/sunaba.tsx
+react_tips.md
+react_tips.mdZone.Identifier
