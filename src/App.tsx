@@ -7,6 +7,7 @@ import type {
   AbilityData,
   LsPokemon,
   PokedexData,
+  ViewSettings,
 } from './utilities/types/typesUtility';
 import { loadPokemonProcess } from './utilities/function/loadPokemonFunction';
 import { loadPokedexProcess } from './utilities/function/loadPokedexFunction';
@@ -38,13 +39,6 @@ function App() {
     return isNaN(displayNum) || displayNum < 1 ? 1 : displayNum;
   };
 
-  // 表示開始index番号
-  // 表示件数（初期値：30匹）
-  // 最初の一回だけ実行⇒アロー関数でラップ
-  const [displayNum, setDisplayNum] = useState<number>(() =>
-    getDisplayNumFromUrl(),
-  );
-
   // URLから取得する情報（表示形式）
   const getDisplayTypeFromUrl = (): boolean => {
     // URLパラメータを取得
@@ -56,11 +50,16 @@ function App() {
     return Boolean(displayType);
   };
 
-  // 表示形式
+  // 表示設定をまとめたオブジェクト
   // 最初の一回だけ実行⇒アロー関数でラップ
-  const [displayType, setDisplayType] = useState<boolean>(() =>
-    getDisplayTypeFromUrl(),
-  ); // false: grid, true: list
+  const [viewSettings, setViewSettings] = useState<ViewSettings>(() => ({
+    displayNum: getDisplayNumFromUrl(), //初期値30
+    displayType: getDisplayTypeFromUrl(), // false（初期値）: grid, true: list
+  }));
+  // setViewSettingの更新専用関数
+  const updateViewSettings = (newVal: Partial<ViewSettings>): void => {
+    setViewSettings((prev) => ({ ...prev, ...newVal }));
+  };
 
   // 画面に表示するポケモンデータ
   const queryClient = useQueryClient();
@@ -151,10 +150,8 @@ function App() {
   return (
     <React.Fragment>
       <NavigationBar
-        setDisplayNum={setDisplayNum}
-        displayNum={displayNum}
-        setDisplayType={setDisplayType}
-        displayType={displayType}
+        viewSettings={viewSettings}
+        updateViewSettings={updateViewSettings}
       />
       <div className='App'>
         {
@@ -168,8 +165,8 @@ function App() {
               allData={pokemonAllData}
               pokedexData={pokedexData}
               abilityData={abilityData}
-              displayNum={displayNum}
-              displayType={displayType}
+              displayNum={viewSettings.displayNum}
+              displayType={viewSettings.displayType}
             />
           )
         }

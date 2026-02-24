@@ -204,3 +204,9 @@ export interface RenderObj {
   variationFormObj: DiffFormsObj;
   evoObj: EvoObj[];
 }
+
+// Stateをまとめる型
+export interface ViewSettings {
+  displayNum: number;
+  displayType: boolean;
+}
