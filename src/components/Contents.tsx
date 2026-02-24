@@ -11,27 +11,27 @@ import { showDetail } from '../utilities/function/renderFunction';
 import type { MainModalHandle } from '../utilities/types/typesUtility';
 
 // CSS呼び出し
-import {} from '../scss/Main.scss';
+import {} from '../scss/Contents.scss';
 
 // 呼び出しコンポーネント
 import MainModal from './MainModal';
 import Card from './Card';
 
 // props定義
-interface MainProps {
+interface ContentsProps {
   allData: LsPokemon[];
   pokedexData: PokedexData[];
   abilityData: AbilityData[];
   displayNum: number;
   displayType: boolean;
 }
-function Main({
+function Contents({
   allData,
   pokedexData,
   abilityData,
   displayNum,
   displayType,
-}: MainProps) {
+}: ContentsProps) {
   /* 各種設定宣言 */
 
   // URLから取得する情報
@@ -165,4 +165,4 @@ function Main({
   );
 }
 
-export default Main;
+export default Contents;

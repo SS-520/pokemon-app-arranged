@@ -17,7 +17,7 @@ import './scss/App.scss'; // viteがコンパイル時にcssに自動で処理�
 // 読み込むコンポーネント
 import NavigationBar from './components/NavigationBar';
 import Loading from './components/Loading';
-import Main from './components/Main';
+import Contents from './components/Contents';
 
 // コンポーネントメイン記述
 function App() {
@@ -164,7 +164,7 @@ function App() {
           isMainLoading || isPokedexLoading || isAbilityLoading ? (
             <Loading />
           ) : (
-            <Main
+            <Contents
               allData={pokemonAllData}
               pokedexData={pokedexData}
               abilityData={abilityData}
