@@ -23,3 +23,8 @@ body {
 #root {
   min-height: 100vh;
 }
+
+/* モーダルが開いている時、bodyをスクロール不可 */
+body:has(dialog[open]) {
+  overflow: hidden;
+}
