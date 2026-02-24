@@ -1,11 +1,7 @@
-/* 各種APIから変化する情報を取得する機能 */
-
-/* 各種機能記述ファイル */
-import { type RefObject } from 'react';
 import { err, ok, Result } from 'neverthrow';
 
+import type { PokedexData } from '../types/typesUtility';
 import type {
-  AbilityDetail,
   FetchError,
   OthersAll,
   PokedexDetail,
@@ -13,17 +9,9 @@ import type {
   VersionDetail,
   VersionGroupDetail,
 } from '../types/typesFetch';
-import type {
-  AbilityData,
-  PokedexData,
-  setAbilityData,
-  setPokedexData,
-} from '../types/typesUtility';
 
 import { fetchInitialData } from './fetchPokemon';
-import { alertError } from './fetchFunction';
 import {
-  getAllJaData,
   getEndID,
   getJaData,
   getLsData,
@@ -34,65 +22,35 @@ import { getPokemonData } from './loadPokemonFunction';
 /***  処理記述 ***/
 
 // 画面初回ロード時に行うメイン処理
-/*** @name loadProcess
+/*** @name loadPokedexProcess
  *   @function arrow, async/await
- *   @param pokedexData:RefObject(あとでLSに詰める図鑑関連データ,useRef)
- *   @param isOILoading:RefObject(バックグラウンドのローディング判定,useRef)
  *   @param signal:AbortSignal fetch操作を止めるシグナル
  *   @return void
  *  ・図鑑・バージョン情報の取得
- *  ・特性情報の取得
- *  ※処理の大きな流れが同じ⇒独立かつまとめて処理
  */
-export const loadOtherInfoProcess = async (
-  pokedexData: PokedexData[],
-  abilityData: AbilityData[],
-  setPokedexData: setPokedexData,
-  setAbilityData: setAbilityData,
-  isOILoading: RefObject<boolean>,
+
+export const loadPokedexProcess = async (
   signal: AbortSignal,
-) => {
-  //
-  // 図鑑・バージョン情報
-  await getPokedexInfo(pokedexData, setPokedexData, signal);
+): Promise<PokedexData[]> => {
+  // 図鑑・バージョン情報のURL
+  const pokedexURL: string =
+    'https://pokeapi.co/api/v2/version?offset=0&limit=500';
 
-  //
-  // 特性情報
-  await getAbilityInfo(abilityData, setAbilityData, signal);
-
-  // 情報取得終了
-  isOILoading.current = false;
-};
-
-// 地方関連の情報を取得
-/*** @name getPokedexInfo
- *   @function arrow, async/await
- *   @param pokedexData:RefObject(あとでLSに詰める図鑑関連データ,useRef)
- *   @param signal:AbortSignal fetch操作を止めるシグナル
- *   @return void
- */
-const getPokedexInfo = async (
-  pokedexData: PokedexData[],
-  setPokedexData: setPokedexData,
-  signal: AbortSignal,
-) => {
-  // バージョン情報が一番追加頻度が高い
-  // ⇒バージョン情報で最新か確認
+  // Pokedexにの最新状況（数値）を取得
   const currentVersionApiResult: Result<OthersAll, FetchError> =
-    await fetchInitialData<OthersAll>(
-      'https://pokeapi.co/api/v2/version?offset=0&limit=500',
-      signal,
-    );
+    await fetchInitialData<OthersAll>(pokedexURL, signal);
 
   // 一連のfetch中のエラーここで最終処理
   if (currentVersionApiResult.isErr()) {
-    // 画面にエラー内容表示
-    alertError(currentVersionApiResult);
-    return; // 関数実行終了
+    // エラーの場合throwして終了
+    throw currentVersionApiResult.error; // App.tsx側でcatchしてrefetch
   }
 
   // LSのバージョン数を取得
   const currentLsPokedexCount = Number(localStorage.getItem('pokeVerCount'));
+
+  // 取得データの最終結果を入れるための変数
+  let finalData: PokedexData[] = [];
 
   // ローカルストレージに図鑑情報あるか確認
   if (
@@ -104,8 +62,17 @@ const getPokedexInfo = async (
     // 既存図鑑データがある
     // 既存データと保存数値が同じ
     //
-    // LSからデータ取ってきて変数pokedexDataに格納
-    getLsData<PokedexData>(setPokedexData, 'pokedex');
+    // LSからデータ取ってきて変数getLsResultに格納
+    const getLsResult: Result<PokedexData[], FetchError> =
+      getLsData<PokedexData>('pokedex');
+
+    // 成功時⇒結果を変数に格納
+    if (getLsResult.isOk()) {
+      finalData = getLsResult.value;
+    } else {
+      // 失敗時⇒エラーを投げる
+      throw getLsResult.error; // App.tsx側でcatchしてrefetch
+    }
   } else {
     // 図鑑データがない or 数不一致
 
@@ -116,25 +83,27 @@ const getPokedexInfo = async (
       FetchError
     > = await getAllInfo(signal);
 
-    // fetch結果を加工
-    // ここが完了してからLS登録処理⇒awaitで待機
-    await getResult.match(
-      // 全部成功⇒ 非同期処理の結果を受け取るのでasync/await構文
-      async ([regions, pokedex, version, versionGroup]) => {
-        const normalizeResult: Result<PokedexData[], never> =
-          await buildRegionInfoData(regions, pokedex, version, versionGroup);
+    // エラーの場合終了してreturn
+    if (getResult.isErr()) {
+      throw getResult.error; // App.tsx側でcatchしてrefetch
+    }
 
-        // 成功結果取り出し・格納
-        normalizeResult.map((success) => {
-          setPokedexData(success);
-          // console.log(pokedexData.current);
-        });
-      },
-      // 失敗有
-      (resultError: FetchError) => {
-        console.log(resultError);
-      },
-    );
+    // 以下成功時処理
+    const normalizeResult: Result<PokedexData[], never> =
+      await buildRegionInfoData(
+        getResult.value[0], // regions
+        getResult.value[1], // pokedexes
+        getResult.value[2], // versions
+        getResult.value[3], // versionGroups
+      );
+
+    // エラーの場合終了してreturn
+    if (normalizeResult.isErr()) {
+      throw normalizeResult.error; // App.tsx側でcatchしてrefetch
+    }
+
+    // 成功時⇒結果を変数に格納
+    finalData = normalizeResult.value;
 
     // LSが使えるなら情報保存
     if (storageAvailable('localStorage')) {
@@ -146,10 +115,15 @@ const getPokedexInfo = async (
 
       // console.log({ pokedexData });
       // 図鑑情報を文字列化して保存
-      localStorage.setItem('pokedex', JSON.stringify(pokedexData));
+      localStorage.setItem('pokedex', JSON.stringify(finalData));
     }
   }
+
+  return finalData; // LS保存まで終わったらqueryFnに返す
 };
+
+//
+/* サブ関数 */
 
 // 地方関連の情報を取得・統合加工
 /*** @name getAllInfo
@@ -471,125 +445,4 @@ const normalizeVersionAndVgroup = (
       version: versionInfo,
     };
   });
-};
-
-// 特性関連の情報を取得
-/*** @name getAbilityInfo
- *   @function arrow, async/await
- *   @param abilityData:RefObject(あとでLSに詰める図鑑関連データ,useRef)
- *   @param signal:AbortSignal fetch操作を止めるシグナル
- *   @return void
- */
-const getAbilityInfo = async (
-  abilityData: AbilityData[],
-  setAbilityData: setAbilityData,
-  signal: AbortSignal,
-) => {
-  // 特性情報取得
-  const currentAbilityApiResult: Result<OthersAll, FetchError> =
-    await fetchInitialData<OthersAll>(
-      'https://pokeapi.co/api/v2/ability?offset=0&limit=1000',
-      signal,
-    );
-
-  // 一連のfetch中のエラーここで最終処理
-  if (currentAbilityApiResult.isErr()) {
-    // 画面にエラー内容表示
-    alertError(currentAbilityApiResult);
-    return; // 関数実行終了
-  }
-
-  // LSの特性数を取得
-  const currentLsAbilityCount = Number(localStorage.getItem('abilityCount'));
-
-  // ローカルストレージに特性情報あるか確認
-  if (
-    storageAvailable('localStorage') &&
-    localStorage.getItem('ability') &&
-    currentAbilityApiResult.value.count === currentLsAbilityCount
-  ) {
-    // ローカルストレージが使える
-    // 既存図鑑データがある
-    // 既存データと保存数値が同じ
-    //
-    // LSからデータ取ってきて変数pokedexDataに格納
-    getLsData<AbilityData>(setAbilityData, 'ability');
-  }
-
-  if (
-    !localStorage.getItem('ability') ||
-    currentAbilityApiResult.value.count !== currentLsAbilityCount
-  ) {
-    // 特性データがない or 数不一致
-
-    // 特性のIDリスト抽出
-    const searchNum: number[] = getEndID(currentAbilityApiResult.value.results);
-
-    // 特性取得
-    const abilityDetail: Result<AbilityDetail[], FetchError> =
-      await getPokemonData<AbilityDetail>(searchNum, 'ability', signal);
-
-    // 結果を加工
-    await abilityDetail.match(
-      async (success) => {
-        await normalizeAbility(success, setAbilityData);
-      },
-      (resultError: FetchError) => console.log(resultError),
-    ); // エラーだから返して終了)
-
-    // LSが使えるなら情報保存
-    if (storageAvailable('localStorage')) {
-      // 特性数を保存
-      localStorage.setItem(
-        'abilityCount',
-        currentAbilityApiResult.value.count.toString(),
-      );
-
-      // 特性情報を文字列化して保存
-      localStorage.setItem('ability', JSON.stringify(abilityData));
-    }
-  }
-};
-
-// 特性関連の情報を整理・加工
-/*** @name normalizeAbility
- *   @function arrow
- *   @param getData:RefObject(あとでLSに詰める特性関連データ,useRef)
- *   @param abilityData:RefObject(あとでLSに詰める特性関連データ,useRef)
- *   @return void
- */
-const normalizeAbility = (
-  getData: AbilityDetail[],
-  setAbilityData: setAbilityData,
-): AbilityData[] => {
-  // 配列getDataの要素ability１つずつに加工処理
-  const result: AbilityData[] = getData.map((ability) => {
-    // 日本語名を取得
-    console.log({ ability });
-    const tmpName: AbilityDetail['names'] = getJaData(ability.names);
-    console.log({ tmpName });
-
-    // 日本語テキストとバージョングループidを取得
-    const tmpTextObj: { flavor_text: string; id: number[] }[] = getAllJaData(
-      ability.flavor_text_entries,
-    );
-
-    // 型を一致させるためにもう一度map処理（共通関数はそのまま）
-    const textObj = tmpTextObj.map((obj) => {
-      //オブジェクトの要素名を再定義
-      return {
-        flavor_text: obj.flavor_text,
-        version_group: obj.id,
-      };
-    });
-
-    return {
-      id: ability.id,
-      name: tmpName.length > 0 ? tmpName[0].name : ability.name,
-      flavor_text_entries: textObj,
-    };
-  });
-
-  setAbilityData(result);
-  return result;
 };

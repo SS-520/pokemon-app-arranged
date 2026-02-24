@@ -1,5 +1,6 @@
 // 基本設定と拡張機能
 import React, { useEffect, useRef, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 // 外部の関数・型定義ファイル
 import type {
@@ -8,7 +9,8 @@ import type {
   PokedexData,
 } from './utilities/types/typesUtility';
 import { loadPokemonProcess } from './utilities/function/loadPokemonFunction';
-import { loadOtherInfoProcess } from './utilities/function/loadInfoFunction';
+import { loadPokedexProcess } from './utilities/function/loadPokedexFunction';
+import { loadAbilityProcess } from './utilities/function/loadAbilityFunction';
 
 import './scss/App.scss'; // viteがコンパイル時にcssに自動で処理するので、importはscssでOK
 
@@ -19,30 +21,12 @@ import Main from './components/Main';
 
 // コンポーネントメイン記述
 function App() {
-  // 土台になるポケモンAPIのURLを指定
-  const initialURL: string =
-    'https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0';
-
   /** ローディング判定 **/
-
-  // 画面の状態管理のためuseStateを使用
-  // ロード中orロード済の二択なのでbooleanで判断
-  // 初期値⇒リロード＝ローディング中＝true
-  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // バックグラウンドでデータ取得中かの判定
   const isBgLoading = useRef<boolean>(true);
 
-  // バックグラウンドで地方関連データ取得中かの判定
-  const isOILoading = useRef<boolean>(true);
-
   /** 画面表示 **/
-
-  // 検索・表示に使用する全ポケモンデータを格納
-  const [pokemonAllData, setPokemonAllData] = useState<LsPokemon[]>([]);
-
-  const [pokedexData, setPokedexData] = useState<PokedexData[]>([]); // 図鑑・バージョン情報
-  const [abilityData, setAbilityData] = useState<AbilityData[]>([]); // 特性情報
 
   // URLから取得する情報（表示件数）
   const getDisplayNumFromUrl = (): number => {
@@ -79,38 +63,88 @@ function App() {
   ); // false: grid, true: list
 
   // 画面に表示するポケモンデータ
+  const queryClient = useQueryClient();
 
-  // ブラウザロード時実行
-  // 一度だけ実行⇒第二引数は[]で空配列
+  //
+  //
+  ///* fetchでポケモンデータを取得 *///
+
+  /* ポケモンデータ編 */
+  // useQueryの結果を分割代入で受け取る
+  const {
+    // returnされたデータ（名前をuseStateの時と同じにすることで利用のリライトを防止）
+    // []で初期値を設定することで、undefinedを回避
+    data: pokemonAllData = [],
+    // loadPokemonProcessを実行中か判定するフラグ
+    // 実行中はtrue、終了後はfalse
+    isLoading: isMainLoading, // 既存名と名前を分けて衝突を避ける
+    isError: isMainError, // loadPokemonProcess内でthwrowがあったらtrueになるフラグ
+    error: mainError, // loadPokemonProcess内でthwrowされたエラーの箱
+  } = useQuery<LsPokemon[]>({
+    queryKey: ['pokemon', 'all'], // unknown型配列
+    queryFn: ({ signal }) =>
+      loadPokemonProcess(queryClient, isBgLoading, signal), // promiseを返す関数を設定
+    staleTime: Infinity,
+  });
+
+  // 一旦画面描画後にエラー処理
   useEffect(() => {
-    // 非同期処理実行
-    const controller = new AbortController();
+    if (isMainError) {
+      console.error(mainError);
+      alert('情報取得中にエラーが発生しました。\n再読み込みを試みます。');
+      window.location.reload();
+    }
+  }, [isMainError, mainError]);
 
-    // メインのポケモン一覧取得
-    loadPokemonProcess(
-      initialURL,
-      pokemonAllData,
-      setPokemonAllData,
-      setIsLoading,
-      isBgLoading,
-      controller.signal,
-    );
+  /* Pokedex編 */
+  const {
+    // returnされたデータ（名前をuseStateの時と同じにすることで利用のリライトを防止）
+    // []で初期値を設定することで、undefinedを回避
+    data: pokedexData = [],
+    // loadPokemonProcessを実行中か判定するフラグ
+    // 実行中はtrue、終了後はfalse
+    isLoading: isPokedexLoading, // 既存名と名前を分けて衝突を避ける
+    isError: isPokedexError, // loadPokemonProcess内でthwrowがあったらtrueになるフラグ
+    error: pokedexError, // loadPokemonProcess内でthwrowされたエラーの箱
+    refetch: refetchPokedex, // 再取得用関数
+  } = useQuery<PokedexData[]>({
+    queryKey: ['pokedex', 'all'], // unknown型配列
+    queryFn: ({ signal }) => loadPokedexProcess(signal), // promiseを返す関数を設定
+    staleTime: Infinity,
+  });
 
-    // 地方・バージョンデータ取得
-    loadOtherInfoProcess(
-      pokedexData,
-      abilityData,
-      setPokedexData,
-      setAbilityData,
-      isOILoading,
-      controller.signal,
-    );
+  // 一旦画面描画後にエラー処理
+  useEffect(() => {
+    if (isPokedexError) {
+      console.error(pokedexError);
+      refetchPokedex(); // エラー発生時に自動で再取得
+    }
+  }, [isPokedexError, pokedexError, refetchPokedex]);
 
-    return () => {
-      // 1回目の実行（マウント）直後に呼ばれるため、リクエストをキャンセルする
-      controller.abort();
-    };
-  }, []);
+  /* 特性編 */
+  const {
+    // returnされたデータ（名前をuseStateの時と同じにすることで利用のリライトを防止）
+    // []で初期値を設定することで、undefinedを回避
+    data: abilityData = [],
+    // loadPokemonProcessを実行中か判定するフラグ
+    // 実行中はtrue、終了後はfalse
+    isLoading: isAbilityLoading, // 既存名と名前を分けて衝突を避ける
+    isError: isAbilityError, // loadPokemonProcess内でthwrowがあったらtrueになるフラグ
+    error: abilityError, // loadPokemonProcess内でthwrowされたエラーの箱
+    refetch: refetchAbility, // 再取得用関数
+  } = useQuery<AbilityData[]>({
+    queryKey: ['ability', 'all'], // unknown型配列
+    queryFn: ({ signal }) => loadAbilityProcess(signal), // promiseを返す関数を設定
+    staleTime: Infinity,
+  });
+
+  // 一旦画面描画後にエラー処理
+  useEffect(() => {
+    if (isAbilityError) {
+      console.error(abilityError);
+      refetchAbility(); // エラー発生時に自動で再取得
+    }
+  }, [isAbilityError, abilityError, refetchAbility]);
 
   // 表示カードを作成
   console.log({ abilityData });
@@ -126,7 +160,8 @@ function App() {
         {
           // 変数loadingの状態で画面の表示を変更⇒短いのでifを使用せず３項演算子で済ませる
           // 条件文 ? trueの処理 : falseの処理
-          isLoading ? (
+          // すべてのロードが終わったら表示
+          isMainLoading || isPokedexLoading || isAbilityLoading ? (
             <Loading />
           ) : (
             <Main

@@ -15,7 +15,6 @@ import type {
 import type { LsPokemon, PokedexData } from '../types/typesUtility';
 
 import { parseJsonBody } from './fetchFunction';
-import type { Dispatch, SetStateAction } from 'react';
 
 /**
  * ローカル/セッションストレージが使用可能か確認する関数
@@ -60,10 +59,7 @@ export function storageAvailable(type: string): boolean {
  *   @param lsName:string 取得するLSのkey名
  *   @return void
  */
-export function getLsData<T>(
-  setData: Dispatch<SetStateAction<T[]>>,
-  lsName: string,
-): void {
+export function getLsData<T>(lsName: string): Result<T[], FetchError> {
   // ローカルストレージの既存データを取得
   const currentLsData = localStorage.getItem(lsName);
 
@@ -73,23 +69,11 @@ export function getLsData<T>(
     ? parseJsonBody<T[]>(currentLsData, `localStorage:${lsName}`)
     : ok<T[], FetchError>([]);
 
-  pokemonDataResult.match(
-    (pokemonData: T[]) => {
-      console.log('Jsonパース成功');
+  // パース失敗時の処理はparseJsonBodyが行ってるので省略
+  // パース成功時は成功結果をそのまま返す
+  console.log({ pokemonDataResult });
 
-      // 取得・JSON変換結果をアプリ内で使用データに格納
-      setData(pokemonData);
-      // console.log({ setData });
-    },
-    (resultError: FetchError) => {
-      console.log(`Jsonパースに失敗しました。詳細は以下の通りです。
-      \n通信先：${resultError.context?.url},
-      \nエラータイプ：${resultError.type},
-      \n通信ステータス：${resultError.status},
-      \nメッセージ：${resultError.message},
-      \nエラーボディ：${resultError.context?.responseSnippet}`);
-    },
-  );
+  return pokemonDataResult;
 }
 
 // ポケモンAPIのURLから末尾のID番号を取り出す

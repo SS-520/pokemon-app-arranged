@@ -4,7 +4,8 @@
 
 /* 設定・導入 */
 import type { RefObject } from 'react';
-import { ok, type Result, type ResultAsync } from 'neverthrow'; // 非同期処理用ライブラリ
+import { type Result } from 'neverthrow'; // 非同期処理用ライブラリ
+import type { QueryClient } from '@tanstack/react-query';
 
 import type {
   FetchError,
@@ -13,12 +14,7 @@ import type {
   PokemonSpeciesDetail,
   FormsDetail,
 } from '../types/typesFetch'; // PokemonListResponse型を使用（type{型}）
-import type {
-  setBoolean,
-  LsPokemon,
-  PokedexNumber,
-  setPokemonAllData,
-} from '../types/typesUtility';
+import type { LsPokemon, PokedexNumber } from '../types/typesUtility';
 
 import { fetchInitialData, getPokemonDetail } from './fetchPokemon'; // fetchPokemonから各関数を呼び出し
 import {
@@ -33,12 +29,11 @@ import {
   getLsData,
   isOnlyAlphabet,
 } from './utilityFunction';
-import { parseJsonBody, alertError } from './fetchFunction';
 
 /***  処理記述 ***/
 
 // 画面初回ロード時に行うメイン処理
-/*** @name loadProcess
+/*** @name loadPokemonProcess
  *   @function arrow, async/await
  *   @param initialURL:string(ポケモンAPI)
  *   @param refPokemonData:RefObject<LsPokemon[]>(APIデータを取得加工後の箱)
@@ -59,83 +54,77 @@ import { parseJsonBody, alertError } from './fetchFunction';
   3-4. バックグラウンドで残りのデータを取得・格納
 */
 export const loadPokemonProcess = async (
-  initialURL: string,
-  pokemonAllData: LsPokemon[],
-  setPokemonAllData: setPokemonAllData,
-  setIsLoading: setBoolean,
-  isBgLoading: RefObject<boolean>,
+  queryClient: QueryClient, // 呼び出し元に蓄積されたキャッシュ
+  isBgLoading: RefObject<boolean>, // 💡 追加
   signal: AbortSignal,
-) => {
-  // 一度に取得するAPIの数
-  const getAPIcount: number = 1;
+): Promise<LsPokemon[]> => {
+  // 土台になるポケモンAPIのURLを指定
+  const initialURL: string =
+    'https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0';
 
-  /* どのルートでも最新のフロントAPIを一度叩く */
-  //
-  // fetchInitialDataでAPIの最新状況を取得する
+  // APIの最新状況を確認する
   const nowFetchResult: Result<PokemonListResponse, FetchError> =
     await fetchInitialData<PokemonListResponse>(initialURL, signal);
-
-  // 一連のfetch中のエラーここで最終処理
+  // エラーの場合終了してreturn
   if (nowFetchResult.isErr()) {
-    // 画面にエラー内容表示
-    alertError(nowFetchResult);
-    return; // 関数実行終了
+    throw nowFetchResult.error;
   }
 
   // APIの結果から最新の全国図鑑の番号を切り出し・取得
   const pokedexNumArray: number[] = getEndID(nowFetchResult.value.results);
 
-  // バックグラウンド処理に移行するかのフラグ
-  let isContinue = true;
+  // ローカルストレージから保存されているポケモンデータ数を取得
   const currentLsCount = Number(localStorage.getItem('pokeRegCount'));
 
-  console.log('LS: ' + storageAvailable('localStorage'));
-  console.log(localStorage.getItem('pokeRegCount'));
-  console.log(currentLsCount === nowFetchResult.value.count);
+  // 取得データの最終結果を入れるための変数
+  let finalData: LsPokemon[] = [];
 
+  // ローカルストレージに保存されているデータ数とAPIのデータ数が同じ
   if (
     storageAvailable('localStorage') &&
     localStorage.getItem('pokeRegCount') &&
     currentLsCount === nowFetchResult.value.count
   ) {
-    // ・ローカルストレージが使える
-    // ・ローカルストレージに既存データがある
-    // ・ローカルストレージのデータ数とAPIのデータ数が同じ
-    // ⇒LSに登録済みのデータを使う
-    getLsData<LsPokemon>(setPokemonAllData, 'pokemonData');
+    const getResult = getLsData<LsPokemon>('pokemonData');
 
-    // 各種判定フラグを変更
-    isContinue = false; // fetchの追加処理は不要
-    isBgLoading.current = false; // バックグラウンド取得もしない
+    // 成功してデータがある場合
+    if (getResult.isOk() && getResult.value.length > 0) {
+      finalData = getResult.value;
+    } else {
+      // 失敗した時や空の時は、APIから取ってくる
+      finalData = await getNowPokemonData(
+        pokedexNumArray,
+        queryClient,
+        currentLsCount,
+        30,
+        signal,
+      );
+    }
   } else {
     // 上記３点を１つでも満たさない
     // ⇒APIからデータを取ってくる
     // 時間がかかる処理なので終わるまで次に進めない(await)
-    await getNowPokemonData(
+    finalData = await getNowPokemonData(
       pokedexNumArray,
-      pokemonAllData,
-      setPokemonAllData,
+      queryClient,
       currentLsCount,
       30,
       signal,
     );
-  }
 
-  // ローディング画面解除
-  setIsLoading(false);
-
-  // fetch処理継続
-  if (isContinue) {
-    // バックグラウンドで行う＝同期処理＝awaitつけない
+    // 一度に取得するAPIの数
+    const getAPIcount: number = 30;
     backgroundFetchAPI(
       pokedexNumArray,
+      queryClient,
       getAPIcount,
-      pokemonAllData,
-      setPokemonAllData,
       isBgLoading,
       signal,
     );
   }
+
+  // 最後に、完成したデータを TanStack Query に返す
+  return finalData;
 };
 
 //
@@ -154,8 +143,7 @@ export const loadPokemonProcess = async (
  */
 const getNowPokemonData = async (
   pokedexNumArray: number[],
-  pokemonAllData: LsPokemon[],
-  setPokemonAllData: setPokemonAllData,
+  queryClient: QueryClient,
   start: number,
   run: number,
   signal: AbortSignal,
@@ -168,9 +156,8 @@ const getNowPokemonData = async (
     await getPokemonData<PokemonDetail>(runNumbers, 'pokemon', signal);
   // 一連のfetch中のエラーここで最終処理
   if (pokemonDetails.isErr()) {
-    // 画面にエラー内容表示
-    alertError(pokemonDetails);
-    return; // 関数実行終了
+    // エラー処理は上層のApp.tsxで行う
+    throw pokemonDetails.error;
   }
 
   // 取得した結果から種類（species）番号を取得
@@ -238,11 +225,18 @@ const getNowPokemonData = async (
   if (storageAvailable('localStorage')) {
     // ローカルストレージのデータを更新する
     console.log('updateLsData');
-    updateLsData(regLsData, setPokemonAllData);
+    return updateLsData(regLsData);
   } else {
-    // ローカルストレージが使用できない場合はメモリで管理
-    console.log('addDataToMemory');
-    addDataToMemory(regLsData, pokemonAllData, setPokemonAllData);
+    // ローカルストレージが使えない場合
+    // React Queryのキャッシュを取得
+    const currentPokemonData: LsPokemon[] =
+      queryClient.getQueryData(['pokemon', 'all']) || []; // 初回は空[]
+
+    // 追加データとマージ・ソート
+    const mergeAndSortJson = mergeAndUniqueById(currentPokemonData, regLsData);
+
+    // 結果を返す
+    return mergeAndSortJson;
   }
 };
 
@@ -261,7 +255,7 @@ export async function getPokemonData<T>(
   runPokedexNumbers: number[],
   endPoint: string,
   signal: AbortSignal,
-): Promise<ResultAsync<T[], FetchError>> {
+): Promise<Result<T[], FetchError>> {
   const pokemonDetailResults: Result<T[], FetchError> = await getPokemonDetail(
     runPokedexNumbers,
     endPoint,
@@ -522,10 +516,9 @@ const createBaseData = (
  */
 const backgroundFetchAPI = async (
   pokedexNumArray: number[],
+  queryClient: QueryClient,
   getAPIcount: number,
-  pokemonAllData: LsPokemon[],
-  setPokemonAllData: setPokemonAllData,
-  isBgLoading: RefObject<boolean>,
+  isBgLoading: RefObject<boolean>, // 💡 復活！
   signal: AbortSignal,
 ): Promise<void> => {
   const startNum: number = 0 + getAPIcount; // ローディングの裏で取得した分の続きから開始
@@ -535,14 +528,18 @@ const backgroundFetchAPI = async (
     i <= pokedexNumArray.length - startNum;
     i += getAPIcount
   ) {
-    await getNowPokemonData(
+    // 追加データ取得
+    const newData: LsPokemon[] = await getNowPokemonData(
       pokedexNumArray,
-      pokemonAllData,
-      setPokemonAllData,
+      queryClient,
       i,
       getAPIcount,
       signal,
     );
+    // 取得したデータが画面に反映されるように設定
+    queryClient.setQueryData(['pokemon', 'all'], (currentData: LsPokemon[]) => {
+      return mergeAndUniqueById(currentData, newData); // 既存データに新規データをマージ
+    });
   }
   console.log('backgroundFetchAPI finished');
   isBgLoading.current = false;
@@ -554,73 +551,32 @@ const backgroundFetchAPI = async (
 /*** @name updateLsData
  *   @function arrow
  *   @param regLsData:LsPokemon[](登録するオブジェクト配列)
- *   @param setPokemonAllData:setPokemonAllData(APIデータを取得加工後の箱)
- *   @return void
+ *   @return Result<LsPokemon[], FetchError>
  */
-const updateLsData = (
-  regLsData: LsPokemon[],
-  setPokemonAllData: setPokemonAllData,
-): void => {
+const updateLsData = (regLsData: LsPokemon[]): LsPokemon[] => {
   // ローカルストレージの既存データを取得
-  const currentLsData = localStorage.getItem('pokemonData');
+  const currentLsData: Result<LsPokemon[], FetchError> =
+    getLsData('pokemonData');
 
-  // 既存データがあればJSON変換
-  // 無い：「成功」の空配列（ok<LsPokemon[], FetchError>([])）を返す
-  const pokemonDataResult: Result<LsPokemon[], FetchError> = currentLsData
-    ? parseJsonBody<LsPokemon[]>(currentLsData, 'localStorage:pokemonData')
-    : ok<LsPokemon[], FetchError>([]);
+  // 失敗⇒エラーを上層に投げる
+  if (currentLsData.isErr()) {
+    throw currentLsData.error;
+  }
 
-  // 失敗しててもok([])の結果を返す
-  // 成功してたらResult<LsPokemon[]の結果を取り出して（unwrapOr）渡す
-  const currentLsDataJSON: LsPokemon[] = pokemonDataResult.unwrapOr([]);
+  // 以下成功時の挙動
+  // Result<LsPokemon[]の結果を取り出して（unwrapOr）渡す
+  const currentLsDataJSON: LsPokemon[] = currentLsData.unwrapOr([]);
 
-  pokemonDataResult.match(
-    (pokemonData: LsPokemon[]) => {
-      console.log('Jsonパース成功', pokemonData);
+  // 既存のデータに対し結合・ソート・一意化
+  const mergeAndSortJson = mergeAndUniqueById(currentLsDataJSON, regLsData);
 
-      // 既存のデータに対し結合・ソート・一意化
-      const mergeAndSortJson = mergeAndUniqueById(currentLsDataJSON, regLsData);
+  // マージしたオブジェクト配列を文字列json化してローカルストレージのデータに上書き
+  const setPokemonDataJson = JSON.stringify(mergeAndSortJson);
+  localStorage.setItem('pokemonData', setPokemonDataJson);
 
-      // マージ結果をアプリ内で使用データに格納
-      setPokemonAllData(mergeAndSortJson);
+  // 今回のポケモンデータ数を文字列に変換してローカルストレージに格納
+  localStorage.setItem('pokeRegCount', mergeAndSortJson.length.toString());
 
-      // マージしたオブジェクト配列を文字列json化してローカルストレージのデータに上書き
-      const setPokemonDataJson = JSON.stringify(mergeAndSortJson);
-      localStorage.setItem('pokemonData', setPokemonDataJson);
-
-      // 今回のポケモンデータ数を文字列に変換してローカルストレージに格納
-      localStorage.setItem('pokeRegCount', mergeAndSortJson.length.toString());
-    },
-    (resultError: FetchError) => {
-      // localStorage.removeItem('pokemonData');
-      console.log(`Jsonパースに失敗しました。詳細は以下の通りです。
-      \n通信先：${resultError.context?.url},
-      \nエラータイプ：${resultError.type},
-      \n通信ステータス：${resultError.status},
-      \nメッセージ：${resultError.message},
-      \nエラーボディ：${resultError.context?.responseSnippet}`);
-    },
-  );
-};
-
-//
-//
-// APIから取得したデータをメモリ上に直接追加・更新する関数
-// ※ローカルストレージが使用できない場合用の関数
-/*** @name addDataToMemory
- *   @function arrow
- *   @param regLsData:LsPokemon[](登録するオブジェクト配列)
- *   @param refPokemonData:RefObject<LsPokemon[]>(APIデータを取得加工後の箱)
- *   @return void
- */
-const addDataToMemory = (
-  regLsData: LsPokemon[],
-  pokemonAllData: LsPokemon[],
-  setPokemonAllData: setPokemonAllData,
-): void => {
-  // 現在のAPIから取得したデータと格納済みのデータを結合・id順にソートして変数に格納
-
-  // 取得データはuseRed変数pokemonDataに格納
-  const mergeAndSortJson = mergeAndUniqueById(pokemonAllData, regLsData);
-  setPokemonAllData(mergeAndSortJson);
+  // LSに詰めた内容を成功結果として返す
+  return mergeAndSortJson;
 };
