@@ -1,31 +1,27 @@
-import React, { useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { IoIosCloseCircleOutline } from 'react-icons/io';
+import React, { useEffect, useImperativeHandle, useRef } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 // 呼び出し関数・型
 import type {
   AbilityData,
   LsPokemon,
   MainModalHandle,
+  ModalFetchResult,
   PokedexData,
   RenderObj,
 } from '../utilities/types/typesUtility';
 import {
-  fetchDetails,
-  mergePokemonDetails,
   useScrollLock,
 } from '../utilities/function/mainModalFunction';
+import { loadModalData } from '../utilities/function/mainModalFunction';
+import { renderMainModal } from '../utilities/function/renderMainModal';
 
 // スタイル読み込み
 import {} from '../scss/MainModal.scss';
-import type {
-  EvoChainDetail,
-  FormsDetail,
-  ItemDetail,
-  PokemonDetail,
-  PokemonSpeciesDetail,
-} from '../utilities/types/typesFetch';
-import { renderMainModal } from '../utilities/function/renderMainModal';
 import Loading from './Loading';
+
+// アイコン
+import { IoIosCloseCircleOutline } from 'react-icons/io';
 
 // propsの型設定
 interface MainModalProps {
@@ -55,10 +51,6 @@ function MainModal({
   // HTMLDialogElement : <dialog> 要素を操作するメソッド
   const dialogRef = useRef<HTMLDialogElement | null>(null);
 
-  // モーダルの表示内容
-  const [modalContent, setModalContent] = useState<React.ReactNode | null>(
-    null,
-  );
 
   // 背景スクロール固定用ステート
   // 初期値をtrueにすることでマウント時の同期setStateを回避
@@ -122,70 +114,7 @@ function MainModal({
       // フォーカスによる自動スクロール移動を防止
       dialogRef.current.focus({ preventScroll: true });
     }
-  }, [isLocked]);
-
-  //
-  // 時間のかかるAPI通信処理をuseEffect内で実行
-  useEffect(() => {
-    console.log('mainModal start');
-    // ・ポケモンが選択されていない場合
-    // ⇒何もしない
-
-    if (!pokemon) return;
-
-    // fetchのコントローラー設定
-    const controller = new AbortController();
-
-    // 非同期通信
-    const loadModalData = async () => {
-      const result:
-        | {
-            pokemonDetail: PokemonDetail;
-            pokemonSpecies: PokemonSpeciesDetail;
-            pokemonForms: FormsDetail[];
-            pokemonEvoChain: EvoChainDetail;
-            pokemonEggItem: ItemDetail;
-          }
-        | undefined = await fetchDetails(pokemon, controller.signal);
-
-      // undefined or 処理中止の号令（aborted）⇒何もしない
-      if (!result || controller.signal.aborted) return;
-
-      // 成功時処理
-      // awaitで確実に終わらせてから次へ
-      const mergeResult: RenderObj = await mergePokemonDetails(
-        pokemon,
-        result,
-        pokedexData,
-        abilityData,
-        allData,
-      );
-      console.log('Fetched data:', result);
-      console.log('merge data:', mergeResult);
-
-      // モーダルの中身描画して取得
-      const resultContents: React.ReactNode = renderMainModal(
-        pokemon,
-        mergeResult,
-        pokedexData,
-        result.pokemonDetail,
-        result.pokemonSpecies,
-      );
-
-      //モーダルの中身をmodalContentにセットして書き換え
-      setModalContent(resultContents);
-    };
-
-    // 非同期関数実行
-    loadModalData();
-
-    console.log('mainModal end');
-
-    return () => {
-      controller.abort();
-      setModalContent(null);
-    };
-  }, [pokemon, abilityData, allData, pokedexData]);
+  }, [pokemon]);
 
   /**
    * ダイアログのバックドロップ（外側）クリック判定
@@ -195,6 +124,49 @@ function MainModal({
       handleClose();
     }
   };
+
+  /**
+   * 非同期処理
+   */
+  // 時間のかかるAPI通信処理をtanstackで実行
+  const {
+    data,
+    isLoading: isModalLoading,
+    isError: isModalError,
+    error: modalError,
+    refetch,
+  } = useQuery<{ result: ModalFetchResult; mergeResult: RenderObj }>({
+    queryKey: ['pokemon', pokemon.id],
+    queryFn: ({ signal }) =>
+      loadModalData(pokemon, pokedexData, abilityData, allData, signal),
+  });
+
+  // 一旦画面描画後にエラー処理
+  useEffect(() => {
+    if (isModalError) {
+      console.error('Error fetching modal data:', modalError);
+      refetch();
+    }
+  }, [isModalError, modalError, refetch]);
+
+  // 表示内容を格納する変数を用意
+  let modalContent: React.ReactNode = <></>;
+
+  // 取得中はレンダリング内容が<Loading />になる
+  if (isModalLoading || !data || !data.result || !data.mergeResult) {
+    modalContent = <Loading />;
+  } else {
+    // 絶対resultとmergeResultが存在する
+    const { result: modalResult, mergeResult: modalMergeResult } = data;
+
+    modalContent = renderMainModal(
+      pokemon,
+      modalMergeResult,
+      pokedexData,
+      modalResult.pokemonDetail,
+      modalResult.pokemonSpecies,
+    );
+  }
 
   // ポケモン未選択時はレンダリングしない
   if (!pokemon) return null;
@@ -219,7 +191,7 @@ function MainModal({
         <IoIosCloseCircleOutline />
       </button>
       <section className='pokemonDetail'>
-        {modalContent ? modalContent : <Loading />}
+        {isModalLoading ? <Loading /> : modalContent}
       </section>
     </dialog>
   );
