@@ -1,25 +1,22 @@
 // import React from 'react';
 import '../scss/NavigationBar.scss';
-import type { setBoolean, setNumber } from '../utilities/types/typesUtility';
+import type { ViewSettings } from '../utilities/types/typesUtility';
 import logo from '../img/title.png';
 
 // アイコン
 import { FaSearch } from 'react-icons/fa';
 import { MdGridView } from 'react-icons/md';
 import { FaList } from 'react-icons/fa6';
+import type React from 'react';
 
 // プロップスの型定義
 interface NavigationBarProps {
-  setDisplayNum: setNumber;
-  displayNum: number;
-  setDisplayType: setBoolean;
-  displayType: boolean;
+  viewSettings: ViewSettings;
+  updateViewSettings: (newVal: Partial<ViewSettings>) => void;
 }
 function NavigationBar({
-  setDisplayNum,
-  displayNum,
-  setDisplayType,
-  displayType,
+  viewSettings,
+  updateViewSettings,
 }: NavigationBarProps) {
   // 表示件数変更時のハンドラ
   const handleChangeDisplayNum = (
@@ -27,8 +24,8 @@ function NavigationBar({
   ): void => {
     const displayNumValue = event.target.value;
     // 変更がない場合は処理を中断
-    if (displayNumValue === displayNum.toString()) return;
-    setDisplayNum(Number(displayNumValue));
+    if (displayNumValue === viewSettings.displayNum.toString()) return;
+    updateViewSettings({ displayNum: Number(displayNumValue) }); // 更新関数に対象のみ詰める
 
     // 表示URLにページ番号のパラメータ付与
     const url = new URL(window.location.href);
@@ -39,8 +36,8 @@ function NavigationBar({
   // 表示形式変更時のハンドラ
   // booleanを反転させる
   const handleChangeDisplayType = (): void => {
-    const nextDisplayType = !displayType;
-    setDisplayType(nextDisplayType);
+    const nextDisplayType = !viewSettings.displayType;
+    updateViewSettings({ displayType: nextDisplayType }); // 更新関数に対象のみ詰める
 
     // 表示URLに表示タイプのパラメータ付与
     // false(0): grid, true(1): list
@@ -65,7 +62,7 @@ function NavigationBar({
         aria-label='表示形式切り替え'
       >
         <span className='iconImage'>
-          {displayType ? <FaList /> : <MdGridView />}
+          {viewSettings.displayType ? <FaList /> : <MdGridView />}
         </span>
         <span className='iconText'>view</span>
       </button>
@@ -81,7 +78,7 @@ function NavigationBar({
           name='showNum'
           id='showNum'
           size={1}
-          value={displayNum}
+          value={viewSettings.displayNum}
           onChange={handleChangeDisplayNum}
         >
           <option value='30'>30件</option>

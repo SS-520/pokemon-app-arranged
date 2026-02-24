@@ -50,7 +50,6 @@ function MainModal({
 
   /**
    * モーダルを閉じる共通処理
-   * setIsOpen(false) を呼ぶ⇒ useScrollLock 内部の解除ロジック（位置復元）を発火
    */
   const handleClose = () => {
     // dialogRef.current?.close();
@@ -58,12 +57,8 @@ function MainModal({
       dialogRef.current.close();
     }
 
-    // 親側の selectPokemon を null に更新する
-    // ⇒MainModalがアンマウントして消える
-    // 重要なポイント:
-    // 親の state (selectPokemon) を null にするのを、
-    // 確実に現在の処理（スクロール位置復元など）が終わった後の次のフレームに遅延させる。
-    // これにより、アンマウントによる意図しないトップスクロールを防ぎます。
+    // モーダルが消える瞬間のガタつきを抑え
+    // ブラウザに無理のないタイミングで状態を切り替えてもらう
     requestAnimationFrame(() => {
       onClose();
     });
@@ -85,12 +80,12 @@ function MainModal({
 
   /**
    * モーダル起動制御
-   * preventScroll: true を使用して初回トップ戻りを防止
    */
   useEffect(() => {
     if (dialogRef.current && !dialogRef.current.open) {
       dialogRef.current.showModal();
       // フォーカスによる自動スクロール移動を防止
+      // preventScroll: true を使用して初回トップ戻りを防止
       dialogRef.current.focus({ preventScroll: true });
     }
   }, [pokemon]);
@@ -129,13 +124,14 @@ function MainModal({
   }, [isModalError, modalError, refetch]);
 
   // 表示内容を格納する変数を用意
-  let modalContent: React.ReactNode = <></>;
+  let modalContent: React.ReactNode = <></>; // 初期値
 
   // 取得中はレンダリング内容が<Loading />になる
   if (isModalLoading || !data || !data.result || !data.mergeResult) {
     modalContent = <Loading />;
   } else {
-    // 絶対resultとmergeResultが存在する
+    // 絶対resultとmergeResultが存在する状態
+    // ⇒modalContentにレンダリングする対象を詰める
     const { result: modalResult, mergeResult: modalMergeResult } = data;
 
     modalContent = renderMainModal(
@@ -146,9 +142,6 @@ function MainModal({
       modalResult.pokemonSpecies,
     );
   }
-
-  // ポケモン未選択時はレンダリングしない
-  if (!pokemon) return null;
 
   return (
     <dialog
