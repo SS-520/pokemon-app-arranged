@@ -11,6 +11,10 @@ img {
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   background-color: #fdf8f6;
+  min-height: 100vh;
+
+  /* 変数格納 */
+  --basePadding: 5px;
 }
 
 html,
@@ -19,9 +23,6 @@ body {
   width: 100%;
   margin: 0;
   padding: 0;
-}
-#root {
-  min-height: 100vh;
 }
 
 /* モーダルが開いている時、bodyをスクロール不可 */
