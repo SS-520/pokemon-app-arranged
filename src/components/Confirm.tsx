@@ -71,6 +71,10 @@ const Confirm = ({ setIsConfirm }: ConfirmProps) => {
           </li>
           <li className='list'>
             <MdCatchingPokemon className='ball' />
+            全ポケモンデータ取得完了後、検索機能が使用可能になります
+          </li>
+          <li className='list'>
+            <MdCatchingPokemon className='ball' />
             全世界の有志によって管理されている「ポケモンAPI」を使用しています
             <br />
             そのため、リージョンフォームなどの一部データが混在しているケースがあります
