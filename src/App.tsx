@@ -19,6 +19,7 @@ import './scss/App.scss'; // viteがコンパイル時にcssに自動で処理�
 import NavigationBar from './components/NavigationBar';
 import Loading from './components/Loading';
 import Contents from './components/Contents';
+import Confirm from './components/Confirm';
 
 // コンポーネントメイン記述
 function App() {
@@ -61,12 +62,17 @@ function App() {
     setViewSettings((prev) => ({ ...prev, ...newVal }));
   };
 
-  // 画面に表示するポケモンデータ
-  const queryClient = useQueryClient();
+  // 初回免責事項
+  // useState の初期値の中で localStorage を見ることで、レンダリング中の副作用を回避
+  const [isConfirm, setIsConfirm] = useState<boolean>(
+    () => localStorage.getItem('confirm') === 'true',
+  );
 
   //
   //
   ///* fetchでポケモンデータを取得 *///
+  // 画面に表示するポケモンデータ
+  const queryClient = useQueryClient();
 
   /* ポケモンデータ編 */
   // useQueryの結果を分割代入で受け取る
@@ -147,6 +153,7 @@ function App() {
 
   // 表示カードを作成
   console.log({ abilityData });
+  console.log({ isConfirm });
   return (
     <React.Fragment>
       <NavigationBar
@@ -158,7 +165,10 @@ function App() {
           // 変数loadingの状態で画面の表示を変更⇒短いのでifを使用せず３項演算子で済ませる
           // 条件文 ? trueの処理 : falseの処理
           // すべてのロードが終わったら表示
-          isMainLoading || isPokedexLoading || isAbilityLoading ? (
+          isMainLoading ||
+          isPokedexLoading ||
+          isAbilityLoading ||
+          !isConfirm ? (
             <Loading />
           ) : (
             <Contents
@@ -170,6 +180,7 @@ function App() {
             />
           )
         }
+        {isConfirm ? <></> : <Confirm setIsConfirm={setIsConfirm} />}
       </div>
     </React.Fragment>
   );

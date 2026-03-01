@@ -1,0 +1,84 @@
+/* 初回確認Component用CSS */
+
+// 設定ファイル読み込み
+@use 'sass:math';
+@use 'mixins'; // ミックスイン読み込み
+@use 'variables'; // 変数読み込み
+
+// スタイル記述
+dialog.confirm {
+  @include mixins.dialogBase;
+  height: 65vh;
+  width: 80vw;
+  margin-top: 15vh;
+  z-index: 101;
+
+  h2 {
+    margin: 0.5em auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #dd1e24;
+  }
+  .attention {
+    margin: 0.5em auto;
+    width: 90%;
+    padding: 0.5em;
+
+    ul {
+      padding: 0.5em;
+      list-style: none;
+      border: 1px solid #f0908d;
+      border-radius: 5px;
+      overflow-y: scroll;
+
+      scrollbar-width: none; // スクロールバー非表示(Firefox)
+      li.header {
+        font-weight: bold;
+        line-height: 2;
+        margin: 0.25em auto;
+      }
+      li.list {
+        line-height: 1.5;
+        text-align: left;
+        font-size: 0.9em;
+        text-indent: -1.5em;
+        padding-left: 1.5em;
+        padding-bottom: 0.5em;
+
+        .ball {
+          margin-right: 0.5em;
+        }
+      }
+    }
+    // スクロールバー非表示（Google Chrome、Safari）
+    ul::-webkit-scrollbar {
+      display: none;
+    }
+    .buttonArea {
+      margin: 1em;
+
+      .nextTime {
+        font-size: 0.9em;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        input {
+          margin-right: 0.25em;
+        }
+      }
+
+      .closeButton {
+        width: 10em;
+        margin: 1.5em;
+        height: 2.5em;
+        border-radius: 0.5em;
+        border: none;
+        background-color: #dd1e24;
+        color: #fff;
+        font-weight: bold;
+        cursor: pointer;
+      }
+    }
+  }
+}
