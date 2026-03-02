@@ -163,21 +163,21 @@ function App() {
         viewSettings={viewSettings}
         updateViewSettings={updateViewSettings}
       />
-      {/* {isBgLoading ? ( */}
-      <Box className='progressContainer'>
-        <Box className='typographyContainer'>
-          <Typography className='labelText'>Loading</Typography>
-          <Typography className='percentageText'>{`${progress}%`}</Typography>
+      {isBgLoading ? (
+        <Box className='progressContainer'>
+          <Box className='typographyContainer'>
+            <Typography className='labelText'>Loading</Typography>
+            <Typography className='percentageText'>{`${progress}%`}</Typography>
+          </Box>
+          <LinearProgress
+            variant='determinate'
+            value={progress}
+            className='progressBar'
+          />
         </Box>
-        <LinearProgress
-          variant='determinate'
-          value={progress}
-          className='progressBar'
-        />
-      </Box>
-      {/* ) : ( */}
-      {/* <></> */}
-      {/* )} */}
+      ) : (
+        <></>
+      )}
       <div className='App'>
         {
           // 変数loadingの状態で画面の表示を変更⇒短いのでifを使用せず３項演算子で済ませる
