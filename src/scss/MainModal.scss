@@ -137,7 +137,7 @@ dialog.mainModal {
 
     // マステ風のスタイル管理
     .maskingTapeStyleBase {
-      --marginTop: 2em;
+      --marginTop: 1.75rem;
       @include mixins.areaAppBase;
       padding-top: 0;
       margin-top: var(--marginTop);
@@ -167,8 +167,9 @@ dialog.mainModal {
       display: grid;
       row-gap: 5px;
       column-gap: 10px;
+      // margin-bottom: 10vh;
 
-      grid-template-columns: repeat(2, auto);
+      grid-template-columns: 1fr 1fr;
       grid-template-rows: repeat(6, auto);
 
       // メイン画像
@@ -309,9 +310,8 @@ dialog.mainModal {
       width: 100%;
       margin-top: var(--marginTop);
       border: none;
-      // background-color: var(--gradient0-3Color); /* ボックス背景色 */
+      background-color: var(--gradient0-3Color); /* ボックス背景色 */
       // border: 1px solid var(--borderColor);
-      background-color: transparent;
       .maskingTapeStyleTitle {
         background-image: repeating-linear-gradient(
           -45deg,
