@@ -271,30 +271,19 @@ export const renderMainModal = (
         </h5>
         <p className='genus'>{pokemonGenus ? pokemonGenus.genus : ''}</p>
         <div className='pokemonTypes'>{typeImage()}</div>
+        <div className='size'>{pokemonSize()}</div>
+        <div className='genderRates'>{rateGender()}</div>
+        <div className='special'>
+          {isBaby()}
+          {isLegend()}
+          {isMythic()}
+        </div>
         <dl className='appearanceRegions maskingTapeStyleBase'>
           <dt className='maskingTapeStyleTitle'>登場地方</dt>
           <div className='ddContainer maskingTapeStyleContents'>
             {showRegions}
           </div>
           {regionAnnotation()}
-        </dl>
-        <dl className='appearanceVersions maskingTapeStyleBase'>
-          <dt className='maskingTapeStyleTitle'>登場バージョン</dt>
-          <div className='ddContainer maskingTapeStyleContents'>
-            {showVersions}
-          </div>
-          {versionAnnotation()}
-        </dl>
-        <div className='special'>
-          {isBaby()}
-          {isLegend()}
-          {isMythic()}
-        </div>
-        <div className='genderRates'>{rateGender()}</div>
-        <div className='size'>{pokemonSize()}</div>
-        <dl className='eggGroup maskingTapeStyleBase'>
-          <dt className='maskingTapeStyleTitle'>卵グループ</dt>
-          <div className='ddContainer maskingTapeStyleContents'>{showEggs}</div>
         </dl>
       </section>
       <section className='imgDiff maskingTapeStyleBase'>
@@ -303,6 +292,20 @@ export const renderMainModal = (
       </section>
       {/* 重ねて画像比較 */}
       {compareImage()}
+      <section className='subInfomation'>
+        <dl className='appearanceVersions maskingTapeStyleBase'>
+          <dt className='maskingTapeStyleTitle'>登場バージョン</dt>
+          <div className='ddContainer maskingTapeStyleContents'>
+            {showVersions}
+          </div>
+          {versionAnnotation()}
+        </dl>
+
+        <dl className='eggGroup maskingTapeStyleBase'>
+          <dt className='maskingTapeStyleTitle'>卵グループ</dt>
+          <div className='ddContainer maskingTapeStyleContents'>{showEggs}</div>
+        </dl>
+      </section>
       <section className='ability maskingTapeStyleBase'>
         <h5 className='abilityTitle title maskingTapeStyleTitle'>特性</h5>
         {showAbility}
