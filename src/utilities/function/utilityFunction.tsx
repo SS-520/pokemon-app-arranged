@@ -65,15 +65,15 @@ export function getLsData<T>(lsName: string): Result<T[], FetchError> {
 
   // 既存データがあればJSON変換
   // 無い：「成功」の空配列（ok<LsPokemon[], FetchError>([])）を返す
-  const pokemonDataResult: Result<T[], FetchError> = currentLsData
+  const lsData: Result<T[], FetchError> = currentLsData
     ? parseJsonBody<T[]>(currentLsData, `localStorage:${lsName}`)
     : ok<T[], FetchError>([]);
 
   // パース失敗時の処理はparseJsonBodyが行ってるので省略
   // パース成功時は成功結果をそのまま返す
-  console.log({ pokemonDataResult });
+  console.log({ lsData });
 
-  return pokemonDataResult;
+  return lsData;
 }
 
 // ポケモンAPIのURLから末尾のID番号を取り出す
