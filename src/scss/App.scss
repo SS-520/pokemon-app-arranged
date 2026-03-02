@@ -3,7 +3,7 @@
 @use 'variables'; // 変数読み込み
 @use 'Base'; // 基本スタイル
 
-// スタイル
+/* スタイル */
 
 // プログレスバー
 .progressContainer {
@@ -22,7 +22,10 @@
     justify-content: center;
     column-gap: 10px;
     margin-bottom: 5px;
-    font-weight: bold;
+
+    p {
+      font-weight: bold;
+    }
   }
   .progressBar {
     width: 95%;
