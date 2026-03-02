@@ -162,6 +162,7 @@ function App() {
       <NavigationBar
         viewSettings={viewSettings}
         updateViewSettings={updateViewSettings}
+        isBgLoading={isBgLoading}
       />
       {isBgLoading ? (
         <Box className='progressContainer'>

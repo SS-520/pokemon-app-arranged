@@ -13,10 +13,12 @@ import type React from 'react';
 interface NavigationBarProps {
   viewSettings: ViewSettings;
   updateViewSettings: (newVal: Partial<ViewSettings>) => void;
+  isBgLoading: boolean;
 }
 function NavigationBar({
   viewSettings,
   updateViewSettings,
+  isBgLoading,
 }: NavigationBarProps) {
   // 表示件数変更時のハンドラ
   const handleChangeDisplayNum = (
@@ -46,6 +48,16 @@ function NavigationBar({
     window.history.pushState({}, '', url);
   };
 
+  // 検索ハンドラ
+  const handleChangeSearch = (event: React.MouseEvent): void => {
+    // isBgLoadingがtrueの場合は処理を中断
+    if (isBgLoading) {
+      event.preventDefault(); // ブラウザの標準の動きを止める
+      alert('バックグラウンドで全データ取得完了後に\n検索可能です');
+      return; // 早期に処理を中断
+    }
+  };
+
   /* レンダリング結果 */
   return (
     <div className='navArea'>
@@ -66,12 +78,18 @@ function NavigationBar({
         </span>
         <span className='iconText'>view</span>
       </button>
-      <div className='searchIcon icon'>
+      <button
+        className={`searchIcon icon ${isBgLoading ? 'disabled' : ''}`}
+        aria-disabled={isBgLoading} // バックグラウンドでデータ取得中の場合はクリック不可
+        aria-label='検索'
+        type='button'
+        onClick={handleChangeSearch}
+      >
         <span className='iconImage'>
           <FaSearch />
         </span>
         <span className='iconText'>search</span>
-      </div>
+      </button>
       <div className='showItemsNumber'>
         <label htmlFor='showNum'>表示件数</label>
         <select
