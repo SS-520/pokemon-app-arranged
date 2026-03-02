@@ -15,6 +15,7 @@ img {
 
   /* 変数格納 */
   --basePadding: 5px;
+  --baseBorderRadius: 5px;
 }
 
 html,

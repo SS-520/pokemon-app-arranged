@@ -3,7 +3,6 @@
 /* 各種機能記述ファイル */
 
 /* 設定・導入 */
-import type { RefObject } from 'react';
 import { type Result } from 'neverthrow'; // 非同期処理用ライブラリ
 import type { QueryClient } from '@tanstack/react-query';
 
@@ -14,7 +13,12 @@ import type {
   PokemonSpeciesDetail,
   FormsDetail,
 } from '../types/typesFetch'; // PokemonListResponse型を使用（type{型}）
-import type { LsPokemon, PokedexNumber } from '../types/typesUtility';
+import type {
+  LsPokemon,
+  PokedexNumber,
+  setBoolean,
+  setNumber,
+} from '../types/typesUtility';
 
 import { fetchInitialData, getPokemonDetail } from './fetchPokemon'; // fetchPokemonから各関数を呼び出し
 import {
@@ -35,8 +39,9 @@ import {
 // 画面初回ロード時に行うメイン処理
 /*** @name loadPokemonProcess
  *   @function arrow, async/await
- *   @param isBgLoading:RefObject(バックグラウンドのローディング判定,useRef)
  *   @param queryClient: QueryClient, // 呼び出し元に蓄積されたキャッシュ
+ *   @param setIsBgLoading:setBoolean(バックグラウンドのローディング判定,useState)
+ *   @param setProgress:setNumber (バックグラウンドのローディング進捗,useState)
  *   @param signal:AbortSignal fetch操作を止めるシグナル
  *   @return void
  * 
@@ -53,7 +58,8 @@ import {
 */
 export const loadPokemonProcess = async (
   queryClient: QueryClient, // 呼び出し元に蓄積されたキャッシュ
-  isBgLoading: RefObject<boolean>, // 💡 追加
+  setIsBgLoading: setBoolean, // バックグラウンド処理の判定
+  setProgress: setNumber, // バックグラウンド処理の進捗
   signal: AbortSignal,
 ): Promise<LsPokemon[]> => {
   // 土台になるポケモンAPIのURLを指定
@@ -142,13 +148,19 @@ export const loadPokemonProcess = async (
     // 取得済み＋（取得数×5周目=150匹）から裏処理は開始
     const nextStartNum: number = currentLsCount + getAPIcount * 5;
 
+    // プログレスバー初期進捗
+    setProgress(Math.round((nextStartNum / pokedexNumArray.length) * 100));
+    // バックグラウンド処理開始
+    setIsBgLoading(true);
+
     // 残りは裏で取得
     backgroundFetchAPI(
       pokedexNumArray,
       nextStartNum,
       getBackAPIcount,
       queryClient,
-      isBgLoading,
+      setIsBgLoading,
+      setProgress,
       signal,
     );
   }
@@ -529,8 +541,9 @@ const backgroundFetchAPI = async (
   pokedexNumArray: number[],
   gotDataCount: number,
   getAPIcount: number,
-  isBgLoading: RefObject<boolean>, // 💡 復活！
   queryClient: QueryClient,
+  setIsBgLoading: setBoolean,
+  setProgress: setNumber,
   signal: AbortSignal,
 ): Promise<void> => {
   const startNum: number = gotDataCount; // ローディングの裏で取得した分の続きから開始
@@ -558,13 +571,19 @@ const backgroundFetchAPI = async (
         if (storageAvailable('localStorage')) {
           updateLsData(mergeData);
         }
+
+        // プログレスバーの値を更新
+        setProgress(
+          Math.round((mergeData.length / pokedexNumArray.length) * 100),
+        );
+
         // 画面に反映させるためにマージしたデータを返す
         return mergeData;
       },
     );
   }
   console.log('backgroundFetchAPI finished');
-  isBgLoading.current = false;
+  setIsBgLoading(false);
 };
 
 //
