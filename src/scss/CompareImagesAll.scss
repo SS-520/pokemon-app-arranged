@@ -8,7 +8,7 @@
 // スタイル設定
 .compareImages {
   padding: 0 5px 5px;
-  width: stretch;
+  width: 100%;
   display: grid;
   grid-template-columns: 1fr 4fr;
   grid-template-rows: repeat(2, 1fr);
@@ -56,7 +56,8 @@
     img.compareImg {
       margin-left: 10px;
       flex: 4;
-      width: 10%;
+      max-width: 100%;
+      min-width: 0;
     }
     .switchArea {
       @include mixins.imageOnOff;

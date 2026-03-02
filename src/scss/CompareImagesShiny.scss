@@ -11,7 +11,8 @@
 
   img.compareImg {
     flex: 4;
-    width: 10%;
+    max-width: 100%;
+    min-width: 0;
   }
   .switchArea {
     @include mixins.imageOnOff;

@@ -137,7 +137,10 @@ dialog.mainModal {
 
     // マステ風のスタイル管理
     .maskingTapeStyleBase {
+      --marginTop: 2em;
       @include mixins.areaAppBase;
+      padding-top: 0;
+      margin-top: var(--marginTop);
       .maskingTapeStyleTitle {
         @include mixins.areaAppTitle;
         font-family:
@@ -304,9 +307,11 @@ dialog.mainModal {
     // 画像比較
     .compareDiff {
       width: 100%;
+      margin-top: var(--marginTop);
       border: none;
-      background-color: var(--gradient0-3Color); /* ボックス背景色 */
+      // background-color: var(--gradient0-3Color); /* ボックス背景色 */
       // border: 1px solid var(--borderColor);
+      background-color: transparent;
       .maskingTapeStyleTitle {
         background-image: repeating-linear-gradient(
           -45deg,
@@ -318,6 +323,7 @@ dialog.mainModal {
       }
       .maskingTapeStyleContents {
         padding-bottom: 0em;
+        // background-color: var(--gradient0-3Color); /* ボックス背景色 */
 
         img {
           margin: 5px;
@@ -325,73 +331,75 @@ dialog.mainModal {
       }
     }
 
-    // 世代・卵グループ
-    .subInfomation {
-      width: 100%;
+    // 登場バージョン
+    .appearanceVersions {
+      background-color: #ebf0f5; /* ボックス背景色 */
+      margin-top: var(--marginTop);
 
-      // 登場バージョン
-      .appearanceVersions {
-        background-color: #ebf0f5; /* ボックス背景色 */
+      dt.maskingTapeStyleTitle {
+        background-image: repeating-linear-gradient(
+          -45deg,
+          #ebf0f5 0,
+          #ebf0f5 3px,
+          #fafafa 3px,
+          #fafafa 6px
+        ); /* ストライプ模様 */
+      }
+      // 世代別に整理
+      .ddContainer {
+        padding: 1.5em 0 0;
+        dd {
+          border-top: none;
+          display: grid;
+          grid-template-columns: 1fr 5fr;
+          padding: 4px 0;
 
-        dt.maskingTapeStyleTitle {
-          background-image: repeating-linear-gradient(
-            -45deg,
-            #ebf0f5 0,
-            #ebf0f5 3px,
-            #fafafa 3px,
-            #fafafa 6px
-          ); /* ストライプ模様 */
-        }
-        // 世代別に整理
-        .ddContainer {
-          padding: 1.5em 0 0;
-          dd {
-            border-top: none;
-            display: grid;
-            grid-template-columns: 1fr 5fr;
-            padding: 4px 0;
-
-            .generationNumber {
-              font-size: 0.8em;
-              grid-column: 1;
-              align-self: center;
-            }
-            .generationGroup {
-              grid-column: 2;
-              text-align: left;
-              .version {
-                font-size: 0.7rem;
-                margin: 1px 1px;
-              }
+          .generationNumber {
+            font-size: 0.8em;
+            grid-column: 1;
+            align-self: center;
+          }
+          .generationGroup {
+            grid-column: 2;
+            text-align: left;
+            .version {
+              font-size: 0.7rem;
+              margin: 1px 1px;
             }
           }
         }
-        dd:nth-child(even) {
-          background-color: #dce9f5; /* ボックス背景色 */
+
+        // 該当する対象だけ着色するタイル群
+        .tiles {
+          @include mixins.tileStyle;
         }
       }
-
-      // 卵グループ
-      .eggGroup {
-        background-color: #f5f2eb; /* ボックス背景色 */
-
-        dt.maskingTapeStyleTitle {
-          background-image: repeating-linear-gradient(
-            -45deg,
-            #f5f2eb 0,
-            #f5f2eb 3px,
-            #fafafa 3px,
-            #fafafa 6px
-          ); /* ストライプ模様 */
-        }
-        .ddContainer {
-          text-align: left;
-        }
+      dd:nth-child(even) {
+        background-color: #dce9f5; /* ボックス背景色 */
       }
+    }
 
-      // 該当する対象だけ着色するタイル群
-      .tiles {
-        @include mixins.tileStyle;
+    // 卵グループ
+    .eggGroup {
+      margin-top: var(--marginTop);
+      background-color: #f5f2eb; /* ボックス背景色 */
+
+      dt.maskingTapeStyleTitle {
+        background-image: repeating-linear-gradient(
+          -45deg,
+          #f5f2eb 0,
+          #f5f2eb 3px,
+          #fafafa 3px,
+          #fafafa 6px
+        ); /* ストライプ模様 */
+      }
+      .ddContainer {
+        text-align: left;
+
+        // 該当する対象だけ着色するタイル群
+        .tiles {
+          @include mixins.tileStyle;
+        }
       }
     }
 
@@ -409,7 +417,7 @@ dialog.mainModal {
     .flavor,
     .evolution,
     .variation {
-      margin-top: 2em;
+      margin-top: var(--marginTop);
     }
 
     .ability,

@@ -292,31 +292,6 @@ export const renderMainModal = (
       </section>
       {/* 重ねて画像比較 */}
       {compareImage()}
-      <section className='subInfomation'>
-        <dl className='appearanceVersions maskingTapeStyleBase'>
-          <dt className='maskingTapeStyleTitle'>登場バージョン</dt>
-          <div className='ddContainer maskingTapeStyleContents'>
-            {showVersions}
-          </div>
-          {versionAnnotation()}
-        </dl>
-
-        <dl className='eggGroup maskingTapeStyleBase'>
-          <dt className='maskingTapeStyleTitle'>卵グループ</dt>
-          <div className='ddContainer maskingTapeStyleContents'>{showEggs}</div>
-        </dl>
-      </section>
-      <section className='ability maskingTapeStyleBase'>
-        <h5 className='abilityTitle title maskingTapeStyleTitle'>特性</h5>
-        {showAbility}
-      </section>
-      <section className='flavor maskingTapeStyleBase'>
-        <h5 className='flavorTextTitle title maskingTapeStyleTitle'>
-          図鑑解説テキスト
-        </h5>
-        <ul className='flavorTextDetail'>{showFlavorText}</ul>
-        {flavorAnnotation()}
-      </section>
       <section className='evolution maskingTapeStyleBase'>
         <h5 className='evolutionTitle title maskingTapeStyleTitle'>
           進化の流れ
@@ -335,6 +310,29 @@ export const renderMainModal = (
       ) : (
         <></>
       )}
+      <dl className='appearanceVersions maskingTapeStyleBase'>
+        <dt className='maskingTapeStyleTitle'>登場バージョン</dt>
+        <div className='ddContainer maskingTapeStyleContents'>
+          {showVersions}
+        </div>
+        {versionAnnotation()}
+      </dl>
+
+      <dl className='eggGroup maskingTapeStyleBase'>
+        <dt className='maskingTapeStyleTitle'>卵グループ</dt>
+        <div className='ddContainer maskingTapeStyleContents'>{showEggs}</div>
+      </dl>
+      <section className='ability maskingTapeStyleBase'>
+        <h5 className='abilityTitle title maskingTapeStyleTitle'>特性</h5>
+        {showAbility}
+      </section>
+      <section className='flavor maskingTapeStyleBase'>
+        <h5 className='flavorTextTitle title maskingTapeStyleTitle'>
+          図鑑解説テキスト
+        </h5>
+        <ul className='flavorTextDetail'>{showFlavorText}</ul>
+        {flavorAnnotation()}
+      </section>
     </article>
   );
 };
