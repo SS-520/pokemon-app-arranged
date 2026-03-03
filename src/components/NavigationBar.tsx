@@ -1,13 +1,17 @@
 // import React from 'react';
-import '../scss/NavigationBar.scss';
+import type React from 'react';
 import type { ViewSettings } from '../utilities/types/typesUtility';
+import { storageAvailable } from '../utilities/function/utilityFunction';
 import logo from '../img/title.png';
 
 // アイコン
 import { FaSearch } from 'react-icons/fa';
 import { MdGridView } from 'react-icons/md';
 import { FaList } from 'react-icons/fa6';
-import type React from 'react';
+import { TbRefresh } from 'react-icons/tb';
+
+// スタイル
+import '../scss/NavigationBar.scss';
 
 // プロップスの型定義
 interface NavigationBarProps {
@@ -20,6 +24,9 @@ function NavigationBar({
   updateViewSettings,
   isBgLoading,
 }: NavigationBarProps) {
+  // ローカルストレージの使用可否
+  const isLsAvailable = storageAvailable('localStorage');
+
   // 表示件数変更時のハンドラ
   const handleChangeDisplayNum = (
     event: React.ChangeEvent<HTMLSelectElement>,
@@ -48,10 +55,25 @@ function NavigationBar({
     window.history.pushState({}, '', url);
   };
 
+  // リフレッシュ時のハンドラ
+  const handleChangeRefresh = (): void => {
+    if (
+      confirm(
+        '全データを再取得します。\n通信環境によっては時間がかかる可能性があります。\n再取得しますか？\n\n※画面を再読み込みします',
+      )
+    ) {
+      // OKを押下
+      localStorage.clear(); // 一回全部クリア
+      localStorage.setItem('confirm', 'true'); // 注意事項の確認フラグは元に戻す
+      window.location.reload(); // 画面を再読み込み
+    }
+  };
+
   // 検索ハンドラ
   const handleChangeSearch = (event: React.MouseEvent): void => {
     // isBgLoadingがtrueの場合は処理を中断
     if (isBgLoading) {
+      console.log('handleChangeSearch');
       event.preventDefault(); // ブラウザの標準の動きを止める
       alert('バックグラウンドで全データ取得完了後に\n検索可能です');
       return; // 早期に処理を中断
@@ -67,6 +89,21 @@ function NavigationBar({
           ポケモン図鑑
         </h1>
       </header>
+      {isLsAvailable ? (
+        <button
+          className='refreshIcon icon'
+          type='button'
+          aria-label='再読み込み'
+          onClick={handleChangeRefresh}
+        >
+          <span className='iconImage'>
+            <TbRefresh />
+          </span>
+          <span className='iconText'>data</span>
+        </button>
+      ) : (
+        <></>
+      )}
       <button
         className='changeDisplayIcon icon'
         onClick={handleChangeDisplayType}
