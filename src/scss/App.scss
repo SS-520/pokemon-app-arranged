@@ -1,3 +1,42 @@
 // 各種パーシャルファイルの統合
 @use 'mixins'; // ミックスイン集
+@use 'variables'; // 変数読み込み
 @use 'Base'; // 基本スタイル
+
+/* スタイル */
+
+// プログレスバー
+.progressContainer {
+  width: 90vw;
+  padding: 10px;
+  position: fixed;
+  left: 50%;
+  bottom: 12.5vh;
+  transform: translateX(-50%);
+  background-color: rgba(221, 30, 36, 0.25);
+  z-index: 50;
+  border-radius: var(--baseBorderRadius);
+
+  .typographyContainer {
+    display: flex;
+    justify-content: center;
+    column-gap: 10px;
+    margin-bottom: 5px;
+
+    p {
+      font-weight: bold;
+    }
+  }
+  .progressBar {
+    width: 95%;
+    height: 10px;
+    margin-inline: auto;
+    border-radius: var(--baseBorderRadius);
+    background-color: variables.$modalGridBorderColor; // まだ伸びてない背景色
+
+    :global(.MuiLinearProgress-bar) {
+      border-radius: 5px;
+      background: linear-gradient(90deg, #e55b9e 0%, #dc3636 100%);
+    }
+  }
+}

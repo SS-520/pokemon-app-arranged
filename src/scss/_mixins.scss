@@ -39,6 +39,35 @@
   text-overflow: ellipsis; /* 省略記号表示 */
 }
 
+@mixin tileStyle {
+  // 該当する対象だけ着色するタイル群
+
+  display: inline-block;
+  font-size: 0.75rem;
+  margin: 1px 2px;
+  padding: 2px 5px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  background-color: #dcdcdc;
+  color: #fff;
+  &.show {
+    &.regionName {
+      background-color: #c53d43;
+    }
+    &.version {
+      background-color: #1e50a2;
+    }
+    &.baby,
+    &.legend,
+    &.mythic {
+      background-color: #007b43;
+    }
+    &.eggName {
+      background-color: #e6b422;
+    }
+  }
+}
+
 @mixin areaAppContents {
   padding: 1.5em 5px 0.75em; /* 内側余白 */
 }
@@ -102,11 +131,33 @@
       width: variables.$switchButtonSize;
       height: variables.$switchButtonSize;
       display: block;
-      border-radius: 50px;
+      border-radius: 50%;
       background: #fff;
       box-shadow: 0 9px 28px -6px rgba(0, 0, 0, 0.3);
       -webkit-transition: 0.2s ease-out;
       transition: 0.2s ease-out;
+
+      // 見た目をモンスターボール風にする
+      transform: rotate(-90deg);
+      background:
+        radial-gradient(
+          circle at center,
+          #fff 21%,
+          // ボタンの白い部分（少し大きくしたにゃ）
+          #333 22% 27%,
+          // ボタンの黒い縁取り
+          transparent 28%
+        ),
+        // 中央の丸い縁取り
+        linear-gradient(
+            to bottom,
+            #e3350d 46%,
+            #333 47% 53%,
+            #fff 54%
+          ); // 上の赤・中央の黒線・下の白
+      border: 2px solid #333; // 💡 外側の黒い枠線
+      box-sizing: border-box; // 💡 枠線の分、サイズが膨らまないようにするお守りにゃ
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     }
 
     // キラ表示

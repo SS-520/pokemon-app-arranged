@@ -1,6 +1,7 @@
 // 基本設定と拡張機能
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Box, Typography, LinearProgress } from '@mui/material';
 
 // 外部の関数・型定義ファイル
 import type {
@@ -26,7 +27,9 @@ function App() {
   /** ローディング判定 **/
 
   // バックグラウンドでデータ取得中かの判定
-  const isBgLoading = useRef<boolean>(true);
+  const [isBgLoading, setIsBgLoading] = useState<boolean>(false);
+  // バックグラウンドで取得中の進捗
+  const [progress, setProgress] = useState<number>(0);
 
   /** 画面表示 **/
 
@@ -88,7 +91,7 @@ function App() {
   } = useQuery<LsPokemon[]>({
     queryKey: ['pokemon', 'all'], // unknown型配列
     queryFn: ({ signal }) =>
-      loadPokemonProcess(queryClient, isBgLoading, signal), // promiseを返す関数を設定
+      loadPokemonProcess(queryClient, setIsBgLoading, setProgress, signal), // promiseを返す関数を設定
     staleTime: Infinity,
   });
 
@@ -159,7 +162,23 @@ function App() {
       <NavigationBar
         viewSettings={viewSettings}
         updateViewSettings={updateViewSettings}
+        isBgLoading={isBgLoading}
       />
+      {isBgLoading ? (
+        <Box className='progressContainer'>
+          <Box className='typographyContainer'>
+            <Typography className='labelText'>Loading</Typography>
+            <Typography className='percentageText'>{`${progress}%`}</Typography>
+          </Box>
+          <LinearProgress
+            variant='determinate'
+            value={progress}
+            className='progressBar'
+          />
+        </Box>
+      ) : (
+        <></>
+      )}
       <div className='App'>
         {
           // 変数loadingの状態で画面の表示を変更⇒短いのでifを使用せず３項演算子で済ませる
