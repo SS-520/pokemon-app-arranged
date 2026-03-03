@@ -84,6 +84,9 @@ export const loadPokemonProcess = async (
   let finalData: LsPokemon[] = [];
   let lsData: Result<LsPokemon[], FetchError> | null = null;
 
+  // 最終的な保留中配列の格納先（配列にpushなのでconstでOK）
+  const stillFailedIds: number[] = [];
+
   // APIからの取得が必要かどうかのフラグ
   let isGetAPI: boolean = false;
 
@@ -107,6 +110,76 @@ export const loadPokemonProcess = async (
     // ローカルストレージに保存されているデータ数とAPIのデータ数が異なる
     // ⇒APIから取得する必要＋ローカルストレージのデータを取得更新する必要がある
     lsData = getLsData<LsPokemon>('pokemonData');
+
+    // 取得保留中のポケモンがいれば先に取得
+    const pendingPokemon = getLsData<number[]>('failedList');
+
+    // エラーチェック
+    if (pendingPokemon.isErr()) {
+      throw pendingPokemon.error;
+    }
+
+    // 保留中がある
+    if (pendingPokemon.value.length > 0) {
+      // 保留中配列をフラット化
+      const pendingPokemonArray: number[] = pendingPokemon.value.flat();
+
+      // 保留中のポケモンを取得（ループ）
+      // ループ前に現在のLSデータをuseQueryにセット
+      if (lsData && lsData.isOk()) {
+        // 念のためfinalDataにも判明しているデータは格納
+        finalData = applyPokemonUpdates(
+          pokedexNumArray,
+          { result: lsData.value, failedList: pendingPokemonArray },
+          queryClient,
+          setProgress,
+        );
+      }
+
+      // awaitを有効にするのでfor ofを使用
+      for (const id of pendingPokemonArray) {
+        // 保留中のポケモンを取得実行
+        const pendingPokemonData = await getPokemonDataSafely(
+          pokedexNumArray,
+          pokedexNumArray.indexOf(id),
+          1,
+          signal,
+        );
+
+        // 結果に応じて処理
+        finalData = applyPokemonUpdates(
+          pokedexNumArray,
+          pendingPokemonData,
+          queryClient,
+          setProgress,
+        );
+
+        // 失敗したidはnewPendingPokemonArrayに詰める
+        if (pendingPokemonData.failedList.length > 0) {
+          stillFailedIds.push(...pendingPokemonData.failedList);
+        }
+      }
+      /* ループ終わり */
+
+      // 保留中が残ってる
+      if (stillFailedIds.length > 0) {
+        localStorage.setItem('failedList', JSON.stringify(stillFailedIds));
+      } else {
+        // 保留中全部解消
+        localStorage.removeItem('failedList');
+      }
+
+      // 終了時点でLSの登録数と最新数が一致
+      // 保留中もない
+      // ⇒isGetAPIをtrue＋更新したfinalDataを最後に返して終わり
+      if (
+        Number(localStorage.getItem('pokeRegCount')) ===
+          nowFetchResult.value.count &&
+        stillFailedIds.length === 0
+      ) {
+        isGetAPI = true;
+      }
+    }
   }
 
   // isGetAPIがfalseのまま⇒APIから取得する必要がある
@@ -121,25 +194,37 @@ export const loadPokemonProcess = async (
       const currentStart = currentLsCount + getAPIcount * i;
 
       // API取得
-      const newData: LsPokemon[] = await getNowPokemonData(
+      const newData: {
+        result: LsPokemon[];
+        failedList: number[];
+      } = await getPokemonDataSafely(
         pokedexNumArray,
         currentStart,
         getAPIcount,
         signal,
       );
       // 取得したnewDataデータをfinalDataにマージして格納
-      finalData = mergeAndUniqueById(finalData, newData);
+      finalData = applyPokemonUpdates(
+        pokedexNumArray,
+        newData,
+        queryClient,
+        setProgress,
+      );
+
+      // 失敗したIDはnewPendingPokemonArrayに詰める
+      if (newData.failedList.length > 0) {
+        stillFailedIds.push(...newData.failedList);
+      }
     }
 
     // 既存のローカルストレージのデータ有⇒finalDataに更にマージ
     if (lsData && lsData.isOk()) {
-      finalData = mergeAndUniqueById(finalData, lsData.value);
-    }
-
-    // ローカルストレージが使える場合
-    // 最終的なfinalDataをローカルストレージに保存
-    if (storageAvailable('localStorage')) {
-      updateLsData(finalData);
+      finalData = applyPokemonUpdates(
+        pokedexNumArray,
+        { result: lsData.value, failedList: stillFailedIds },
+        queryClient,
+        setProgress,
+      );
     }
 
     //  裏で一度に取得するAPIの数
@@ -148,8 +233,6 @@ export const loadPokemonProcess = async (
     // 取得済み＋（取得数×5周目=150匹）から裏処理は開始
     const nextStartNum: number = currentLsCount + getAPIcount * 5;
 
-    // プログレスバー初期進捗
-    setProgress(Math.round((nextStartNum / pokedexNumArray.length) * 100));
     // バックグラウンド処理開始
     setIsBgLoading(true);
 
@@ -159,6 +242,7 @@ export const loadPokemonProcess = async (
       nextStartNum,
       getBackAPIcount,
       queryClient,
+      stillFailedIds,
       setIsBgLoading,
       setProgress,
       signal,
@@ -171,7 +255,201 @@ export const loadPokemonProcess = async (
 
 //
 //
-// 最新のポケモン情報を取得する一式
+// APIの呼び出し関数と失敗時の処理をまとめた中間関数
+/*** @name getPokemonDataSafely
+ *   @function arrow, async/await
+ *   @param pokedexNumArray:number[](ポケモン管理番号)
+ *   @param refPokemonData:RefObject<LsPokemon[]>(APIデータを取得加工後の箱)
+ *   @param start:number(開始配列要素番号)
+ *   @param run:number(実行件数)
+ *   @param signal:AbortSignal fetch操作を止めるシグナル
+ *   @return Promise<number>
+ *   ・ローカルストレージからデータを取得できない
+ *   ・ローカルストレージ保存の内容からAPI側が更新されている
+ */
+
+const getPokemonDataSafely = async (
+  pokedexNumArray: number[],
+  start: number,
+  run: number,
+  signal: AbortSignal,
+): Promise<{ result: LsPokemon[]; failedList: number[] }> => {
+  const result: LsPokemon[] = []; // 取得したポケモンデータを格納する配列
+  // ループ終了条件（開始値＋実行数と配列の長さを比較して小さい方を採用）
+  const limit: number = Math.min(start + run, pokedexNumArray.length);
+
+  let retryCount: number = 0; // エラー時のリトライ回数
+  const maxRetryCount: number = 3; // 最大リトライ回数
+  const failedList: number[] = []; // エラーで取得できなかった番号リスト
+
+  // globalTry/Catch
+  try {
+    for (
+      let i: number = start;
+      i < limit; // ループ変数iの更新は該当ループが無事完了した時に実行
+    ) {
+      // mainTry/Catch
+      // エラーが起きて取得できなくてもリトライする
+      try {
+        // データ取得
+        const newData: LsPokemon[] = await getNowPokemonData(
+          pokedexNumArray,
+          i,
+          run,
+          signal,
+        );
+        // エラー無で取得できたのでリトライ回数リセット
+        retryCount = 0;
+        // 取得したデータを結果配列に格納
+        result.push(...newData);
+
+        // ループ変数を更新して次のループへGO
+        i += run;
+
+        /* エラー発生：mainError */
+      } catch {
+        /* --- ここからmainErrorの処理 --- */
+        // エラーが起きたのでリトライ回数加算
+        retryCount++;
+
+        console.warn(
+          `[リトライ]${i}の取得失敗。${retryCount}回目のリトライ実行`,
+        );
+
+        // 最大リトライ回数未満
+        if (retryCount < maxRetryCount) {
+          // 1秒クールダウンしてからリトライ
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          continue; // mainループの先頭に戻る（＝塊取得を再試行）
+        }
+
+        // 最大リトライ回数を越えた⇒エラー周の対象を１匹ずつ個別取得
+        console.warn(`[個別取得]${i}の取得を個別取得に切り替え/エラー処理`);
+
+        // 1匹ずつ取得するfor処理
+        for (
+          let j = i;
+          j < Math.min(i + run, pokedexNumArray.length); // APIの最大数/実行数 の小さい方
+          j++
+        ) {
+          // singleTry/Catch
+          try {
+            // 1匹ずつ取得処理
+            const singleData = await getNowPokemonData(
+              pokedexNumArray,
+              j,
+              1,
+              signal,
+            );
+            // 取得したデータを結果配列に格納
+            result.push(...singleData);
+
+            /* 処理詰まりの原因のエラー */
+          } catch (singleError) {
+            // 本当に取得できない対象を特定
+            // 配列に格納
+            failedList.push(pokedexNumArray[j]);
+
+            // コンソールにエラーを出す
+            console.error(
+              `[取得失敗] ID:${pokedexNumArray[j]} は現在データにアクセスできません`,
+              singleError,
+            );
+          }
+          // singleループ終わり
+        }
+        // エラー処理含め対応完了
+        // リトライ回数リセット
+        retryCount = 0;
+
+        // ループ変数を更新して次のmainループへGO
+        i += run;
+        /* --- ここまでmainErrorの処理 --- */
+      }
+      // mainループ終わり：ループ後処理
+    }
+    /* --- ここからmainErrorの処理 --- */
+  } catch (globalError) {
+    // singleループで処理できない想定外のエラー発生
+    // エラー内容をログに出力
+    console.log('backgroundFetchAPI内でエラー発生', globalError);
+  }
+
+  // catchのthrowを上書きしないためにfinallyは使わず普通にreturn
+  return { result, failedList };
+};
+
+//
+//
+// APIから取得したデータを画面に反映させる
+/*** @name getNowPokemonData
+ *   @function arrow, async/await
+ *   @param pokedexNumArray:number[](ポケモン管理番号)
+ *   @param addData:{ result: LsPokemon[]; failedList: number[] }(APIデータを取得加工後の箱)
+ *   @param queryClient:QueryClient(react-queryのクライアント)
+ *   @param setProgress:setNumber(プログレスバーの値を更新する関数)
+ *   @return void
+ */
+
+const applyPokemonUpdates = (
+  pokedexNumArray: number[],
+  addData: { result: LsPokemon[]; failedList: number[] },
+  queryClient: QueryClient,
+  setProgress: setNumber,
+): LsPokemon[] => {
+  // 受け取ったデータを画面に反映されるように処理
+  // 最終的な結果はreturnする
+  return queryClient.setQueryData<LsPokemon[]>(
+    ['pokemon', 'all'],
+    (currentData: LsPokemon[] | undefined) => {
+      // 既存データに新規データをマージ
+      // currentDataがなくundefinedの場合は空配列を渡す
+      const mergeData: LsPokemon[] = mergeAndUniqueById(
+        currentData ?? [],
+        addData.result,
+      );
+
+      // ローカルストレージが使えるなら保存
+      if (storageAvailable('localStorage')) {
+        // 既存データに新規データをマージ
+        updateLsData(mergeData);
+
+        // エラーリストがあればそれも保存
+        if (addData.failedList.length > 0) {
+          // 既存のペンディングリストはある？
+          const currentFailedList: Result<number[][], FetchError> =
+            getLsData<number[]>('failedList');
+          if (!currentFailedList.isOk()) {
+            throw currentFailedList.error;
+          }
+
+          // 既存と新規を結合・並べ替え
+          const mergeFailedList: number[] = [
+            ...new Set([
+              ...addData.failedList,
+              ...currentFailedList.value.flat(),
+            ]),
+          ].toSorted();
+
+          // エラーリストを保存
+          localStorage.setItem('failedList', JSON.stringify(mergeFailedList));
+        }
+      }
+
+      // プログレスバーの値を更新
+      setProgress(
+        Math.round((mergeData.length / pokedexNumArray.length) * 100),
+      );
+
+      // 画面に反映させるためにマージしたデータをsetQueryDataに返す
+      return mergeData;
+    },
+  ) as LsPokemon[]; // unknown回避の念押し型アサーション
+};
+
+//
+//
+// APIから現在のポケモン情報を取得する一式
 /*** @name getNowPokemonData
  *   @function arrow, async/await
  *   @param pokedexNumArray:number[](ポケモン管理番号)
@@ -542,6 +820,7 @@ const backgroundFetchAPI = async (
   gotDataCount: number,
   getAPIcount: number,
   queryClient: QueryClient,
+  stillFailedIds: number[],
   setIsBgLoading: setBoolean,
   setProgress: setNumber,
   signal: AbortSignal,
@@ -549,40 +828,38 @@ const backgroundFetchAPI = async (
   const startNum: number = gotDataCount; // ローディングの裏で取得した分の続きから開始
 
   for (let i: number = startNum; i < pokedexNumArray.length; i += getAPIcount) {
-    // 追加データ取得
-    const newData: LsPokemon[] = await getNowPokemonData(
-      pokedexNumArray,
-      i,
-      getAPIcount,
-      signal,
-    );
+    const newData: {
+      result: LsPokemon[];
+      failedList: number[];
+    } = await getPokemonDataSafely(pokedexNumArray, i, getAPIcount, signal);
 
     // 取得したデータが画面に反映されるように設定
-    queryClient.setQueryData(
-      ['pokemon', 'all'],
-      (currentData: LsPokemon[] | undefined) => {
-        // 既存データに新規データをマージ
-        // currentDataがなくundefinedの場合は空配列を渡す
-        const mergeData: LsPokemon[] = mergeAndUniqueById(
-          currentData ?? [],
-          newData,
-        );
-        // ローカルストレージが使えるなら保存
-        if (storageAvailable('localStorage')) {
-          updateLsData(mergeData);
-        }
+    applyPokemonUpdates(pokedexNumArray, newData, queryClient, setProgress);
 
-        // プログレスバーの値を更新
-        setProgress(
-          Math.round((mergeData.length / pokedexNumArray.length) * 100),
-        );
-
-        // 画面に反映させるためにマージしたデータを返す
-        return mergeData;
-      },
-    );
+    // 失敗したIDはnewPendingPokemonArrayに詰める
+    if (newData.failedList.length > 0) {
+      stillFailedIds.push(...newData.failedList);
+    }
   }
+
+  // 途中で取得失敗したポケモンがいれば画面に表示
+  if (stillFailedIds.length > 0) {
+    // 重複を削除（ローカルストレージを使えなくても表示可能な処理）
+    const uniqueFailed = [...new Set(stillFailedIds)];
+
+    // メッセージ作成
+    const msg: string = `【取得失敗】\n以下の番号のポケモンは取得できませんでした。\nID: ${uniqueFailed.join(', ')}\n\nお手数ですが、しばらく時間をおいたのち、データのリフレッシュを行ってください。`;
+
+    // アラート表示
+    alert(msg);
+
+    // コンソールにも表示
+    console.warn(`取得失敗したポケモン番号: ${uniqueFailed.join(', ')}`);
+  }
+
   console.log('backgroundFetchAPI finished');
+
+  // ローディング終了
   setIsBgLoading(false);
 };
 
