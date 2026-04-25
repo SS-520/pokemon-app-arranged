@@ -167,7 +167,9 @@ function App() {
       {isBgLoading ? (
         <Box className='progressContainer'>
           <Box className='typographyContainer'>
-            <Typography className='labelText'>Loading</Typography>
+            <Typography className='labelText'>
+              全ポケモンデータ取得中
+            </Typography>
             <Typography className='percentageText'>{`${progress}%`}</Typography>
           </Box>
           <LinearProgress
