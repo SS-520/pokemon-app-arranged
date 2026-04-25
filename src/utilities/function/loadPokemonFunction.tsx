@@ -184,6 +184,9 @@ export const loadPokemonProcess = async (
 
   // isGetAPIがfalseのまま⇒APIから取得する必要がある
   if (!isGetAPI) {
+    // バックグラウンド処理開始
+    setIsBgLoading(true);
+
     //  一度に取得するAPIの数
     const getAPIcount: number = 30;
 
@@ -232,9 +235,6 @@ export const loadPokemonProcess = async (
 
     // 取得済み＋（取得数×5周目=150匹）から裏処理は開始
     const nextStartNum: number = currentLsCount + getAPIcount * 5;
-
-    // バックグラウンド処理開始
-    setIsBgLoading(true);
 
     // 残りは裏で取得
     backgroundFetchAPI(
