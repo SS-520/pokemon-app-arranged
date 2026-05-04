@@ -65,7 +65,11 @@ function NavigationBar({
       // OKを押下
       localStorage.clear(); // 一回全部クリア
       localStorage.setItem('confirm', 'true'); // 注意事項の確認フラグは元に戻す
-      window.location.reload(); // 画面を再読み込み
+
+      // 画面をパラメータなしの初期URLで再読み込み（履歴も上書き）
+      const domainName: string = window.location.origin; // プロトコル＋ドメイン
+      const domainPathName: string = window.location.pathname; // パス名（パラメータを初期化）
+      window.location.replace(domainName + domainPathName);
     }
   };
 
