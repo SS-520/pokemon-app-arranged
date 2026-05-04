@@ -1,0 +1,22 @@
+// 検索モーダルのスタイル
+
+// 設定読み込み
+@use 'mixins'; // ミックスイン読み込み
+@use 'media'; // メディアクエリ読み込み
+@use 'variables'; // 変数読み込み
+
+dialog.searchModal {
+  @include mixins.dialogBase;
+
+  // 閉じるボタン
+  .modalCloseButton {
+    padding: 5px;
+    font-size: 1.5em;
+    border: 0;
+    position: absolute;
+    top: 0;
+    right: 0;
+    cursor: pointer;
+    z-index: 1;
+  }
+}
