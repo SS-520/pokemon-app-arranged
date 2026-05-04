@@ -657,7 +657,7 @@ const createBaseData = (
       setImg = getDisplayImg(numPokemonDetail.sprites);
 
       // オスメス差分の有無取得
-      if (!numPokemonDetail.sprites.front_shiny) {
+      if (numPokemonDetail.sprites.front_female !== null) {
         setIsGender = Number(true);
       }
 
