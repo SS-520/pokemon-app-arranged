@@ -1,12 +1,12 @@
-import React, { useEffect, useImperativeHandle, useRef } from 'react';
+import React, { useEffect, useImperativeHandle, useRef, useState } from 'react';
 
 // 呼び出し関数・型
 import { type MainModalHandle } from '../utilities/types/typesUtility';
-import {} from '../utilities/function/searchPokemonFunction';
 
 // アイコン
 import { IoIosCloseCircleOutline } from 'react-icons/io';
 import { IoMdHelpCircleOutline } from 'react-icons/io';
+import { IoMdMale, IoMdFemale } from 'react-icons/io';
 
 // CSS呼び出し
 import '../scss/SearchModal.scss';
@@ -72,6 +72,24 @@ const Search = ({ ref, onClose }: SearchProps) => {
     }
   };
 
+  //
+  // キーワード検索の状態管理
+  const defaultPlaceholder = 'ピカチュウ(名前) または 25(図鑑番号)';
+  const [keywordPlaceholder, setKeywordPlaceholder] =
+    useState<string>(defaultPlaceholder);
+
+  /**
+   * キーワード検索のモード変更
+   * ・
+   */
+  const changeKeywordMode = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.id === 'searchNameOrDexNo') {
+      setKeywordPlaceholder('ピカチュウ(名前) または 25(図鑑番号)');
+    } else if (event.target.id === 'searchFormName') {
+      setKeywordPlaceholder('アローラ キョダイマックス メガ');
+    }
+  };
+
   // 描画内容
   return (
     <dialog
@@ -94,34 +112,89 @@ const Search = ({ ref, onClose }: SearchProps) => {
       </button>
       <section className='searchSection'>
         <header>
-          <h2>検索</h2>
+          <h2>検索条件</h2>
           <IoMdHelpCircleOutline className='helpIcon' />
+          {/* 押下でヘルプモーダル出す */}
         </header>
         <section className='searchContents'>
-          <dl>
-            <dt>キーワード,ID</dt>
-            <dd>部分一致、完全一致、前方一致、後方一致</dd>
+          <dl className='keywordSearch areaAppBase'>
+            <dt className='searchTarget areaAppTitle'>名前／図鑑番号</dt>
+            <div className='searchOptions areaAppContents'>
+              <dd>
+                <label className='method'>
+                  <input
+                    type='radio'
+                    name='keywordSearchMode'
+                    id='searchNameOrDexNo'
+                    onChange={changeKeywordMode}
+                    defaultChecked
+                  />
+                  名前・図鑑番号
+                </label>
+                <label className='method'>
+                  <input
+                    type='radio'
+                    name='keywordSearchMode'
+                    id='searchFormName'
+                    onChange={changeKeywordMode}
+                  />
+                  フォルム名
+                </label>
+              </dd>
+              <input
+                type='text'
+                id='searchKeyword'
+                placeholder={`例：${keywordPlaceholder}`}
+              />
+            </div>
           </dl>
-          <dl>
-            <dt>タイプ</dt>
-            <dd>OR検索</dd>
-            <dd>AND検索（複合タイプ）</dd>
-            <dd></dd>
+          <dl className='areaAppBase'>
+            <dt className='areaAppTitle'>
+              <IoMdMale />
+              <IoMdFemale />
+              差分
+            </dt>
+            <dd className='areaAppContents'>
+              <label className='method'>
+                <input type='radio' name='gender' defaultChecked />
+                全て
+              </label>
+              <label className='method'>
+                <input type='radio' name='gender' /> 差分有
+              </label>
+              <label className='method'>
+                <input type='radio' name='gender' /> 差分無
+              </label>
+            </dd>
           </dl>
-          <dl>
-            <dt>地方</dt>
-            <dd></dd>
+          <dl className='areaAppBase'>
+            <dt className='areaAppTitle'>タイプ</dt>
+            <div className='areaAppContents'>
+              <dd>
+                <label className='method'>
+                  <input type='radio' name='typeSearchMode' defaultChecked />
+                  OR検索
+                </label>
+                <label className='method'>
+                  <input type='radio' name='typeSearchMode' />
+                  AND検索（複合タイプ）
+                </label>
+              </dd>
+            </div>
           </dl>
-          <dl>
-            <dt>バージョン</dt>
-            <dd></dd>
+          <dl className='areaAppBase'>
+            <dt className='areaAppTitle'>地方</dt>
+            <dd className='areaAppContents'></dd>
           </dl>
-          <dl>
-            <dt>オスメス差分</dt>
-            <dd></dd>
+          <dl className='areaAppBase'>
+            <dt className='areaAppTitle'>バージョン</dt>
+            <dd className='areaAppContents'></dd>
           </dl>
-          <button className='searchButton'>検索</button>
         </section>
+        <div className='buttonArea'>
+          <button className='resetButton'>全リセット</button>
+          <button className='searchButton'>検索</button>
+        </div>
       </section>
     </dialog>
   );
