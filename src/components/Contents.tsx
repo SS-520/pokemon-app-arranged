@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Pagination, Stack } from '@mui/material'; //ページング
 
 // 呼び出し関数・型
@@ -107,8 +113,14 @@ function Contents({
   }, [allData, page, modalRef, displayNum]);
 
   /* ページ遷移時の処理 */
+  // 表示件数が変更⇒必ず最初のページに戻す
+  // ※ブラウザが描画する前に実行したい（旧画面のチラつき防止）→useLayoutEffect使用
+  useLayoutEffect(() => {
+    setPage(1);
+  }, [displayNum]);
+
+  // ページが変わった時だけ画面トップに戻す
   useEffect(() => {
-    // ページが変わった時だけ画面トップに戻す
     document.getElementById('root')?.scrollIntoView({
       behavior: 'instant',
       block: 'start',

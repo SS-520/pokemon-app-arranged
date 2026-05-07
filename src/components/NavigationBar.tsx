@@ -49,6 +49,7 @@ function NavigationBar({
 
     // 表示URLにページ番号のパラメータ付与
     const url = new URL(window.location.href);
+    url.searchParams.set('page', '1');
     url.searchParams.set('Num', displayNumValue);
     window.history.pushState({}, '', url);
   };
