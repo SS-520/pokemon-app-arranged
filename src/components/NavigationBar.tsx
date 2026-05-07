@@ -1,6 +1,8 @@
-// import React from 'react';
-import type React from 'react';
-import type { ViewSettings } from '../utilities/types/typesUtility';
+import React, { useRef, useState } from 'react';
+import type {
+  ViewSettings,
+  MainModalHandle,
+} from '../utilities/types/typesUtility';
 import { storageAvailable } from '../utilities/function/utilityFunction';
 import logo from '../img/title.png';
 
@@ -12,6 +14,9 @@ import { TbRefresh } from 'react-icons/tb';
 
 // スタイル
 import '../scss/NavigationBar.scss';
+
+// 呼び出しコンポーネント
+import Search from './Search';
 
 // プロップスの型定義
 interface NavigationBarProps {
@@ -27,6 +32,12 @@ function NavigationBar({
   // ローカルストレージの使用可否
   const isLsAvailable = storageAvailable('localStorage');
 
+  // 検索モーダルの開閉状態管理
+  const [isSearchModal, setIsSearchModal] = useState<boolean>(false);
+
+  // モーダル開閉ハンドラ
+  const searchModalRef = useRef<MainModalHandle | null>(null);
+
   // 表示件数変更時のハンドラ
   const handleChangeDisplayNum = (
     event: React.ChangeEvent<HTMLSelectElement>,
@@ -38,6 +49,7 @@ function NavigationBar({
 
     // 表示URLにページ番号のパラメータ付与
     const url = new URL(window.location.href);
+    url.searchParams.set('page', '1');
     url.searchParams.set('Num', displayNumValue);
     window.history.pushState({}, '', url);
   };
@@ -81,6 +93,9 @@ function NavigationBar({
       event.preventDefault(); // ブラウザの標準の動きを止める
       alert('バックグラウンドで全データ取得完了後に\n検索可能です');
       return; // 早期に処理を中断
+    } else {
+      // 検索モーダルの管理変数を変更する
+      setIsSearchModal(true);
     }
   };
 
@@ -146,6 +161,12 @@ function NavigationBar({
           <option value='120'>120件</option>
         </select>
       </div>
+
+      {isSearchModal ? (
+        <Search ref={searchModalRef} onClose={() => setIsSearchModal(false)} />
+      ) : (
+        <React.Fragment></React.Fragment>
+      )}
     </div>
   );
 }

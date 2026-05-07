@@ -520,3 +520,15 @@ export const getVersions = (
   // 配列に戻して返す
   return Array.from(uniqueMap.values());
 };
+
+//
+//
+// ひらがな⇒カタカナ変換
+export function hiraToKana(str: string): string {
+  return str.replace(/[\u3041-\u3096]/g, (match: string): string => {
+    // 引数の平仮名にunicode偏移量0x60を足してカタカナのunicodeに変換
+    const chr = match.charCodeAt(0) + 0x60;
+    // フォーマットを合わせて戻す
+    return String.fromCharCode(chr);
+  });
+}

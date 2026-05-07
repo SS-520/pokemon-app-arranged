@@ -1,0 +1,124 @@
+// 検索モーダルのスタイル
+
+// 設定読み込み
+@use 'mixins'; // ミックスイン読み込み
+@use 'media'; // メディアクエリ読み込み
+@use 'variables'; // 変数読み込み
+
+dialog.searchModal {
+  @include mixins.dialogBase;
+  border: 0;
+
+  // 閉じるボタン
+  .modalCloseButton {
+    padding: 5px;
+    font-size: 1.5em;
+    border: 0;
+    position: absolute;
+    top: 0;
+    right: 0;
+    cursor: pointer;
+    z-index: 1;
+  }
+
+  // 検索セクション
+  .searchSection {
+    // セクションヘッダー（H2とアイコン）
+    header {
+      padding: 5px;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      gap: 5px;
+      align-items: center;
+      font-weight: bold;
+      color: white;
+
+      background-color: #dd1e24;
+
+      // ヘルプアイコン
+      .helpIcon {
+        font-size: 1.5em;
+        cursor: pointer;
+        color: blue;
+      }
+    }
+  }
+
+  // 検索内容
+  .searchContents {
+    margin: 5px;
+    overflow-y: scroll;
+
+    // タイトル部分の共通
+    .areaAppBase {
+      @include mixins.areaAppBase;
+      margin-bottom: 1.5em;
+
+      // タイトル部分
+      .areaAppTitle {
+        @include mixins.areaAppTitle;
+        font-weight: bold;
+      }
+
+      // 選択肢部分の共通
+      .areaAppContents {
+        @include mixins.areaAppContents;
+
+        #searchKeyword {
+          width: 90%;
+          line-height: 2;
+          margin: 10px 5px;
+          padding: 2px;
+          border: 1px solid #333;
+          border-radius: 3px;
+          background-color: #fffcfc;
+        }
+      }
+    }
+
+    // ラジオボタン・チェックボックス消す
+    label.method {
+      padding: 2.5px 10px;
+      margin: 5px;
+      border-radius: 10px;
+      background-color: #dec8c8;
+      color: #999;
+      cursor: pointer;
+      font-size: 0.9em;
+
+      input {
+        display: none;
+      }
+    }
+    label.method:has(> input:checked) {
+      background-color: #fffcfc; // 文字を白くする
+      color: #dd1e24;
+    }
+  }
+  .buttonArea {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    gap: 5px;
+    align-items: center;
+
+    button {
+      width: 40%;
+      height: 2.5em;
+      border: 0;
+      border-radius: 3px;
+      cursor: pointer;
+      z-index: 1;
+
+      &.resetButton {
+        background-color: #dec8c8;
+        color: #999;
+      }
+      &.searchButton {
+        background-color: #dd1e24;
+        color: #fffcfc;
+      }
+    }
+  }
+}
