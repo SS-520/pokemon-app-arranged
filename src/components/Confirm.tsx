@@ -75,7 +75,7 @@ const Confirm = ({ setIsConfirm }: ConfirmProps) => {
           </li>
           <li className='list'>
             <MdCatchingPokemon className='ball' />
-            全世界の有志によって管理されている「ポケモンAPI」を使用しています
+            学習用の非公式データ集「ポケモンAPI」を使用しています
             <br />
             そのため、リージョンフォームなどの一部データが混在しているケースがあります
           </li>
