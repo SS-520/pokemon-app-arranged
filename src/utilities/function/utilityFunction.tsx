@@ -527,8 +527,38 @@ export const getVersions = (
 export function hiraToKana(str: string): string {
   return str.replace(/[\u3041-\u3096]/g, (match: string): string => {
     // 引数の平仮名にunicode偏移量0x60を足してカタカナのunicodeに変換
+    // 変換対象は平仮名のみ：/[\u3041-\u3096]/g
+    // g:glob
     const chr = match.charCodeAt(0) + 0x60;
     // フォーマットを合わせて戻す
     return String.fromCharCode(chr);
   });
 }
+
+// 半角→全角変換
+export function halfToFull(str: string): string {
+  return str
+    .toUpperCase() // まず小文字→大文字に揃える
+    .replace(/[A-Z0-9\u003A\u0025]/g, (match: string): string => {
+      const chr = match.charCodeAt(0) + 0xfee0; // 半角英数字に0xFEE0を足して全角に変換
+      // フォーマットを合わせて戻す
+      return String.fromCharCode(chr);
+    });
+}
+
+/**
+ * キーワード検索がOKな文字列か判定
+ * @param str 判定対象の文字列
+ * @returns boolean:true=OK, false=NG
+ * \u30FB ⇒・
+ * \u30FC ⇒ー
+ * \u003A ⇒:
+ * \uFF1A ⇒：
+ * \u0025 ⇒%
+ * \uFF05 ⇒％
+ */
+export const isOKSearchString = (str: string): boolean => {
+  return /^[a-zA-Z0-9\u3041-\u3096\u30A1-\u30FA\u30FB\u30FC!?\u003A\uFF1A\u0025\uFF05]+$/.test(
+    str,
+  );
+};
