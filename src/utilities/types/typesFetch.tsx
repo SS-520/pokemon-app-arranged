@@ -413,7 +413,6 @@ export interface AbilityDetail {
 // https://pokeapi.co/api/v2/evolution-chain/n/
 export interface EvoChainDetail {
   id: number; // evolution-chainの管理番号
-  baby_trigger_item: NameAndURL | null; // 卵に必要なアイテム
   chain: EvoChain;
 }
 

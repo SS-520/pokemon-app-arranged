@@ -179,7 +179,6 @@ export interface EvoObj {
   evoForm: string; // 進化状態
   level: number; // 進化階層
   is_baby: boolean; // べビポケ？
-  eggItem: string;
   name: string;
   img: string;
 }
@@ -191,7 +190,6 @@ export type ModalFetchResult =
       pokemonSpecies: PokemonSpeciesDetail;
       pokemonForms: FormsDetail[];
       pokemonEvoChain: EvoChainDetail;
-      pokemonEggItem: ItemDetail;
     }
   | undefined;
 

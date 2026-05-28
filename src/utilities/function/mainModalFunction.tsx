@@ -86,7 +86,6 @@ export const fetchDetails = async (
       pokemonSpecies: PokemonSpeciesDetail;
       pokemonForms: FormsDetail[]; // 形態は配列！
       pokemonEvoChain: EvoChainDetail;
-      pokemonEggItem: ItemDetail;
     }
   | undefined
 > => {
@@ -136,32 +135,12 @@ export const fetchDetails = async (
   // 1体ずつのデータなのでindex0を取得した非配列に格納
   const pokemonEvoChain: EvoChainDetail = pokemonEvoChainResult.value[0];
 
-  //
-  // ⇒ポケモンAPIから最新データを取得（孵化アイテム）
-  let itemId: number[] = [0];
-  if (pokemonEvoChain.baby_trigger_item) {
-    itemId = getEndID([pokemonEvoChain.baby_trigger_item]);
-  }
-
-  const pokemonEggItemResult: Result<ItemDetail[], FetchError> = await getPokemonData<ItemDetail>(itemId, 'item', signal);
-  // 一連のfetch中のエラーここで最終処理
-  if (pokemonEggItemResult.isErr()) {
-    // 画面にエラー内容表示
-    alertError(pokemonEggItemResult);
-    // return; エラーでも続ける
-  }
-  // 1体ずつのデータなのでindex0を取得した非配列に格納
-  // pokemonEggItemResultが成功値なら値を返す
-  // pokemonEggItemResultがエラーでもnullを返す
-  // ※ItemDetail自体がユニオン型でnullを許容済
-  const pokemonEggItem: ItemDetail = pokemonEggItemResult.isOk() ? pokemonEggItemResult.value[0] : null;
 
   return {
     pokemonDetail,
     pokemonSpecies,
     pokemonForms,
     pokemonEvoChain,
-    pokemonEggItem,
   };
 };
 
@@ -187,7 +166,6 @@ export const mergePokemonDetails = (
     pokemonSpecies: PokemonSpeciesDetail;
     pokemonForms: FormsDetail[];
     pokemonEvoChain: EvoChainDetail;
-    pokemonEggItem: ItemDetail;
   },
   pokedexCurrent: PokedexData[],
   abilityCurrent: AbilityData[],
@@ -201,7 +179,6 @@ export const mergePokemonDetails = (
   const species: PokemonSpeciesDetail = fetchResult.pokemonSpecies;
   const forms: FormsDetail[] = fetchResult.pokemonForms;
   const evoChain: EvoChainDetail = fetchResult.pokemonEvoChain;
-  const eggItem: ItemDetail = fetchResult.pokemonEggItem;
   console.log({ detail });
   console.log({ species });
   console.log({ forms });
@@ -223,7 +200,7 @@ export const mergePokemonDetails = (
   const variationFormObj: DiffFormsObj = setForm(pokemon, species.varieties, forms, detail, allData);
 
   // 進化の流れ
-  const evoObj: EvoObj[] = setEvoChain(pokemon, evoChain.chain, eggItem, allData);
+  const evoObj: EvoObj[] = setEvoChain(pokemon, evoChain.chain, allData);
 
   // 加工データを返す
   return {
@@ -590,11 +567,10 @@ const setForm = (pokemon: LsPokemon, variation: PokemonSpeciesDetail['varieties'
  * @function arrow
  * @param pokemon:LsPokemon ポケモン基礎データ
  * @param evoChain:EvoChainDetail['chain'] 進化の流れ
- * @param eggItem:ItemDetail アイテムデータ
  * @param pokemon:LsPokemon[] ポケモン全基礎データ
  * @returns EvoObj[]
  */
-const setEvoChain = (pokemon: LsPokemon, evoChain: EvoChainDetail['chain'], eggItem: ItemDetail, allData: LsPokemon[]): EvoObj[] => {
+const setEvoChain = (pokemon: LsPokemon, evoChain: EvoChainDetail['chain'], allData: LsPokemon[]): EvoObj[] => {
   // 進化の流れの整理
   const result: EvoProcess[] = []; // 結果を入れる箱
   const depts: number = 1; // 階層番号
@@ -604,17 +580,11 @@ const setEvoChain = (pokemon: LsPokemon, evoChain: EvoChainDetail['chain'], eggI
   // 表示対象の個体情報を取得
   const mainData: EvoProcess = evoResult.find((result) => getEndID([result.species])[0] === pokemon.sp)!; // pokemonを基にデータ取得⇒絶対ある
 
-  // 孵化アイテムの名前取得
-  let eggItemName: string = '';
-  if (eggItem) {
-    eggItemName = getJaData(eggItem.names)[0].name;
-  }
 
   // 各進化の流れを加工・整理
   const processResult: EvoObj[] = evoResult.map((result) => {
     let is_main: boolean;
     let evoForm: string;
-    let item: string = '';
     const formId: number = getEndID([result.species])[0];
 
     // 各段階の名称をセット
@@ -632,11 +602,6 @@ const setEvoChain = (pokemon: LsPokemon, evoChain: EvoChainDetail['chain'], eggI
       } else {
         evoForm = '別分岐';
       }
-    }
-
-    // 孵化アイテムがあるベビーポケモン
-    if (result.is_baby) {
-      item = eggItemName;
     }
 
     // 種族番号から通常個体の情報取得
@@ -661,7 +626,6 @@ const setEvoChain = (pokemon: LsPokemon, evoChain: EvoChainDetail['chain'], eggI
       evoForm: evoForm,
       level: result.level,
       is_baby: result.is_baby,
-      eggItem: item,
       name: minIdPokemon ? minIdPokemon.name! : '',
       img: minIdPokemon ? minIdPokemon.img! : '',
     };
