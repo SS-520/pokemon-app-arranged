@@ -12,6 +12,10 @@ import type {
   PokemonDetail,
   PokemonSpeciesDetail,
   FormsDetail,
+  EncountVersion,
+  NameAndURL,
+  VersionDetailInner,
+  WithId,
 } from '../types/typesFetch'; // PokemonListResponse型を使用（type{型}）
 import type {
   LsPokemon,
@@ -32,6 +36,7 @@ import {
   mergeAndUniqueById,
   getLsData,
   isOnlyAlphabet,
+  convertVersionIdToJapan,
 } from './utilityFunction';
 
 /***  処理記述 ***/
@@ -531,6 +536,29 @@ const getNowPokemonData = async (
     },
   );
 
+  //
+  // 取得した結果から自然遭遇可能なバージョンデータを取得
+  // ⇒ポケモンAPIから最新データを取得（基本情報）
+  const pokemonEncountVersions: Result<WithId<EncountVersion[]>[], FetchError> =
+    await getPokemonData<EncountVersion[]>(
+      runNumbers,
+      'pokemon',
+      signal,
+      'encounters',
+    );
+  // 一連のfetch中のエラーここで最終処理
+  if (pokemonEncountVersions.isErr()) {
+    // エラー処理は上層のApp.tsxで行う
+    throw pokemonEncountVersions.error;
+  }
+
+  // 成功値を変数に格納
+  const encountVersionsData: WithId<EncountVersion[]>[] = pokemonEncountVersions.value
+  
+  console.log({ encountVersionsData });
+
+  console.log('')
+
   // ※matchで成否の処理後なので、全て成功後の型として扱う
   // 3つのAPIから取得した情報でオブジェクトの配列を作って返す
   return await createBaseData(
@@ -538,10 +566,13 @@ const getNowPokemonData = async (
     pokemonSpecies,
     pokemonForm,
     runNumbers,
+    encountVersionsData
   );
 };
 
 //
+//
+/*  数パターンあるのでオーバーロードで記述 */
 //
 // ポケモン個別APIで詳細データを取得する
 /*** @name getPokemonData
@@ -549,18 +580,40 @@ const getNowPokemonData = async (
  *   @param runPokedexNumbers[]:number[](全国図鑑の番号)
  *   @param endPoint:string(実行先APIのURLのパーツ)
  *   @param signal:AbortSignal fetch操作を止めるシグナル
- *   @return Promise<ResultAsync<PokemonDetail[], FetchError>>
+ *   @param suffix:string サブパスがある場合（例：/encounters）
+ *   @return Promise<ResultAsync<(T|WithId<T>)[]>, FetchError>
  *  ・詳細データの取得
  */
+
+// 1. 汎用パターン
 export async function getPokemonData<T>(
   runPokedexNumbers: number[],
   endPoint: string,
   signal: AbortSignal,
-): Promise<Result<T[], FetchError>> {
-  const pokemonDetailResults: Result<T[], FetchError> = await getPokemonDetail(
+  suffix?: string
+): Promise<Result<T[], FetchError>>;
+
+// 2. suffix が 'encounters' の場合、WithId<T>[] を返す型定義
+//    使用箇所：このファイル > pokemonEncountVersions
+export async function getPokemonData<T>(
+  runPokedexNumbers: number[],
+  endPoint: string,
+  signal: AbortSignal,
+  suffix: 'encounters' // 文字リテラルで厳密指定
+): Promise<Result<WithId<T>[], FetchError>>;
+
+// 実装本体
+export async function getPokemonData<T>(
+  runPokedexNumbers: number[],
+  endPoint: string,
+  signal: AbortSignal,
+  suffix?: string,
+): Promise<Result<(T|WithId<T>)[], FetchError>> {
+  const pokemonDetailResults: Result<(T|WithId<T>)[], FetchError> = await getPokemonDetail(
     runPokedexNumbers,
     endPoint,
     signal,
+    suffix,
   );
   // 一連のfetch中にエラー発生⇒先に戻す
   if (pokemonDetailResults.isErr()) {
@@ -585,6 +638,7 @@ export async function getPokemonData<T>(
  *   @param pokemonSpecies[]:PokemonSpeciesDetail[](固有データの配列)
  *   @param pokemonForm[]:FormsDetail[](固有データの配列)
  *   @param runNumbers[]:number[](対象の管理番号配列)
+ *   @param encountVersionsData[]:WithId<EncountVersion[]>[](登場バージョンデータの配列)
  *   @return Promise<ResultAsync<PokemonDetail[], FetchError>>
  *  ・id:number(管理番号)
  *  ・name:string(名前)
@@ -599,35 +653,114 @@ const createBaseData = (
   pokemonSpecies: PokemonSpeciesDetail[],
   pokemonForm: FormsDetail[],
   runNumbers: number[],
+  encountVersionsData: WithId<EncountVersion[]>[],
 ): LsPokemon[] => {
-  return runNumbers.map((num: number) => {
-    // 管理番号(num)に一致するpokemonDetailsのデータを取得
-    const numPokemonDetail: PokemonDetail | undefined = pokemonDetails.find(
-      (detail) => detail.id === num,
-    );
+  // id(num)順に並んでいる前提のデータを使うので、id順(index)に処理
+  //  ※runNumbers配列のidと、各種オブジェクト配列のidは原則一致の前提で処理
+  //  （一致しない場合も一応考慮してfind処理で保険）
 
-    // 管理番号(num)に一致するpokemonSpeciesのデータを取得
-    const numPokemonSpecies: PokemonSpeciesDetail | undefined =
-      pokemonSpecies.find((species) => {
-        if (numPokemonDetail !== undefined) {
-          // numPokemonDetailを正常に取得
-          // ⇒numPokemonDetailのspeciesと一致するspecies.idを返す
-          return species.id === getEndID([numPokemonDetail.species])[0];
-        } else {
-          return undefined;
-        }
-      });
+  /* ここからmapでrunNumbers配列の数だけループ処理 */
+  return runNumbers.map((num: number,index:number) => {
 
-    // 管理番号(num)に一致するpokemonFormのデータを取得
-    const numPokemonForm: FormsDetail | undefined = pokemonForm.find((form) => {
-      if (numPokemonDetail !== undefined) {
-        // numPokemonDetailを正常に取得
-        // ⇒numPokemonDetailのspeciesと一致するspecies.idを返す
-        return form.id === getEndID(numPokemonDetail.forms)[0];
-      } else {
-        return undefined;
-      }
-    });
+    /* 管理番号(num)に一致するpokemonDetailsのデータを取得 */
+    // numPokemonDetailの格納変数を設定＋初期化
+    let numPokemonDetail: PokemonDetail | undefined = undefined;
+    // index番号で一旦決め打ち取得
+    let tmpPokemonDetail: PokemonDetail | undefined = pokemonDetails[index];
+    // 取得したデータは存在してる？
+    // idがrunNumbersと相違ない？（保険でチェック）
+    if (tmpPokemonDetail && tmpPokemonDetail.id !== num) {
+      console.warn('id不一致。findで再検索');
+      
+      // ずれがあったらfindで再取得
+      tmpPokemonDetail = pokemonDetails.find((detail) => detail.id === num)
+    }
+    // 値が存在すればnumPokemonDetailに格納して完了
+    if (tmpPokemonDetail) {
+      numPokemonDetail = tmpPokemonDetail;
+    }
+
+    //
+    /* 管理番号(num)に一致するpokemonSpeciesのデータを取得 */
+   
+    // speciesの格納変数を設定＋初期化
+    let numPokemonSpecies: PokemonSpeciesDetail | undefined = undefined;
+    // index番号で一旦決め打ち取得
+    let tmpPokemonSpecies: PokemonSpeciesDetail | undefined = pokemonSpecies[index];
+
+    // speciesのIDをnumPokemonDetailから取得
+    const expectedSpeciesId = numPokemonDetail ? getEndID([numPokemonDetail.species])[0] : undefined;
+
+
+    // 取得したデータは存在してる？
+    // idがnumPokemonDetail.speciesと相違ない？（保険でチェック）
+    if (tmpPokemonSpecies
+      && expectedSpeciesId !== undefined
+      && tmpPokemonSpecies.id !== expectedSpeciesId) {
+      console.warn('id不一致。findで再検索');
+      
+      // ずれがあったらfindで再取得
+      tmpPokemonSpecies = pokemonSpecies.find((species) => species.id === expectedSpeciesId)
+    }
+    // 値が存在すればnumPokemonSpeciesに格納して完了
+    if (tmpPokemonSpecies) {
+      numPokemonSpecies = tmpPokemonSpecies;
+    }
+
+    // 
+    /* 管理番号(num)に一致するpokemonFormのデータを取得 */
+
+    // フォームデータの格納変数を設定＋初期化
+    let numPokemonForm: FormsDetail | undefined = undefined;
+
+    // index番号で一旦決め打ち取得
+    let tmpPokemonForm: FormsDetail | undefined = pokemonForm[index];
+
+    // formのIDをnumPokemonDetailから取得
+    const expectedFormId = numPokemonDetail ? getEndID(numPokemonDetail.forms)[0] : undefined;
+
+
+    // 取得したデータは存在してる？
+    // idがnumPokemonDetail.formsと相違ない？（保険でチェック）
+    if (tmpPokemonForm
+      && expectedFormId !== undefined
+      && tmpPokemonForm.id !== expectedFormId) {
+      console.warn('id不一致。findで再検索');
+      
+      // ずれがあったらfindで再取得
+      tmpPokemonForm = pokemonForm.find((form) => form.id === expectedFormId)
+    }
+
+    // 値が存在すればnumPokemonFormに格納して完了
+    if (tmpPokemonForm) {
+      numPokemonForm = tmpPokemonForm;
+    }
+
+
+    // 
+    /* 管理番号(num)に一致するencountVersionsDataのデータを取得  */
+
+    // 最終的に格納する変数を先に一旦初期化
+    let numPokemonEncountVersion: number[] = [];
+
+    // index番号で一旦決め打ち取得
+    let tmpVersions: WithId<EncountVersion[]> | undefined = encountVersionsData[index];
+
+    // 取得したデータは存在してる？
+    // idがrunNumbersと相違ない？（保険でチェック）
+    if (tmpVersions && tmpVersions.id !== num) {
+      console.warn('id不一致。findで再検索');
+      
+      // ずれがあったらfindで再取得
+      tmpVersions = encountVersionsData.find((version) => version.id === num) as WithId<EncountVersion[]>;  // 型アサーションで確実に格納
+    }
+
+    // tmpVersionsが存在してたら必要な形式に加工して終了
+    if (tmpVersions) {
+      // 目的のポケモンデータを取得したので加工
+      numPokemonEncountVersion = formatEncountVersion(tmpVersions.data);
+    }
+ 
 
     // オブジェクトに詰める情報の変数宣言
     let setName: LsPokemon['name'] = null;
@@ -636,6 +769,7 @@ const createBaseData = (
     let setSpecies: LsPokemon['sp'] = 0;
     let setRegion: LsPokemon['region'] = [0];
     let setGeneration: LsPokemon['ge'] = 0;
+    let setEncountVersion: LsPokemon['ve'] = numPokemonEncountVersion;  // 初期化と加工済なのでそのまま格納
     let setIsGender: LsPokemon['isGen'] = Number(false);
     let setEgg: LsPokemon['egg'] = [0];
     let setImg: LsPokemon['img'] = null;
@@ -781,6 +915,7 @@ const createBaseData = (
       }
     }
 
+
     // 取得したデータから必要情報をオブジェクトに詰める
     const toLSObject: LsPokemon = {
       id: num,
@@ -790,6 +925,7 @@ const createBaseData = (
       sp: setSpecies,
       region: setRegion,
       ge: setGeneration,
+      ve: setEncountVersion,
       isGen: setIsGender,
       egg: setEgg,
       img: setImg,
@@ -879,3 +1015,46 @@ const updateLsData = (regLsData: LsPokemon[]): void => {
   // 今回のポケモンデータ数を文字列に変換してローカルストレージに格納
   localStorage.setItem('pokeRegCount', regLsData.length.toString());
 };
+
+
+//
+//
+// APIから取得した大元の自然遭遇バージョン情報を整理する関数
+/*** @name formatEncountVersion
+ *   @function arrow
+ *   @param apiData:EncountVersion[]
+ *   @return number[] : 登場バージョンID
+ */
+
+const formatEncountVersion = (apiData: EncountVersion[]): number[] => {
+  // データ ＞ version_details[] ＞version（目標オブジェクト）
+  // version_detailsが配列
+  //  ⇒version情報のみmapで取り出し、flatMapで1次元配列化
+   
+  // 1. version_detailsの情報だけ抽出
+  const version_details: VersionDetailInner[] = apiData
+    .map(arrayApiData => arrayApiData.version_details)
+    .flat();  // 二重配列にならないよう平坦化（一次元配列化）（※flatMapだとmapとfilterを同時に行える）
+  
+  // 2. version_details からversion情報のみ抽出
+  //     ※抽出条件（filter）ではなく新規配列(map)作成
+  const versions: NameAndURL[] = version_details.map(versionDetail => versionDetail.version)
+
+  // 重複データ削除
+  //  元データに影響を及ぼさないよう、新たな配列を生成して処理
+  //  Mapのキーにはオブジェクトは使用できないため、[name, name]のように nameだけをキーにしている
+  const uniqueVersions: NameAndURL[] = Array.from(new Map(versions.map(version => [version.name, version])).values())
+  
+  // uniqueVersionsからバージョンIDだけを抽出
+  const versionIds: number[] = getEndID(uniqueVersions)
+  
+  // idをグローバル版から日本版に置き換え
+  const convertedJapaneseId: number[] = versionIds.flatMap(convertVersionIdToJapan)
+  
+  // 昇順にソート
+  const sortedJapaneseId: number[] = [...convertedJapaneseId].sort((idA, idB) => idA - idB)
+
+  // 最終的な値を返す
+  return sortedJapaneseId;
+
+}

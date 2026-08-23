@@ -85,15 +85,13 @@ export const renderMainModal = (
     });
   };
 
-  // 登場バージョン（DLC含む）
+  // 自然遭遇バージョン（DLC含む）
   //  バージョン一覧を取得
   const versions: PokedexData['vGroup'][number]['version'] =
     formatVersion(pokedexData);
   // 当該ポケモンの登場バージョンのidだけ抜き出し
-  const pokeApp: number[] = pokedex.versionNames.map((version) => {
-    return version.id;
-  });
-  const showVersions: React.ReactNode = showVersionList(versions, pokeApp);
+  const encountVersions = pokemon.ve;
+  const showEncountVersions: React.ReactNode = encountVersionList(versions, encountVersions);
 
   // 生息地方
   const showRegions: React.ReactNode = getAppRegion(pokedex, pokedexData);
@@ -313,7 +311,7 @@ export const renderMainModal = (
       <dl className='appearanceVersions maskingTapeStyleBase'>
         <dt className='maskingTapeStyleTitle'>登場バージョン</dt>
         <div className='ddContainer maskingTapeStyleContents'>
-          {showVersions}
+          {showEncountVersions}
         </div>
         {versionAnnotation()}
       </dl>
@@ -438,9 +436,9 @@ const getAppRegion = (pokedex: PokedexObj, pokedexData: PokedexData[]) => {
 };
 
 // 登場バージョン列挙
-const showVersionList = (
+const encountVersionList = (
   versions: PokedexData['vGroup'][number]['version'],
-  pokeApp: number[],
+  encountVersions: number[],
 ) => {
   // 1. データを世代ごとにversionsをグループ化する
   const groupedVersions: Record<
@@ -480,7 +478,7 @@ const showVersionList = (
               {/* 世代内のオブジェクトでループ */}
               {generationVersions.map((version) => {
                 // 登場バージョンに該当する？
-                const isAppearing = pokeApp.includes(version.id);
+                const isAppearing = encountVersions.includes(version.id);
                 return (
                   <span
                     key={version.id}
