@@ -1,5 +1,14 @@
 // fetch処理用ユーザー定義の型の集積ファイル
 
+//
+// ID情報包括用インターフェース
+// T型のデータにIDを付与する際に使用
+
+export interface WithId<T> {
+  id: number;
+  data: T;
+}
+
 // 個々のポケモンのデータ型
 // オブジェクト構造のため interfaceで定義
 export interface NameAndURL {
@@ -313,6 +322,17 @@ export interface PokemonSpeciesDetail {
   }[];
 }
 
+// 出現バージョン情報
+export interface EncountVersion {
+  version_details: VersionDetailInner[];
+}
+
+// 出現バージョン詳細内部
+//  バージョン情報だけ必要なので他は省略
+export interface VersionDetailInner {
+  version: NameAndURL;
+}
+
 // 地方等々の基礎情報
 export interface OthersAll {
   count: number;
@@ -413,7 +433,6 @@ export interface AbilityDetail {
 // https://pokeapi.co/api/v2/evolution-chain/n/
 export interface EvoChainDetail {
   id: number; // evolution-chainの管理番号
-  baby_trigger_item: NameAndURL | null; // 卵に必要なアイテム
   chain: EvoChain;
 }
 

@@ -475,23 +475,22 @@ export const getVersions = (
     .flat(); // 二重配列にならないよう平坦化
 
   // id:44,45,46（日本版赤緑青）があったら
-  // id:1,2（グローバル赤青）と置き換える
+  // id:1,2（グローバル赤青）と置き換える（convertVersionIdToJapan関数）
 
   const japanVersions: PokedexData['vGroup'][number]['version'] = [
     ...getVersions,
-  ].flatMap((version) => {
-    // グローバル1,2を弾く
-    if (version.id === 1 || version.id === 2) return [];
-
-    // 日本赤緑青を0,1,2に上書き
-    if (version.id === 44) {
-      version.id = 0;
-    } else if (version.id === 45) {
-      version.id = 1;
-    } else if (version.id === 46) {
-      version.id = 2;
-    }
-    return version;
+  ]
+    // 戻り値convertVersionIdの空配列排除＋平坦化
+    .flatMap((version) => {
+      const convertVersionId: PokedexData['vGroup'][number]['version'] = convertVersionIdToJapan(version.id)
+        // convertVersionIdToJapanの戻り値をconvertedIdとして使用
+        .map((convertedId) => (
+      {
+        ...version, // version配列のコピー（versionに変化なし）
+        id:convertedId, // 返す型のid要素だけ変換後を格納
+      }
+    ))
+    return convertVersionId;
   });
 
   // 世代、id順にソート
@@ -523,12 +522,72 @@ export const getVersions = (
 
 //
 //
+/**
+ * バージョンIDを日本版仕様に変換
+ * @param versionId: number
+ * @returns number[] バージョンIDの配列
+ */
+export function convertVersionIdToJapan(versionId: number ): number[]{
+  console.log(versionId);
+
+
+  // グローバル1,2（赤青）を弾く
+  //  「無」として空配列を返す
+  if (versionId === 1 || versionId === 2) return [];
+
+  // 日本赤緑青を0,1,2に上書き
+  if (versionId === 44) {
+    versionId = 0; // 日本版赤
+  } else if (versionId === 45) {
+    versionId = 1; // 日本版緑
+  } else if (versionId === 46) {
+    versionId = 2; // 日本版青
+  }
+  
+  console.log(versionId);
+    // 結果を配列の要素として返す
+    return [versionId];
+}
+
+
+//
+//
 // ひらがな⇒カタカナ変換
 export function hiraToKana(str: string): string {
   return str.replace(/[\u3041-\u3096]/g, (match: string): string => {
     // 引数の平仮名にunicode偏移量0x60を足してカタカナのunicodeに変換
+    // 変換対象は平仮名のみ：/[\u3041-\u3096]/g
+    // g:glob
     const chr = match.charCodeAt(0) + 0x60;
     // フォーマットを合わせて戻す
     return String.fromCharCode(chr);
   });
 }
+
+// 半角→全角変換
+export function halfToFull(str: string): string {
+  return str
+    .toUpperCase() // まず小文字→大文字に揃える
+    .replace(/[A-Z0-9\u003A\u0025]/g, (match: string): string => {
+      const chr = match.charCodeAt(0) + 0xfee0; // 半角英数字に0xFEE0を足して全角に変換
+      // フォーマットを合わせて戻す
+      return String.fromCharCode(chr);
+    });
+}
+
+/**
+ * キーワード検索がOKな文字列か判定
+ * @param str 判定対象の文字列
+ * @returns boolean:true=OK, false=NG
+ * \u30FB ⇒・
+ * \u30FC ⇒ー
+ * \u003A ⇒:
+ * \uFF1A ⇒：
+ * \u0025 ⇒%
+ * \uFF05 ⇒％
+ */
+export const isOKSearchString = (str: string): boolean => {
+  return /^[a-zA-Z0-9\u3041-\u3096\u30A1-\u30FA\u30FB\u30FC!?\u003A\uFF1A\u0025\uFF05]+$/.test(
+    str,
+  );
+};

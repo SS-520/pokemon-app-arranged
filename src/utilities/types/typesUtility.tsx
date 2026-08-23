@@ -57,8 +57,9 @@ export interface LsPokemon {
   type: number[]; // タイプ
   pokedex: PokedexNumber; // 全国図鑑番号
   sp: number; // Species番号
-  region: number[]; // 登場図鑑
+  region: number[]; // 登場地方
   ge: number; // 初出世代
+  ve: number[]; // 自然遭遇バージョン
   isGen: number; // オスメス差分の有無(true:有)
   egg: number[]; // 卵グループ
   img: string | null; // 表示用画像の可変部分URL
@@ -179,7 +180,6 @@ export interface EvoObj {
   evoForm: string; // 進化状態
   level: number; // 進化階層
   is_baby: boolean; // べビポケ？
-  eggItem: string;
   name: string;
   img: string;
 }
@@ -191,7 +191,6 @@ export type ModalFetchResult =
       pokemonSpecies: PokemonSpeciesDetail;
       pokemonForms: FormsDetail[];
       pokemonEvoChain: EvoChainDetail;
-      pokemonEggItem: ItemDetail;
     }
   | undefined;
 
