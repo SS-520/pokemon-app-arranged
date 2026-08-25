@@ -4,6 +4,7 @@
 @use 'sass:math';
 @use 'mixins'; // ミックスイン読み込み
 @use 'variables'; // 変数読み込み
+@use 'media'; // メディアクエリ
 
 // フォント読み込み
 @import url('https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=M+PLUS+Rounded+1c&family=Petit+Formal+Script&family=Zen+Maru+Gothic&display=swap');
@@ -35,6 +36,11 @@ dialog.mainModal {
     right: 0;
     cursor: pointer;
     z-index: 1;
+
+    // タブレット以上
+    @include media.media('tb') {
+      font-size: 3.5vh;
+    }
   }
 
   // モーダルのメイン

@@ -1,5 +1,6 @@
 // 設定読み込み
 @use 'variables'; // 変数読み込み
+@use 'media'; // メディアクエリ読み込み
 
 // 本体 //
 // 上下左右中央寄せ
@@ -175,6 +176,15 @@
   margin: auto;
   // margin-top: variables.$safeTop;
   width: 90vw;
+
+  // タブレット・PCは横幅固定
+  //  タブレットでmin設定なので、PCにも同時適用される
+  @include media.media(tb) {
+    width: 600px;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
   height: 85vh;
   background-color: #fafafa;
   border: 1px solid #faeafa;

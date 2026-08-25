@@ -2,6 +2,8 @@
 @use 'sass:math';
 @use 'mixins'; // ミックスイン読み込み
 @use 'variables'; // 変数読み込み
+@use 'media'; // メディアクエリ読み込み
+
 
 /* スタイル */
 .App {
@@ -21,7 +23,14 @@
     margin: 10px;
     margin-left: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(variables.$cardWidth + variables.$cardGap, 1fr));
+    grid-template-columns: repeat(3,0.8fr); // モバイルは3列表示
+
+      // タブレット以上サイズ
+    @include media.media(tb) {
+      // 自動幅調整で要素を詰め込む
+      grid-template-columns: repeat(auto-fit, minmax(variables.$cardBigWidth + variables.$cardBIgGap, 1fr));
+    }
+
     justify-items: center;
     align-items: self-start;
     row-gap: variables.$cardGap;
