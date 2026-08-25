@@ -1,10 +1,14 @@
 /* カードComponent用CSS */
 @use 'variables'; // 変数読み込み
+@use 'media'; // メディアクエリ読み込み
 
 .grid {
   .card {
-    width: variables.$cardWidth;
     padding: 0 3% 3%;
+
+    @include media.media(tb) {
+      width: variables.$cardBigWidth;
+    }
 
     align-items: center;
     justify-content: center;
@@ -57,6 +61,18 @@
     h3 {
       grid-column: 2;
       grid-row: 1;
+
+      // タブレット用設定
+      @include media.media(tb) {
+        font-size: 3vw;
+      }
+
+      // PC用設定
+      @include media.media(pc) {
+        margin-left: 10px;
+        font-size: 3vh;
+        text-align: left;
+      }
     }
 
     .cardName {
@@ -65,6 +81,17 @@
       width: 100%;
       margin: 0 10px;
       text-align: left;
+
+      // タブレット用設定
+      @include media.media(tb) {
+        font-size: 3vw;
+      }
+
+      // PC用設定
+      @include media.media(pc) {
+        font-size: 3vh;
+        margin-left: 0;
+      }
 
       .difNm {
         display: inline;
@@ -84,6 +111,16 @@
         width: 35%;
         margin-right: 10px;
         object-fit: contain;
+
+        // タブレット用設定
+        @include media.media(tb) {
+          width: 12vw;
+        }
+
+        // PC用設定
+        @include media.media(pc) {
+          width: 10vw;
+        }
       }
     }
   }

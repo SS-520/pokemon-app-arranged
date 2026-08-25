@@ -19,6 +19,11 @@ dialog.searchModal {
     right: 0;
     cursor: pointer;
     z-index: 1;
+
+    // タブレット以上
+    @include media.media('tb') {
+      font-size: 3.5vh;
+    }
   }
 
   // 検索セクション
@@ -35,6 +40,13 @@ dialog.searchModal {
       color: white;
 
       background-color: #dd1e24;
+
+      // タブレット以上用設定
+      @include media.media(tb) {
+        padding:10px 0;
+        margin-left: -15px;
+        margin-right: -15px;
+      }
 
       // ヘルプアイコン
       .helpIcon {

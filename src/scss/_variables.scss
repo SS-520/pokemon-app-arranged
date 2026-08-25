@@ -1,8 +1,9 @@
 /* 変数を定義専用パーシャル */
 
 // グリッド表示時
-$cardWidth: 150px; // カード幅
-$cardGap: 20px; // グリッドのギャップ
+$cardGap: 15px; // グリッドのギャップ
+$cardBigWidth: 150px; // タブレット以上でのカード幅
+$cardBIgGap: 20px; // タブレット以上でのグリッドのギャップ
 
 // セーフエリア
 $paddingBottom: 44px;

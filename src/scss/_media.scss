@@ -1,10 +1,7 @@
 /* メディアクエリ専用パーシャル */
-// モバイルファーストでの設計
+// モバイルファースト（小型スマホ）を基準にした設計
 
 @use 'sass:map'; // mapモジュール使用
-
-$tabletBreakpoint: 768px;
-$monitorBreakpoint: 1024px;
 
 // breakpoint定義（マップ定義）
 $breakPoint: (
