@@ -309,7 +309,7 @@ export const renderMainModal = (
         <></>
       )}
       <dl className='appearanceVersions maskingTapeStyleBase'>
-        <dt className='maskingTapeStyleTitle'>登場バージョン</dt>
+        <dt className='maskingTapeStyleTitle'>野生登場バージョン</dt>
         <div className='ddContainer maskingTapeStyleContents'>
           {showEncountVersions}
         </div>

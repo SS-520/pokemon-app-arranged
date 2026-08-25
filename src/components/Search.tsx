@@ -180,6 +180,9 @@ const Search = ({ ref, onClose }: SearchProps) => {
                   AND検索（複合タイプ）
                 </label>
               </dd>
+              <dd>
+                {/* 選択するタイプを表示 */}
+              </dd>
             </div>
           </dl>
           <dl className='areaAppBase'>
