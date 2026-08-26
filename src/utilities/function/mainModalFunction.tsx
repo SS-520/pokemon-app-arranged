@@ -275,6 +275,8 @@ const formatGenderImg = (sprites: PokemonDetail['sprites']): ImageObj => {
  */
 
 const setVersion = (pokemon: LsPokemon, pokedexese: PokedexData[]): PokedexObj => {
+
+  /** 該当ポケモンの情報を整理 */
   // 登場バージョンを取得
   const appearanceVersionsNum: number[] = pokemon.region;
 
@@ -299,6 +301,7 @@ const setVersion = (pokemon: LsPokemon, pokedexese: PokedexData[]): PokedexObj =
   // バージョングループからバージョンだけ取得＋平坦化＋ソート
   // getVersionsの結果が空配列の場合が削除⇒flatMap使用
 
+  /** 全バージョンと、該当ポケモンの情報を整理 */
   // 登場バージョングループidを総取得
   const versionGroupIdArray: number[] = flatVersionGroupsDuplication.map((vgroup) => vgroup.id);
   const versionNames = getVersions(pokedexese, versionGroupIdArray);
