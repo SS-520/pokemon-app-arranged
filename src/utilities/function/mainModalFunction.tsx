@@ -5,7 +5,6 @@ import type {
   EvoChainDetail,
   FetchError,
   FormsDetail,
-  ItemDetail,
   NameAndURL,
   PokemonDetail,
   PokemonSpeciesDetail,

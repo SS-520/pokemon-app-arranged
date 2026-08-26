@@ -7,7 +7,6 @@ import type {
   PokemonSpeciesDetail,
   FormsDetail,
   EvoChainDetail,
-  ItemDetail,
 } from './typesFetch';
 // ＊外部から呼び出すのが全体の定義⇒export を付与
 
