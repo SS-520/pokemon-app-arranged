@@ -1,7 +1,7 @@
 import React, { useEffect, useImperativeHandle, useRef, useState } from 'react';
 
 // 呼び出し関数・型
-import { type MainModalHandle } from '../utilities/types/typesUtility';
+import { type LsPokemon, type MainModalHandle, type PokedexData } from '../utilities/types/typesUtility';
 
 // アイコン
 import { IoIosCloseCircleOutline } from 'react-icons/io';
@@ -10,13 +10,17 @@ import { IoMdMale, IoMdFemale } from 'react-icons/io';
 
 // CSS呼び出し
 import '../scss/SearchModal.scss';
+import { types } from '../utilities/dataInfo';
+import { formatUniqueVersionList } from '../utilities/function/utilityFunction';
 
 interface SearchProps {
   ref: React.Ref<MainModalHandle>;
+  allData: LsPokemon[];
+  pokedexData: PokedexData[];
   onClose: () => void;
 }
 
-const Search = ({ ref, onClose }: SearchProps) => {
+const Search = ({ ref, allData, pokedexData, onClose }: SearchProps) => {
   //
   // 開閉判定の変数設定
   // HTMLDialogElement : <dialog> 要素を操作するメソッド
@@ -89,6 +93,157 @@ const Search = ({ ref, onClose }: SearchProps) => {
       setKeywordPlaceholder('アローラ キョダイマックス メガ');
     }
   };
+
+
+  /*  検索項目生成 */
+
+  // タイプ  
+  const selectTypes = ():React.ReactNode => {
+    return types.map((type) => {
+      return (
+        <label className='type method' key={type.number}>
+          <input type='checkbox' name='typeSearchMode' data-number={type.number}/>
+          <img src={type.imgURL} alt={type.name} />
+        </label>
+      );
+    });
+  }
+
+  // 地方
+  const selectRegions = (): React.ReactNode => {
+    // 流用元： renderMainModal.tsx > getAppRegion
+
+
+    // 地方名一覧を取得
+    const regions: PokedexData['region'][] = [...pokedexData].map((data) => {
+      return data.region;
+    });
+
+    // 重複削除
+    const uniqueRegionMap = new Map<number, PokedexData['region']>();
+    [...regions].forEach((region) => {
+      uniqueRegionMap.set(region.id, region);
+    });
+    
+    // 重複を除いた地方一覧をMapから配列に戻す
+    const uniqueRegions: PokedexData['region'][] = Array.from(
+      uniqueRegionMap.values(),
+    );
+
+    // 描画内容
+    return uniqueRegions.map((region) => {
+      return (
+        <label className='region method' key={region.id}>
+          <input type='checkbox' name='regionSearchMode' data-number={region.id}/>
+          {region.name}
+        </label>
+      );
+    });
+  }
+
+  // バージョン・世代関連
+  // 流用元： renderMainModal.tsx > encountVersionList
+  const versionsData = ():Record<number, {
+    id: number;
+    name: string;
+    generation: number;
+}[]> => {
+    // 1. バージョン一覧を取得
+    const versions: PokedexData['vGroup'][number]['version'] =
+      formatUniqueVersionList(pokedexData);
+
+    // 2. データを世代ごとにversionsをグループ化する
+    const groupedVersions: Record<
+      number,
+      {
+        id: number;
+        name: string;
+        generation: number;
+      }[]
+    > = versions.reduce(
+      (accumulator, version) => {
+        if (!accumulator[version.generation]) {
+          // 蓄積データに[gen]の箱がない
+          // ⇒新規の空配列作成
+          accumulator[version.generation] = [];
+        }
+        // 蓄積配列にversionオブジェクトを突っ込んで返す
+        accumulator[version.generation].push(version);
+        return accumulator;
+      },
+      {} as Record<number, PokedexData['vGroup'][number]['version']>, // 初期値の型を明示,
+      );
+    
+    return groupedVersions;
+  }
+
+  // 野生登場バージョン
+  const selectVersions = (): React.ReactNode => {
+    // versionsDataの結果を取得
+    const groupedVersions = versionsData();
+
+    // グループ化されたデータを元にレンダリング
+    return (
+      <React.Fragment>
+        {/* 世代別にループ */}
+        {Object.entries(groupedVersions).map(
+          ([generation, generationVersions]) => (
+            <dd
+              data-generation={generation}
+              className={`generations gene${generation}`}
+              key={Number(generation)}
+            >
+              <span className='generationNumber'>第{generation}世代</span>
+              <span className='generationGroup'>
+                {/* 世代内のオブジェクトでループ */}
+                {generationVersions.map((version) => {
+                  return (
+                    <span className='version'>
+                    <label
+                      key={version.id}
+                      data-version={version.id}
+                      className={`versionName method `}
+                    >
+                      {version.name}
+                      <input type='checkbox' name='versionSearchMode' data-number={version.id}/>
+                      </label>
+                      </span>
+                  );
+                })}
+              </span>
+            </dd>
+          ),
+        )}
+      </React.Fragment>
+    );
+  }
+
+  // 初出世代
+  const selectFirstGenerations = (): React.ReactNode => {
+    // versionsDataの結果を取得
+    const groupedVersions = versionsData();
+
+    // 描画内容
+    return (
+      <React.Fragment>
+        {/* 世代別にループ */}
+        {Object.entries(groupedVersions).map(
+          ([generation]) => (
+            <label
+              data-generation={generation}
+              className={`generations gene${generation} method`}
+              key={Number(generation)}
+            >
+              <span className='generationNumber'>第{generation}世代</span>
+              <input type='checkbox' name='firstGenerationSearchMode' data-number={generation}/>
+            </label>
+          ),
+        )}
+      </React.Fragment>
+    );
+
+  }
+
 
   // 描画内容
   return (
@@ -180,18 +335,22 @@ const Search = ({ ref, onClose }: SearchProps) => {
                   AND検索（複合タイプ）
                 </label>
               </dd>
-              <dd>
-                {/* 選択するタイプを表示 */}
+              <dd className='selectTypeArea'>
+                {selectTypes()}
               </dd>
             </div>
           </dl>
           <dl className='areaAppBase'>
             <dt className='areaAppTitle'>地方</dt>
-            <dd className='areaAppContents'></dd>
+            <dd className='areaAppContents'>{ selectRegions()}</dd>
           </dl>
           <dl className='areaAppBase'>
-            <dt className='areaAppTitle'>バージョン</dt>
-            <dd className='areaAppContents'></dd>
+            <dt className='areaAppTitle'>野生出現バージョン</dt>
+            <dd className='areaAppContents'>{ selectVersions()}</dd>
+          </dl>
+          <dl className='areaAppBase'>
+            <dt className='areaAppTitle'>初出世代</dt>
+            <dd className='areaAppContents'>{ selectFirstGenerations()}</dd>
           </dl>
         </section>
         <div className='buttonArea'>

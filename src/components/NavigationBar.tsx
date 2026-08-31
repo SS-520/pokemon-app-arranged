@@ -2,6 +2,8 @@ import React, { useRef, useState } from 'react';
 import type {
   ViewSettings,
   MainModalHandle,
+  PokedexData,
+  LsPokemon,
 } from '../utilities/types/typesUtility';
 import { storageAvailable } from '../utilities/function/utilityFunction';
 import logo from '../img/title.png';
@@ -23,11 +25,15 @@ interface NavigationBarProps {
   viewSettings: ViewSettings;
   updateViewSettings: (newVal: Partial<ViewSettings>) => void;
   isBgLoading: boolean;
+  allData: LsPokemon[]; // 検索で使用する全ポケモンデータ
+  pokedexData: PokedexData[]; // 検索で使用する図鑑データ
 }
 function NavigationBar({
   viewSettings,
   updateViewSettings,
   isBgLoading,
+  allData,
+  pokedexData
 }: NavigationBarProps) {
   // ローカルストレージの使用可否
   const isLsAvailable = storageAvailable('localStorage');
@@ -163,7 +169,7 @@ function NavigationBar({
       </div>
 
       {isSearchModal ? (
-        <Search ref={searchModalRef} onClose={() => setIsSearchModal(false)} />
+        <Search ref={searchModalRef} allData={allData} pokedexData={pokedexData} onClose={() => setIsSearchModal(false)} />
       ) : (
         <React.Fragment></React.Fragment>
       )}

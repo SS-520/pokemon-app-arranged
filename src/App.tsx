@@ -159,11 +159,14 @@ function App() {
   console.log({ isConfirm });
   return (
     <React.Fragment>
-      <NavigationBar
-        viewSettings={viewSettings}
-        updateViewSettings={updateViewSettings}
-        isBgLoading={isBgLoading}
-      />
+        <NavigationBar
+          viewSettings={viewSettings}
+          updateViewSettings={updateViewSettings}
+          isBgLoading={isBgLoading}
+        pokedexData={pokedexData}
+        allData={pokemonAllData}
+        
+        />
       {isBgLoading ? (
         <Box className='progressContainer'>
           <Box className='typographyContainer'>
