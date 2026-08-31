@@ -11,7 +11,7 @@ import { IoMdMale, IoMdFemale } from 'react-icons/io';
 // CSS呼び出し
 import '../scss/SearchModal.scss';
 import { types } from '../utilities/dataInfo';
-import { formatUniqueVersionList } from '../utilities/function/utilityFunction';
+import { getVersions } from '../utilities/function/utilityFunction';
 
 interface SearchProps {
   ref: React.Ref<MainModalHandle>;
@@ -149,8 +149,9 @@ const Search = ({ ref, allData, pokedexData, onClose }: SearchProps) => {
     generation: number;
 }[]> => {
     // 1. バージョン一覧を取得
+    //    全件検索なので第二引数は指定なし
     const versions: PokedexData['vGroup'][number]['version'] =
-      formatUniqueVersionList(pokedexData);
+      getVersions(pokedexData);
 
     // 2. データを世代ごとにversionsをグループ化する
     const groupedVersions: Record<

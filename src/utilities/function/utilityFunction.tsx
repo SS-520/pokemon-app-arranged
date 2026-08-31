@@ -449,7 +449,7 @@ export const isOnlyAlphabet = (str: string): boolean => {
  */
 export const getVersions = (
   pokedexes: PokedexData[],
-  vGroupArray: number[],
+  vGroupArray?: number[], // id指定がある場合付与
 ): PokedexData['vGroup'][number]['version'] => {
   // 図鑑・バージョン情報をディープコピー
   const pokedex = structuredClone(pokedexes);
@@ -460,10 +460,12 @@ export const getVersions = (
     })
     .flat(); // 二重配列にならないよう平坦化
 
-  // 対象のバージョングループidと一致するデータを抽出
-  const targetVGroups: PokedexData['vGroup'] = [...vGroups].filter((group) =>
-    vGroupArray.includes(group.id),
-  );
+  // 対象のバージョングループidの引数があれば、それと一致するデータを抽出
+  const targetVGroups: PokedexData['vGroup'] = vGroupArray
+    // id指定あり：指定されたidを持つグループだけを抽出(filter)
+    ? [...vGroups].filter((group) => vGroupArray.includes(group.id),)
+    // id指定なし：全てのグループを対象
+    : vGroups;
 
   // バージョン情報だけ抜く
   const getVersions: PokedexData['vGroup'][number]['version'] = [
@@ -520,80 +522,6 @@ export const getVersions = (
   return Array.from(uniqueMap.values());
 };
 
-//
-// 
-// バージョン一覧を取得
-// 流用元関数： utilityFunction.tsx > getVersions
-/**
- * バージョンIDを日本版仕様に変換
- * @param pokedexData: PokedexData[] 図鑑データの大本
- * @returns PokedexData['vGroup'][number]['version'] バージョンIDの配列
- */
-export const formatUniqueVersionList = (
-  pokedexData: PokedexData[],
-): PokedexData['vGroup'][number]['version'] => {
-  // 図鑑・バージョン情報をディープコピー
-  const pokedexDataCopy: PokedexData[] = structuredClone(pokedexData);
-
-  // 図鑑データからバージョングループを取り出す
-  const vGroups: PokedexData['vGroup'] = [...pokedexDataCopy]
-    .map((dex) => {
-      return dex.vGroup;
-    })
-    .flat(); // 二重配列にならないよう平坦化
-
-  // バージョン情報だけ抜く
-  const getVersions: PokedexData['vGroup'][number]['version'] = [...vGroups]
-    .map((vGroup) => {
-      return vGroup.version;
-    })
-    .flat(); // 二重配列にならないよう平坦化
-
-  // id:44,45,46（日本版赤緑青）があったら
-  // id:1,2（グローバル赤青）と置き換える
-  const japanVersions: PokedexData['vGroup'][number]['version'] = [
-    ...getVersions,
-  ].flatMap((version) => {
-    // グローバル1,2を弾く
-    if (version.id === 1 || version.id === 2) return [];
-
-    // 日本赤緑青を0,1,2に上書き
-    if (version.id === 44) {
-      version.id = 0;
-    } else if (version.id === 45) {
-      version.id = 1;
-    } else if (version.id === 46) {
-      version.id = 2;
-    }
-    return version;
-  });
-
-  // 世代、id順にソート
-  const sortedVersions: PokedexData['vGroup'][number]['version'] = [
-    ...japanVersions,
-  ].sort((a, b) => {
-    // 第１キー：世代
-    if (a.generation !== b.generation) {
-      return a.generation - b.generation;
-    }
-
-    // 第２キー：id
-    return a.id - b.id;
-  });
-
-  // 重複削除
-  // Set(配列)だとオブジェクトごとに別物判定⇒idを基準にMapで確実に処理
-  const uniqueMap = new Map<
-    number,
-    PokedexData['vGroup'][number]['version'][number]
-  >();
-  [...sortedVersions].forEach((version) => {
-    uniqueMap.set(version.id, version);
-  });
-
-  // 配列に戻して返す
-  return Array.from(uniqueMap.values());
-};
 
 //
 //
@@ -601,11 +529,8 @@ export const formatUniqueVersionList = (
  * バージョンIDを日本版仕様に変換
  * @param versionId: number
  * @returns number[] バージョンIDの配列
- * ※formatUniqueVersionList()の一部を独立化
  */
 export function convertVersionIdToJapan(versionId: number ): number[]{
-  console.log(versionId);
-
 
   // グローバル1,2（赤青）を弾く
   //  「無」として空配列を返す

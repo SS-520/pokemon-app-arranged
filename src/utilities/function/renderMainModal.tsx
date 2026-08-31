@@ -17,7 +17,7 @@ import type {
   RenderObj,
   TypeDetails,
 } from '../types/typesUtility';
-import { formatUniqueVersionList, getJaData } from './utilityFunction';
+import { getVersions, getJaData } from './utilityFunction';
 import type { PokemonDetail, PokemonSpeciesDetail } from '../types/typesFetch';
 import noImage from '../../img/noImage.png';
 
@@ -87,8 +87,9 @@ export const renderMainModal = (
 
   // 自然遭遇バージョン（DLC含む）
   //  バージョン一覧を取得
+  //  全件検索なので第二引数は指定なし
   const versions: PokedexData['vGroup'][number]['version'] =
-    formatUniqueVersionList(pokedexData);
+    getVersions(pokedexData);
   // 当該ポケモンの登場バージョンのidだけ抜き出し
   const encountVersions = pokemon.ve;
 
