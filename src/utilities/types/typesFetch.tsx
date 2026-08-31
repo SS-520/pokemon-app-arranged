@@ -443,22 +443,6 @@ interface EvoChain {
   species: NameAndURL;
 }
 
-// アイテム情報取得
-// null可にしたいのでinterfaceではなくtype使用
-export type ItemDetail = {
-  id: number;
-  name: string;
-  names: {
-    language: NameAndURL;
-    name: string;
-  }[];
-  flavor_text_entries: {
-    language: NameAndURL;
-    text: string;
-    version_group: NameAndURL;
-  }[];
-} | null;
-
 /*
  * Fetch処理で使用する型
  */

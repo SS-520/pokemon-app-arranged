@@ -17,7 +17,7 @@ import type {
   RenderObj,
   TypeDetails,
 } from '../types/typesUtility';
-import { getJaData } from './utilityFunction';
+import { formatUniqueVersionList, getJaData } from './utilityFunction';
 import type { PokemonDetail, PokemonSpeciesDetail } from '../types/typesFetch';
 import noImage from '../../img/noImage.png';
 
@@ -88,10 +88,16 @@ export const renderMainModal = (
   // 自然遭遇バージョン（DLC含む）
   //  バージョン一覧を取得
   const versions: PokedexData['vGroup'][number]['version'] =
-    formatVersion(pokedexData);
+    formatUniqueVersionList(pokedexData);
   // 当該ポケモンの登場バージョンのidだけ抜き出し
   const encountVersions = pokemon.ve;
-  const showEncountVersions: React.ReactNode = encountVersionList(versions, encountVersions);
+
+  // バージョンidが空ならバージョングループ情報から取ってくる（保険）
+  const pokeApp: number[] = pokedex.versionNames.map((version) => {
+    return version.id;
+  });
+
+  const showEncountVersions: React.ReactNode = encountVersionList(versions, encountVersions,pokeApp);
 
   // 生息地方
   const showRegions: React.ReactNode = getAppRegion(pokedex, pokedexData);
@@ -336,72 +342,6 @@ export const renderMainModal = (
 };
 
 /* 切り出し関数 */
-// バージョン一覧を取得
-const formatVersion = (
-  pokedexData: PokedexData[],
-): PokedexData['vGroup'][number]['version'] => {
-  // 図鑑・バージョン情報をディープコピー
-  const pokedexDataCopy: PokedexData[] = structuredClone(pokedexData);
-
-  // 図鑑データからバージョングループを取り出す
-  const vGroups: PokedexData['vGroup'] = [...pokedexDataCopy]
-    .map((dex) => {
-      return dex.vGroup;
-    })
-    .flat(); // 二重配列にならないよう平坦化
-
-  // バージョン情報だけ抜く
-  const getVersions: PokedexData['vGroup'][number]['version'] = [...vGroups]
-    .map((vGroup) => {
-      return vGroup.version;
-    })
-    .flat(); // 二重配列にならないよう平坦化
-
-  // id:44,45,46（日本版赤緑青）があったら
-  // id:1,2（グローバル赤青）と置き換える
-  const japanVersions: PokedexData['vGroup'][number]['version'] = [
-    ...getVersions,
-  ].flatMap((version) => {
-    // グローバル1,2を弾く
-    if (version.id === 1 || version.id === 2) return [];
-
-    // 日本赤緑青を0,1,2に上書き
-    if (version.id === 44) {
-      version.id = 0;
-    } else if (version.id === 45) {
-      version.id = 1;
-    } else if (version.id === 46) {
-      version.id = 2;
-    }
-    return version;
-  });
-
-  // 世代、id順にソート
-  const sortedVersions: PokedexData['vGroup'][number]['version'] = [
-    ...japanVersions,
-  ].sort((a, b) => {
-    // 第１キー：世代
-    if (a.generation !== b.generation) {
-      return a.generation - b.generation;
-    }
-
-    // 第２キー：id
-    return a.id - b.id;
-  });
-
-  // 重複削除
-  // Set(配列)だとオブジェクトごとに別物判定⇒idを基準にMapで確実に処理
-  const uniqueMap = new Map<
-    number,
-    PokedexData['vGroup'][number]['version'][number]
-  >();
-  [...sortedVersions].forEach((version) => {
-    uniqueMap.set(version.id, version);
-  });
-
-  // 配列に戻して返す
-  return Array.from(uniqueMap.values());
-};
 
 // 地方一覧列挙＋登場地方列挙
 const getAppRegion = (pokedex: PokedexObj, pokedexData: PokedexData[]) => {
@@ -439,6 +379,7 @@ const getAppRegion = (pokedex: PokedexObj, pokedexData: PokedexData[]) => {
 const encountVersionList = (
   versions: PokedexData['vGroup'][number]['version'],
   encountVersions: number[],
+  pokeApp: number[],
 ) => {
   // 1. データを世代ごとにversionsをグループ化する
   const groupedVersions: Record<
@@ -478,7 +419,11 @@ const encountVersionList = (
               {/* 世代内のオブジェクトでループ */}
               {generationVersions.map((version) => {
                 // 登場バージョンに該当する？
-                const isAppearing = encountVersions.includes(version.id);
+                //  encountVersionsが空ならpokeAppをから取ってくる
+                const isAppearing =
+                  encountVersions.length > 0
+                    ? encountVersions.includes(version.id)
+                    : pokeApp.includes(version.id);
                 return (
                   <span
                     key={version.id}
@@ -738,6 +683,7 @@ const setEvoChain = (evolutions: EvoObj[]) => {
               {connector}
               <figure
                 className={`evoPokemon level${evo.level} ${onlyLevel} ${evoBranch}`}
+                data-id={evo.id}
               >
                 <figcaption className='evoForm'>
                   {preLevel?.level !== evo.level ? evo.evoForm : ''}
