@@ -176,7 +176,7 @@ function Contents({
           allData={allData || []}
           pokemonMap={pokemonMap} // id情報から即検索できるようにMapを渡す
           onClose={() => setSelectPokemon(null)}
-          onSelectPokemon={setSelectPokemon}  // setSelectPokemonを引数にしてselectPokemonを再セットできる関数を渡す
+          onSelectPokemon={setSelectPokemon}  // Modalの中でポケモンを選択した際にselectPokemonを更新(setSelectPokemon)するための関数を渡す
           key={selectPokemon.id}
         />
       ) : (
