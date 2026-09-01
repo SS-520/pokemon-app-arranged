@@ -27,7 +27,9 @@ interface MainModalProps {
   pokedexData: PokedexData[];
   abilityData: AbilityData[];
   allData: LsPokemon[];
+  pokemonMap: Map<number, LsPokemon>;  // id情報から即検索可能なMap
   onClose: () => void;
+  onSelectPokemon: (pokemon: LsPokemon) => void;  // setSelectPokemonを変更する関数
 }
 
 // 親コンポーネントから子コンポーネントにrefを渡す：forwardRef使用
@@ -41,12 +43,61 @@ function MainModal({
   pokedexData,
   abilityData,
   allData,
+  pokemonMap,
   onClose,
+  onSelectPokemon,  // ポケモン切り替え用関数
 }: MainModalProps) {
   //
   // 開閉判定の変数設定
   // HTMLDialogElement : <dialog> 要素を操作するメソッド
   const dialogRef = useRef<HTMLDialogElement | null>(null);
+
+  /**
+   * 進化系統や別形態クリック時の切り替え処理（イベント委譲）
+   * event:「クリックされた」という出来事（どこがクリックされたか、などの情報を含有）
+   * React.MouseEvent<HTMLElement>：HTML要素がクリックされたときの情報が入ると明示
+   */
+  const handleDetailClick = (event: React.MouseEvent<HTMLElement>) => {
+    // クリック位置から一番近い(closet)「[data-id]属性がついたHTML要素」を取得
+    //  ⇒クリック位置がどこであっても、data-idが付与されてる要素を捕捉できる
+
+    // (event.target as HTMLElement): クリック対象がHTMLElement型であることを保証（型アサーション）
+    const target: HTMLElement | null = (event.target as HTMLElement).closest('[data-id]') as HTMLElement | null;
+    if(!target) return  // なければ何もしない
+    
+    // [data-id]属性から付与されているIDを取得
+    //  getAttributeで取得⇒文字列扱い
+    const dataId:string | null = target.getAttribute('data-id');
+    if (!dataId) return  // data-idが取得できなかったら何もしない
+    
+    // 文字列→10進数の数値に変換
+    const targetId: number = parseInt(dataId, 10);
+    if(targetId === pokemon.id) return // 表示中のポケモンなら何もしない
+
+    // 取得した対象のidに対応するポケモンをpokemonMapから取得
+    const showPokemon: LsPokemon | undefined = pokemonMap.get(targetId);
+
+    // idが存在⇒親コンポーネントのステートを更新
+    // 
+    if (showPokemon) {
+
+      // onSelectPokemonが実行されると、親コンポーネントのsetSelectPokemonが実行される
+      // ⇒setSelectPokemonが書き換わると、pokemonが書き換わる
+      // ⇒pokemonが書き換わると、useEffectが発火
+      // ⇒useEffectが発火すると、MainModalが再レンダリングされる
+      // ⇒setSelectPokemonの引数で渡しているshowPokemonがMainModalのpropsとして再セットされる！
+      onSelectPokemon(showPokemon);
+
+      // ダイアログ内のスクロール位置を一番上に戻す
+      if (dialogRef.current) {
+        dialogRef.current.scrollTop = 0;
+      }
+    } else {
+      // 取得できなかったらコンソールに警告
+      console.warn(`Pokemon with ID ${targetId} not found in allData.`);
+    }
+  }
+
 
   /**
    * モーダルを閉じる共通処理
@@ -162,7 +213,7 @@ function MainModal({
       <button className='modalCloseButton' onClick={handleClose}>
         <IoIosCloseCircleOutline />
       </button>
-      <section className='pokemonDetail'>
+      <section className='pokemonDetail' onClick={handleDetailClick}>
         {isModalLoading ? <Loading /> : modalContent}
       </section>
     </dialog>

@@ -625,5 +625,19 @@ dialog.mainModal {
         }
       }
     }
+
+    // PCのみクリック可能エリアにポインタ設定
+    @include media.media(pc) {
+      // 進化系統・形態違いの関連ポケモン（クリック可能）
+      .evolutionDetail figure.evoPokemon,
+      .variationDetail figure.form {
+        cursor: pointer;
+        transition: transform 0.15s ease;
+  
+        &:hover {
+          transform: translateY(-2px);
+        }
+      }
+    }
   }
 }
