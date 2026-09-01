@@ -65,6 +65,13 @@ function Contents({
   // モーダルに渡すポケモンの基本情報
   const [selectPokemon, setSelectPokemon] = useState<LsPokemon | null>(null);
 
+  // id情報で即検索できるようにMapをメモ化
+  //  allDataが変更されない限り再計算されない（メモ化）
+  const pokemonMap = useMemo(() => {
+    // allDataをkey(id)とvalue(pokemon)にしたMapを作成
+    return new Map<number, LsPokemon>((allData || []).map((pokemon) => [pokemon.id, pokemon]));
+  }, [allData]);
+
   /**
    * ページ変更時のハンドラ
    * @param {React.ChangeEvent<unknown>} event
@@ -167,7 +174,9 @@ function Contents({
           pokedexData={pokedexData}
           abilityData={abilityData}
           allData={allData || []}
+          pokemonMap={pokemonMap} // id情報から即検索できるようにMapを渡す
           onClose={() => setSelectPokemon(null)}
+          onSelectPokemon={setSelectPokemon}  // setSelectPokemonを引数にしてselectPokemonを再セットできる関数を渡す
           key={selectPokemon.id}
         />
       ) : (
