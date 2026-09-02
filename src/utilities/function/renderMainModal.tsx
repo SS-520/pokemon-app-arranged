@@ -194,18 +194,6 @@ export const renderMainModal = (
       );
     }
   };
-  // バージョン
-  const versionAnnotation = () => {
-    if (!pokemonDetail.is_default) {
-      return (
-        <div>
-          <p className='annotation'>
-            ※通常／リージョンフォームが登場する全バージョンが表示されます
-          </p>
-        </div>
-      );
-    }
-  };
 
   // 描写内容（戻り値）
   return (
