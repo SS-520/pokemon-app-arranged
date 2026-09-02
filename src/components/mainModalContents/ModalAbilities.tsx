@@ -2,14 +2,19 @@
 
 
 import React from 'react';
+import type { AbilityObj } from '../../utilities/types/typesUtility';
+
+// アイコン
 import { FaPenFancy } from 'react-icons/fa6';
 import { MdCatchingPokemon } from 'react-icons/md';
-import type { AbilityObj } from '../../utilities/types/typesUtility';
+
+// props
 interface ModalAbilitiesProps {
   abilities: AbilityObj[];
 }
 
-const ModalAbilities= ({abilities}:ModalAbilitiesProps) => {
+// 本体
+const ModalAbilities= ({abilities}:ModalAbilitiesProps):React.ReactNode => {
   return (
     <section className='ability maskingTapeStyleBase'>
       <h5 className='abilityTitle title maskingTapeStyleTitle'>特性</h5>

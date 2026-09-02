@@ -1,15 +1,18 @@
 // 進化系統セクション
 
 import React from 'react';
-import { PiArrowFatLinesRight } from 'react-icons/pi';
 import type { EvoObj } from '../../utilities/types/typesUtility';
 import { commonImgURL } from '../../utilities/dataInfo';
+
+// アイコン
+import { PiArrowFatLinesRight } from 'react-icons/pi';
 
 // プロップスの型定義
 interface ModalEvolutionProps {
   evolutions: EvoObj[];
 }
 
+// 本体
 export const ModalEvolution= ({ evolutions }:ModalEvolutionProps) => {
  
   // 進化無しの場合：evolutions.length=1⇒本人だけ
