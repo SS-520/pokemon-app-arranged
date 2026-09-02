@@ -20,7 +20,6 @@ import type { PokemonDetail, PokemonSpeciesDetail } from '../types/typesFetch';
 import noImage from '../../img/noImage.png';
 
 // アイコン
-import { BsStars } from 'react-icons/bs';
 import { IoMdMale, IoMdFemale } from 'react-icons/io';
 
 // コンポーネント
@@ -31,6 +30,7 @@ import ModalAbilities from '../../components/mainModalContents/ModalAbilities';
 import ModalFlavorText from '../../components/mainModalContents/ModalFlavorText';
 import ModalEncountVersions from '../../components/mainModalContents/ModalEncountVersions';
 import ModalVariation from '../../components/mainModalContents/ModalVariation';
+import ModalGenderShinyDiff from '../../components/mainModalContents/ModalGenderShinyDiff';
 
 /**
 // API取得の情報と各種情報を加工・突合する
@@ -149,9 +149,6 @@ export const renderMainModal = (
     }
   };
 
-  // オスメス色違いの画像
-  const showImg = setImgs(image, pokemon.name);
-
   // 重ねて比較
   const compareImage = (): React.ReactNode => {
     if (image.femaleImg) {
@@ -245,10 +242,10 @@ export const renderMainModal = (
           {regionAnnotation()}
         </dl>
       </section>
-      <section className='imgDiff maskingTapeStyleBase'>
-        <h5 className='diffImgTitle maskingTapeStyleTitle'>比較画像</h5>
-        {showImg}
-      </section>
+
+      {/* 画像比較表示 */}
+      <ModalGenderShinyDiff images={image} name={pokemon.name} />
+
       {/* 重ねて画像比較 */}
       {compareImage()}
       
@@ -329,96 +326,4 @@ const setEggGroupList = (pokemon: LsPokemon): React.ReactNode => {
       </dd>
     );
   });
-};
-
-// オスメス色違いの画像
-const setImgs = (
-  images: ImageObj,
-  name: LsPokemon['name'],
-): React.ReactNode => {
-  // オスメス差分
-
-  if (images.femaleImg && images.shinyFemaleImg) {
-    // オスメス＋それぞれ色違いの画像でオブジェクト
-
-    return (
-      <React.Fragment>
-        <div className='defaultImg'>
-          <figure className='detail male'>
-            <figcaption>
-              <IoMdMale />
-            </figcaption>
-            <img src={images.defaultImg} alt={`${name}・オスの画像`} />
-          </figure>
-          <figure className='detail female'>
-            <figcaption>
-              <IoMdFemale />
-            </figcaption>
-            <img src={images.femaleImg} alt={`${name}・メスの画像`} />
-          </figure>
-        </div>
-        <hr />
-        <div className='shinyImg'>
-          <figure className='shiny male'>
-            <figcaption>
-              <BsStars />
-              <IoMdMale />
-            </figcaption>
-            <img src={images.shinyImg} alt={`${name}・オスの色違い画像`} />
-          </figure>
-          <figure className='shiny female'>
-            <figcaption>
-              <BsStars />
-              <IoMdFemale />
-            </figcaption>
-            <img
-              src={images.shinyFemaleImg}
-              alt={`${name}・メスの色違い画像`}
-            />
-          </figure>
-        </div>
-      </React.Fragment>
-    );
-  } else if (images.defaultImg !== '') {
-    return (
-      <React.Fragment>
-        <div className='commonImg'>
-          <figure className='detail male'>
-            <figcaption>
-              <IoMdMale />
-              <IoMdFemale />
-            </figcaption>
-            <img src={images.defaultImg} alt={`${name}の画像`} />
-          </figure>
-          <figure className='shiny male'>
-            <figcaption>
-              <BsStars /> <IoMdMale />
-              <IoMdFemale />
-            </figcaption>
-            <img src={images.shinyImg} alt={`${name}の色違い画像`} />
-          </figure>
-        </div>
-      </React.Fragment>
-    );
-  } else {
-    // 画像がない場合
-    <React.Fragment>
-      <div className='commonImg'>
-        <figure className='detail male'>
-          <figcaption>
-            <IoMdMale />
-            <IoMdFemale />
-          </figcaption>
-          <img src={noImage} alt={`未登録の${name}の画像`} />
-        </figure>
-        <figure className='shiny male'>
-          <figcaption>
-            <BsStars /> <IoMdMale />
-            <IoMdFemale />
-          </figcaption>
-          <img src={noImage} alt={`未登録の${name}の色違い画像`} />
-        </figure>
-      </div>
-    </React.Fragment>;
-  }
 };
