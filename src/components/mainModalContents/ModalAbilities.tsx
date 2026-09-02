@@ -9,7 +9,7 @@ interface ModalAbilitiesProps {
   abilities: AbilityObj[];
 }
 
-const ModalAbilities: React.FC<ModalAbilitiesProps> = ({ abilities }) => {
+const ModalAbilities= ({abilities}:ModalAbilitiesProps) => {
   return (
     <section className='ability maskingTapeStyleBase'>
       <h5 className='abilityTitle title maskingTapeStyleTitle'>特性</h5>

@@ -10,7 +10,7 @@ interface ModalEvolutionProps {
   evolutions: EvoObj[];
 }
 
-export const ModalEvolution: React.FC<ModalEvolutionProps> = ({ evolutions }) => {
+export const ModalEvolution= ({ evolutions }:ModalEvolutionProps) => {
  
   // 進化無しの場合：evolutions.length=1⇒本人だけ
   if (evolutions.length <= 1) {
