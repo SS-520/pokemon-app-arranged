@@ -23,8 +23,6 @@ import noImage from '../../img/noImage.png';
 import { IoMdMale, IoMdFemale } from 'react-icons/io';
 
 // コンポーネント
-import CompareImagesShiny from '../../components/CompareImagesShiny';
-import CompareImagesAll from '../../components/CompareImagesAll';
 import ModalEvolution from '../../components/mainModalContents/ModalEvolution';
 import ModalAbilities from '../../components/mainModalContents/ModalAbilities';
 import ModalFlavorText from '../../components/mainModalContents/ModalFlavorText';
@@ -32,6 +30,7 @@ import ModalEncountVersions from '../../components/mainModalContents/ModalEncoun
 import ModalVariation from '../../components/mainModalContents/ModalVariation';
 import ModalGenderShinyShow from '../../components/mainModalContents/ModalGenderShinyShow';
 import ModalGenderShinyCompare from '../../components/mainModalContents/ModalGenderShinyCompare';
+import ModalRegions from '../../components/mainModalContents/ModalRegions';
 
 /**
 // API取得の情報と各種情報を加工・突合する
@@ -85,9 +84,6 @@ export const renderMainModal = (
       );
     });
   };
-
-  // 生息地方
-  const showRegions: React.ReactNode = getAppRegion(pokedex, pokedexData);
 
   // べビ・幻・伝説判定
   const isBaby = (): React.ReactNode => {
@@ -150,21 +146,6 @@ export const renderMainModal = (
     }
   };
 
-  //
-  /* 注釈 */
-  // 地方
-  const regionAnnotation = () => {
-    if (!pokemonDetail.is_default) {
-      return (
-        <div>
-          <p className='annotation'>
-            ※通常／リージョンフォームが登場する全地方が表示されます
-          </p>
-        </div>
-      );
-    }
-  };
-
   // 描写内容（戻り値）
   return (
     <article className={`modalContents ${pokemonSpecies.color.name}`}>
@@ -192,13 +173,9 @@ export const renderMainModal = (
           {isLegend()}
           {isMythic()}
         </div>
-        <dl className='appearanceRegions maskingTapeStyleBase'>
-          <dt className='maskingTapeStyleTitle'>登場地方</dt>
-          <div className='ddContainer maskingTapeStyleContents'>
-            {showRegions}
-          </div>
-          {regionAnnotation()}
-        </dl>
+
+        {/* 登場地方 */}
+        <ModalRegions pokedex={pokedex} pokedexData={pokedexData} isDefault={pokemonDetail.is_default} />
       </section>
 
       {/* 画像比較表示 */}
@@ -234,38 +211,6 @@ export const renderMainModal = (
 };
 
 /* 切り出し関数 */
-
-// 地方一覧列挙＋登場地方列挙
-const getAppRegion = (pokedex: PokedexObj, pokedexData: PokedexData[]) => {
-  // 地方名一覧を取得
-  const regions: PokedexData['region'][] = [...pokedexData].map((data) => {
-    return data.region;
-  });
-
-  // 重複削除
-  const uniqueRegionMap = new Map<number, PokedexData['region']>();
-  [...regions].forEach((region) => {
-    uniqueRegionMap.set(region.id, region);
-  });
-
-  // 重複を除いた地方一覧をMapから配列に戻す
-  const uniqueRegions: PokedexData['region'][] = Array.from(
-    uniqueRegionMap.values(),
-  );
-
-  // 表示element
-  return uniqueRegions.map((region) => {
-    const isRegion: boolean = pokedex.regionNames.includes(region.name);
-    return (
-      <dd
-        className={`regionName tiles ${isRegion ? 'show' : ''}`}
-        key={region.id}
-      >
-        {region.name}
-      </dd>
-    );
-  });
-};
 
 // 卵グループ列挙
 const setEggGroupList = (pokemon: LsPokemon): React.ReactNode => {
