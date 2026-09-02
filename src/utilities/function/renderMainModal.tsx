@@ -208,12 +208,7 @@ export const renderMainModal = (
       <ModalGenderShinyCompare image={image} pokemon={pokemon} />
       
       {/* 進化系統 */}
-      <section className='evolution maskingTapeStyleBase'>
-        <h5 className='evolutionTitle title maskingTapeStyleTitle'>
-          進化の流れ
-        </h5>
-        <ModalEvolution evolutions={evolution}/>
-      </section>
+      <ModalEvolution evolutions={evolution}/>
 
       {/* 別フォーム */}
       <ModalVariation variation={variation}/>
