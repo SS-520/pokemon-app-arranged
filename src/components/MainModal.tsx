@@ -54,8 +54,10 @@ function MainModal({
 
   /**
    * 進化系統や別形態クリック時の切り替え処理（イベント委譲）
-   * event:「クリックされた」という出来事（どこがクリックされたか、などの情報を含有）
-   * React.MouseEvent<HTMLElement>：HTML要素がクリックされたときの情報が入ると明示
+   * 対象をクリックしたらselectPokemonを更新してモーダルが再レンダリング
+   *  ⇒更新されたselectPokemonをContentsに渡してuseStateの機能＋key属性の機能で再レンダリングさせる
+   *  event:「クリックされた」という出来事（どこがクリックされたか、などの情報を含有）
+   *  React.MouseEvent<HTMLElement>：HTML要素がクリックされたときの情報が入ると明示
    */
   const handleDetailClick = (event: React.MouseEvent<HTMLElement>) => {
     // クリック位置から一番近い(closet)「[data-id]属性がついたHTML要素」を取得
@@ -82,8 +84,8 @@ function MainModal({
     if (showPokemon) {
 
       // onSelectPokemonが実行されると、親コンポーネントのsetSelectPokemonが実行される
-      // ⇒setSelectPokemonが書き換わると、pokemonが書き換わる
-      // ⇒pokemonが書き換わると、useEffectが発火
+      // ⇒setSelectPokemonが書き換わると、selectPokemonが書き換わる
+      // ⇒keyが変更されるのでuseEffectが発火
       // ⇒useEffectが発火すると、MainModalが再レンダリングされる
       // ⇒setSelectPokemonの引数で渡しているshowPokemonがMainModalのpropsとして再セットされる！
       onSelectPokemon(showPokemon);
