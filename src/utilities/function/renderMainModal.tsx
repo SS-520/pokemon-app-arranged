@@ -30,7 +30,8 @@ import ModalAbilities from '../../components/mainModalContents/ModalAbilities';
 import ModalFlavorText from '../../components/mainModalContents/ModalFlavorText';
 import ModalEncountVersions from '../../components/mainModalContents/ModalEncountVersions';
 import ModalVariation from '../../components/mainModalContents/ModalVariation';
-import ModalGenderShinyDiff from '../../components/mainModalContents/ModalGenderShinyDiff';
+import ModalGenderShinyShow from '../../components/mainModalContents/ModalGenderShinyShow';
+import ModalGenderShinyCompare from '../../components/mainModalContents/ModalGenderShinyCompare';
 
 /**
 // API取得の情報と各種情報を加工・突合する
@@ -149,37 +150,6 @@ export const renderMainModal = (
     }
   };
 
-  // 重ねて比較
-  const compareImage = (): React.ReactNode => {
-    if (image.femaleImg) {
-      return (
-        <section className='compareDiff maskingTapeStyleBase'>
-          <h5 className='compareDiffTitle maskingTapeStyleTitle'>
-            重ねて比較！
-          </h5>
-          <div className='maskingTapeStyleContents'>
-            <CompareImagesAll images={image} name={pokemon.name} />
-          </div>
-        </section>
-      );
-    } else if (image.shinyImg) {
-      return (
-        <section className='compareDiff maskingTapeStyleBase'>
-          <h5 className='compareDiffTitle maskingTapeStyleTitle'>
-            重ねて比較！
-          </h5>
-          <div className='maskingTapeStyleContents'>
-            <CompareImagesShiny images={image} name={pokemon.name} />
-          </div>
-        </section>
-      );
-    } else {
-      <React.Fragment></React.Fragment>;
-    }
-  };
-
-  // 解説文
-
   //
   /* 注釈 */
   // 地方
@@ -232,10 +202,10 @@ export const renderMainModal = (
       </section>
 
       {/* 画像比較表示 */}
-      <ModalGenderShinyDiff images={image} name={pokemon.name} />
+      <ModalGenderShinyShow images={image} name={pokemon.name} />
 
       {/* 重ねて画像比較 */}
-      {compareImage()}
+      <ModalGenderShinyCompare image={image} pokemon={pokemon} />
       
       {/* 進化系統 */}
       <section className='evolution maskingTapeStyleBase'>
