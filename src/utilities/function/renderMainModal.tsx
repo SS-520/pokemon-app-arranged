@@ -31,6 +31,7 @@ import { MdCatchingPokemon } from 'react-icons/md';
 import CompareImagesShiny from '../../components/CompareImagesShiny';
 import CompareImagesAll from '../../components/CompareImagesAll';
 import ModalEvolution from '../../components/mainModalContents/ModalEvolution';
+import ModalAbilities from '../../components/mainModalContents/ModalAbilities';
 
 /**
 // API取得の情報と各種情報を加工・突合する
@@ -195,9 +196,6 @@ export const renderMainModal = (
     }
   };
 
-  // 特性
-  const showAbility: React.ReactNode = setAbility(ability);
-
   // 解説文
   const showFlavorText: React.ReactNode = setFlavorText(flavorText);
 
@@ -288,6 +286,8 @@ export const renderMainModal = (
         </h5>
         <ModalEvolution evolutions={evolution}/>
       </section>
+
+      {/* 別フォーム */}
       {showVariation ? (
         // 別フォームがなければ表示しない
         <section className='variation maskingTapeStyleBase'>
@@ -311,10 +311,11 @@ export const renderMainModal = (
         <dt className='maskingTapeStyleTitle'>卵グループ</dt>
         <div className='ddContainer maskingTapeStyleContents'>{showEggs}</div>
       </dl>
-      <section className='ability maskingTapeStyleBase'>
-        <h5 className='abilityTitle title maskingTapeStyleTitle'>特性</h5>
-        {showAbility}
-      </section>
+      
+      {/* 特性情報 */}
+      <ModalAbilities abilities={ability}/>
+      
+      {/* 図鑑解説テキスト */}
       <section className='flavor maskingTapeStyleBase'>
         <h5 className='flavorTextTitle title maskingTapeStyleTitle'>
           図鑑解説テキスト
@@ -533,51 +534,6 @@ const setImgs = (
   }
 };
 
-// 特性表示
-const setAbility = (abilities: AbilityObj[]): React.ReactNode => {
-  // 途中で解説文かあるかで処理分岐
-  return (
-    <ul>
-      {abilities.map((ability) => {
-        return (
-          <li className='abilityDetail' key={ability.id}>
-            <div className='abilityName'>
-              {ability.name}
-              {ability.is_hidden ? '（夢）' : ''}
-            </div>
-            {ability.text.length > 0 ? (
-              ability.text.map((txt, txtIndex) => {
-                return (
-                  <React.Fragment key={txtIndex}>
-                    <div className='abilityText textArea'>
-                      <FaPenFancy className='firstMark' />{' '}
-                      {txt.text ? txt.text : 'データ未登録'}
-                    </div>
-                    <div className='abilityVersionArea  versionArea'>
-                      <MdCatchingPokemon />
-                      {txt.version.map((ver, verIndex) => {
-                        return (
-                          <span
-                            className='abilityTextVersion textVersion'
-                            key={verIndex}
-                          >
-                            {ver.name}
-                          </span>
-                        );
-                      })}
-                    </div>
-                  </React.Fragment>
-                );
-              })
-            ) : (
-              <div className='abilityNoText'>特性説明文：データ未登録</div>
-            )}
-          </li>
-        );
-      })}
-    </ul>
-  );
-};
 
 // 解説テキスト表示
 const setFlavorText = (flavorTextes: FlavorObj[]) => {
