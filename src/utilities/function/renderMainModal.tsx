@@ -24,14 +24,13 @@ import noImage from '../../img/noImage.png';
 // アイコン
 import { BsStars } from 'react-icons/bs';
 import { IoMdMale, IoMdFemale } from 'react-icons/io';
-import { FaPenFancy } from 'react-icons/fa6';
-import { MdCatchingPokemon } from 'react-icons/md';
 
 // コンポーネント
 import CompareImagesShiny from '../../components/CompareImagesShiny';
 import CompareImagesAll from '../../components/CompareImagesAll';
 import ModalEvolution from '../../components/mainModalContents/ModalEvolution';
 import ModalAbilities from '../../components/mainModalContents/ModalAbilities';
+import ModalFlavorText from '../../components/mainModalContents/ModalFlavorText';
 
 /**
 // API取得の情報と各種情報を加工・突合する
@@ -197,7 +196,6 @@ export const renderMainModal = (
   };
 
   // 解説文
-  const showFlavorText: React.ReactNode = setFlavorText(flavorText);
 
   //
   /* 注釈 */
@@ -222,14 +220,6 @@ export const renderMainModal = (
             ※通常／リージョンフォームが登場する全バージョンが表示されます
           </p>
         </div>
-      );
-    }
-  };
-  //  図鑑
-  const flavorAnnotation = () => {
-    if (!pokemonDetail.is_default) {
-      return (
-        <p className='annotation'>※通常フォームのテキストが表示されます</p>
       );
     }
   };
@@ -316,13 +306,7 @@ export const renderMainModal = (
       <ModalAbilities abilities={ability}/>
       
       {/* 図鑑解説テキスト */}
-      <section className='flavor maskingTapeStyleBase'>
-        <h5 className='flavorTextTitle title maskingTapeStyleTitle'>
-          図鑑解説テキスト
-        </h5>
-        <ul className='flavorTextDetail'>{showFlavorText}</ul>
-        {flavorAnnotation()}
-      </section>
+      <ModalFlavorText flavorTextes={flavorText} isDefault={pokemonDetail.is_default}/>
     </article>
   );
 };
@@ -531,49 +515,6 @@ const setImgs = (
         </figure>
       </div>
     </React.Fragment>;
-  }
-};
-
-
-// 解説テキスト表示
-const setFlavorText = (flavorTextes: FlavorObj[]) => {
-  if (flavorTextes.length > 0) {
-    return (
-      <React.Fragment>
-        {flavorTextes.map((text) => {
-          return (
-            <React.Fragment key={text.text}>
-              <li className='flavorTextArea textArea'>
-                <div className='flavorText'>
-                  <FaPenFancy className='firstMark' />{' '}
-                  {text.text ? text.text : 'データ未登録'}
-                </div>
-                <div className='flavorTextVersionArea versionArea'>
-                  <MdCatchingPokemon />
-                  {text.version.map((ver, verIndex) => (
-                    <span
-                      className='flavorTextVersion textVersion'
-                      key={verIndex}
-                    >
-                      {ver.name}
-                    </span>
-                  ))}
-                </div>
-              </li>
-            </React.Fragment>
-          );
-        })}
-      </React.Fragment>
-    );
-  } else {
-    return (
-      <div className='flavorTextArea'>
-        <div className='flavorText noText'>
-          <FaPenFancy />
-          図鑑説明文：データ未登録
-        </div>
-      </div>
-    );
   }
 };
 
