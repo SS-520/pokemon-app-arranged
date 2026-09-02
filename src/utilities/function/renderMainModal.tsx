@@ -31,6 +31,7 @@ import ModalVariation from '../../components/mainModalContents/ModalVariation';
 import ModalGenderShinyShow from '../../components/mainModalContents/ModalGenderShinyShow';
 import ModalGenderShinyCompare from '../../components/mainModalContents/ModalGenderShinyCompare';
 import ModalRegions from '../../components/mainModalContents/ModalRegions';
+import ModalEggGroups from '../../components/mainModalContents/ModalEggGroups';
 
 /**
 // API取得の情報と各種情報を加工・突合する
@@ -122,9 +123,6 @@ export const renderMainModal = (
     );
   };
 
-  // 卵グループ
-  const showEggs: React.ReactNode = setEggGroupList(pokemon);
-
   // オスメス確率
   const rateGender = (): React.ReactNode => {
     const rate: number = pokemonSpecies.gender_rate;
@@ -196,10 +194,7 @@ export const renderMainModal = (
 
 
       {/* 卵グループ */}
-      <dl className='eggGroup maskingTapeStyleBase'>
-        <dt className='maskingTapeStyleTitle'>卵グループ</dt>
-        <div className='ddContainer maskingTapeStyleContents'>{showEggs}</div>
-      </dl>
+      <ModalEggGroups pokemon={pokemon}/>
       
       {/* 特性情報 */}
       <ModalAbilities abilities={ability}/>
@@ -210,18 +205,3 @@ export const renderMainModal = (
   );
 };
 
-/* 切り出し関数 */
-
-// 卵グループ列挙
-const setEggGroupList = (pokemon: LsPokemon): React.ReactNode => {
-  // 卵グループ一覧取得
-  const eggGroup: EggDetails[] = eggs;
-  return eggGroup.map((egg) => {
-    const isEgg: boolean = pokemon.egg.includes(egg.number);
-    return (
-      <dd key={egg.number} className={`eggName tiles ${isEgg ? 'show' : ''}`}>
-        {egg.name}
-      </dd>
-    );
-  });
-};
