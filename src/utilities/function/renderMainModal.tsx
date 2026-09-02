@@ -4,9 +4,7 @@ import React from 'react';
 import { commonImgURL, eggs, types } from '../dataInfo';
 import type {
   AbilityObj,
-  DiffForms,
   DiffFormsObj,
-  DiffFormsSpecies,
   EggDetails,
   EvoObj,
   FlavorObj,
@@ -17,7 +15,7 @@ import type {
   RenderObj,
   TypeDetails,
 } from '../types/typesUtility';
-import { formatUniqueVersionList, getJaData } from './utilityFunction';
+import { getJaData } from './utilityFunction';
 import type { PokemonDetail, PokemonSpeciesDetail } from '../types/typesFetch';
 import noImage from '../../img/noImage.png';
 
@@ -32,6 +30,7 @@ import ModalEvolution from '../../components/mainModalContents/ModalEvolution';
 import ModalAbilities from '../../components/mainModalContents/ModalAbilities';
 import ModalFlavorText from '../../components/mainModalContents/ModalFlavorText';
 import ModalEncountVersions from '../../components/mainModalContents/ModalEncountVersions';
+import ModalVariation from '../../components/mainModalContents/ModalVariation';
 
 /**
 // API取得の情報と各種情報を加工・突合する
@@ -211,9 +210,6 @@ export const renderMainModal = (
     }
   };
 
-  // 別形態
-  const showVariation: React.ReactNode = setVariation(variation);
-
   // 描写内容（戻り値）
   return (
     <article className={`modalContents ${pokemonSpecies.color.name}`}>
@@ -265,17 +261,8 @@ export const renderMainModal = (
       </section>
 
       {/* 別フォーム */}
-      {showVariation ? (
-        // 別フォームがなければ表示しない
-        <section className='variation maskingTapeStyleBase'>
-          <h5 className='variationTitle title maskingTapeStyleTitle'>
-            別フォーム
-          </h5>
-          <div className='variationDetail'>{showVariation}</div>
-        </section>
-      ) : (
-        <></>
-      )}
+      <ModalVariation variation={variation}/>
+
 
       {/* 野生登場バージョン */}
       <ModalEncountVersions pokedexData={pokedexData} pokedex={pokedex} pokemon={pokemon} isDefault={pokemonDetail.is_default}/>
@@ -433,83 +420,5 @@ const setImgs = (
         </figure>
       </div>
     </React.Fragment>;
-  }
-};
-
-
-// 別形態
-const setVariation = (variation: {
-  variationResults: DiffFormsSpecies[];
-  formsResults: DiffForms[];
-}): React.ReactNode => {
-  // 引数を分解
-  const variations: DiffFormsSpecies[] = variation.variationResults;
-  const forms: DiffForms[] = variation.formsResults;
-
-  // variationResultsとformsResultsの両方がある場合
-  if (variations.length > 0 && forms.length > 0) {
-    return (
-      <React.Fragment>
-        <div className='groupVariation'>
-          {variations.map((variation, varIndex) => (
-            <figure className='form' data-id={variation.id} key={varIndex}>
-              <figcaption className='formName'>{variation.formName}</figcaption>
-              <img
-                src={commonImgURL + variation.img}
-                className='formImg'
-                alt={`${variation.formName}の画像`}
-              />
-            </figure>
-          ))}
-        </div>
-        <hr />
-        <div className='groupForm'>
-          {forms.map((form, formIndex) => (
-            <figure className='form' data-id={form.order} key={formIndex}>
-              <figcaption className='formName'>{form.formName}</figcaption>
-              <img
-                src={commonImgURL + form.img}
-                className='formImg'
-                alt={`${form.formName}の画像`}
-              />
-            </figure>
-          ))}
-        </div>
-      </React.Fragment>
-    );
-  } else if (variations.length > 0) {
-    return (
-      <div className='groupVariation'>
-        {variations.map((variation, varIndex) => (
-          <figure className='form' data-id={variation.id} key={varIndex}>
-            <figcaption className='formName'>{variation.formName}</figcaption>
-            <img
-              src={
-                variation.img !== '' ? commonImgURL + variation.img : noImage
-              }
-              alt={`${variation.formName}の画像`}
-              className='formImg'
-            />
-          </figure>
-        ))}
-      </div>
-    );
-  } else if (forms.length > 0) {
-    return (
-      <div className='groupForm'>
-        {forms.map((form, formIndex) => (
-          <figure className='form' data-id={form.order} key={formIndex}>
-            <figcaption className='formName'>{form.formName}</figcaption>
-            <img
-              src={form.img !== '' ? commonImgURL + form.img : noImage}
-              className='formImg'
-              alt={`${form.formName}の画像`}
-            />
-          </figure>
-        ))}
-      </div>
-    );
-  } else {
-    return;
   }
 };
