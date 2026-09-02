@@ -1,11 +1,10 @@
 /* メインモーダルの表示内容制御するファイル */
 
 import React from 'react';
-import { commonImgURL, eggs, types } from '../dataInfo';
+import { commonImgURL, types } from '../dataInfo';
 import type {
   AbilityObj,
   DiffFormsObj,
-  EggDetails,
   EvoObj,
   FlavorObj,
   ImageObj,
