@@ -24,13 +24,13 @@ import noImage from '../../img/noImage.png';
 // アイコン
 import { BsStars } from 'react-icons/bs';
 import { IoMdMale, IoMdFemale } from 'react-icons/io';
-import { PiArrowFatLinesRight } from 'react-icons/pi';
 import { FaPenFancy } from 'react-icons/fa6';
 import { MdCatchingPokemon } from 'react-icons/md';
 
 // コンポーネント
 import CompareImagesShiny from '../../components/CompareImagesShiny';
 import CompareImagesAll from '../../components/CompareImagesAll';
+import ModalEvolution from '../../components/mainModalContents/ModalEvolution';
 
 /**
 // API取得の情報と各種情報を加工・突合する
@@ -201,9 +201,6 @@ export const renderMainModal = (
   // 解説文
   const showFlavorText: React.ReactNode = setFlavorText(flavorText);
 
-  // 進化
-  const showEvoChain: React.ReactNode = setEvoChain(evolution);
-
   //
   /* 注釈 */
   // 地方
@@ -236,19 +233,6 @@ export const renderMainModal = (
       return (
         <p className='annotation'>※通常フォームのテキストが表示されます</p>
       );
-    }
-  };
-  //  進化
-  const evoAnnotation = (): React.ReactNode => {
-    // 進化有＋メイン形態じゃない場合進化注釈
-    if (evolution.length > 1) {
-      return (
-        <p className='annotation'>
-          ※通常／リージョンフォームが混在する場合があります
-        </p>
-      );
-    } else {
-      return <React.Fragment></React.Fragment>;
     }
   };
 
@@ -296,12 +280,13 @@ export const renderMainModal = (
       </section>
       {/* 重ねて画像比較 */}
       {compareImage()}
+      
+      {/* 進化系統 */}
       <section className='evolution maskingTapeStyleBase'>
         <h5 className='evolutionTitle title maskingTapeStyleTitle'>
           進化の流れ
         </h5>
-        <div className='evolutionDetail'>{showEvoChain}</div>
-        {evoAnnotation()}
+        <ModalEvolution evolutions={evolution}/>
       </section>
       {showVariation ? (
         // 別フォームがなければ表示しない
@@ -636,74 +621,6 @@ const setFlavorText = (flavorTextes: FlavorObj[]) => {
   }
 };
 
-// 進化系統
-const setEvoChain = (evolutions: EvoObj[]) => {
-  if (evolutions.length > 1) {
-    // 進化有
-    // 進化分岐の有無判定
-    let evoBranch = 'straight';
-    evolutions.map((evo, index) => {
-      const preLevel = index > 0 ? evolutions[index - 1] : null;
-      if (evo.level === preLevel?.level) {
-        evoBranch = 'branch';
-      }
-    });
-    return (
-      <React.Fragment>
-        {evolutions.map((evo, index) => {
-          // 前後周との進化段階比較
-          const preLevel = index > 0 ? evolutions[index - 1] : null;
-          const nextLevel = index > 0 ? evolutions[index + 1] : null;
-
-          // 同じ段階があるかないか判定
-          let onlyLevel = '';
-          if (preLevel?.level === evo.level) {
-            onlyLevel = 'notOnly';
-          } else if (nextLevel?.level === evo.level) {
-            onlyLevel = 'notOnly';
-          } else {
-            onlyLevel = 'only';
-          }
-
-          // 接続記号を設定
-          let connector = null;
-          if (preLevel) {
-            // 2周目以降はコネクタを挟む
-            connector = (
-              <span
-                className={`connecter level${evo.level} ${onlyLevel} ${evoBranch}`}
-              >
-                <PiArrowFatLinesRight />
-              </span>
-            );
-          }
-          return (
-            <React.Fragment key={evo.id}>
-              {connector}
-              <figure
-                className={`evoPokemon level${evo.level} ${onlyLevel} ${evoBranch}`}
-                data-id={evo.id}
-              >
-                <figcaption className='evoForm'>
-                  {preLevel?.level !== evo.level ? evo.evoForm : ''}
-                </figcaption>
-                <img
-                  className='evoImg'
-                  src={commonImgURL + evo.img}
-                  alt={`${evo.name}の画像`}
-                />
-                <figcaption className='name'>{evo.name}</figcaption>
-              </figure>
-            </React.Fragment>
-          );
-        })}
-      </React.Fragment>
-    );
-  } else {
-    // 進化無：evolutions.length=1⇒本人だけ
-    return <React.Fragment>進化無し</React.Fragment>;
-  }
-};
 
 // 別形態
 const setVariation = (variation: {
