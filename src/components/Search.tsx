@@ -1,4 +1,4 @@
-import React, { useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { useEffect, useImperativeHandle, useRef } from 'react';
 
 // 呼び出し関数・型
 import { type LsPokemon, type MainModalHandle, type PokedexData } from '../utilities/types/typesUtility';
@@ -12,6 +12,7 @@ import { IoMdMale, IoMdFemale } from 'react-icons/io';
 import '../scss/SearchModal.scss';
 import { types } from '../utilities/dataInfo';
 import { formatUniqueVersionList } from '../utilities/function/utilityFunction';
+import SearchKeywordFilter from './searchModalContents/SearchKeywordFilter';
 
 interface SearchProps {
   ref: React.Ref<MainModalHandle>;
@@ -75,25 +76,6 @@ const Search = ({ ref, allData, pokedexData, onClose }: SearchProps) => {
       searchModalClose();
     }
   };
-
-  //
-  // キーワード検索の状態管理
-  const defaultPlaceholder = 'ピカチュウ(名前) または 25(図鑑番号)';
-  const [keywordPlaceholder, setKeywordPlaceholder] =
-    useState<string>(defaultPlaceholder);
-
-  /**
-   * キーワード検索のモード変更
-   * ・
-   */
-  const changeKeywordMode = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.id === 'searchNameOrDexNo') {
-      setKeywordPlaceholder('ピカチュウ(名前) または 25(図鑑番号)');
-    } else if (event.target.id === 'searchFormName') {
-      setKeywordPlaceholder('アローラ キョダイマックス メガ');
-    }
-  };
-
 
   /*  検索項目生成 */
 
@@ -272,38 +254,10 @@ const Search = ({ ref, allData, pokedexData, onClose }: SearchProps) => {
           {/* 押下でヘルプモーダル出す */}
         </header>
         <section className='searchContents'>
-          <dl className='keywordSearch areaAppBase'>
-            <dt className='searchTarget areaAppTitle'>名前／図鑑番号</dt>
-            <div className='searchOptions areaAppContents'>
-              <dd>
-                <label className='method'>
-                  <input
-                    type='radio'
-                    name='keywordSearchMode'
-                    id='searchNameOrDexNo'
-                    onChange={changeKeywordMode}
-                    defaultChecked
-                  />
-                  名前・図鑑番号
-                </label>
-                <label className='method'>
-                  <input
-                    type='radio'
-                    name='keywordSearchMode'
-                    id='searchFormName'
-                    onChange={changeKeywordMode}
-                  />
-                  フォルム名
-                </label>
-              </dd>
-              <input
-                type='text'
-                id='searchKeyword'
-                placeholder={`例：${keywordPlaceholder}`}
-              />
-            </div>
-          </dl>
           <dl className='areaAppBase'>
+          {/* 検索モーダルコンポーネント化したキーワード検索部分をここに */}
+          <SearchKeywordFilter />
+
             <dt className='areaAppTitle'>
               <IoMdMale />
               <IoMdFemale />
