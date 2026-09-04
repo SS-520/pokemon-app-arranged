@@ -8,6 +8,7 @@ import {} from '../scss/CompareImagesAll.scss';
 import { BsStars } from 'react-icons/bs';
 import { IoMdMale, IoMdFemale } from 'react-icons/io';
 import { RxCircleBackslash } from 'react-icons/rx';
+import ToggleSwitch from './common/ToggleSwitch';
 
 // propsの型設定
 interface CompareImagesAllProps {
@@ -53,30 +54,13 @@ function CompareImagesAll({ images, name }: CompareImagesAllProps) {
           alt={`${isGender ? 'メス' : 'オス'}の${name}の画像`}
           className='compareImg'
         />
-        <div className='switchArea'>
-          <span className='iconWrap before'>
-            <IoMdMale />
-          </span>
-          <button
-            className={`switchBox toggle ${isGender ? 'checked' : ''}`}
-            onClick={() => handleToggle('gender')}
-            type='button'
-            aria-label='性別切り替えトグル'
-          >
-            <input
-              className='switch'
-              type='checkbox'
-              name='check'
-              checked={isGender}
-              onChange={() => {}} // onClickで制御するため、警告回避の空関数
-              tabIndex={-1}
-              aria-hidden='true'
-            />
-          </button>
-          <span className='iconWrap after'>
-            <IoMdFemale />
-          </span>
-        </div>
+        <ToggleSwitch
+          isChecked={isGender}
+          onToggle={() => handleToggle('gender')}
+          ariaLabel='性別切り替えトグル'
+          beforeIcon={<IoMdMale />}
+          afterIcon={<IoMdFemale />}
+        />  
       </React.Fragment>
     );
   };
@@ -90,30 +74,13 @@ function CompareImagesAll({ images, name }: CompareImagesAllProps) {
           alt={`${isShiny ? '色違い' : '通常'}の${name}の画像`}
           className='compareImg'
         />
-        <div className='switchArea'>
-          <span className='iconWrap before'>
-            <RxCircleBackslash />
-          </span>
-          <button
-            className={`switchBox toggle ${isShiny ? 'checked' : ''}`}
-            onClick={() => handleToggle('shiny')}
-            type='button'
-            aria-label='色違い切り替えトグル'
-          >
-            <input
-              className='switch'
-              type='checkbox'
-              name='check'
-              checked={isShiny}
-              onChange={() => {}} // onClickで制御するため、警告回避の空関数
-              tabIndex={-1}
-              aria-hidden='true'
-            />
-          </button>
-          <span className='iconWrap after'>
-            <BsStars />
-          </span>
-        </div>
+        <ToggleSwitch
+          isChecked={isShiny}
+          onToggle={() => handleToggle('shiny')}
+          ariaLabel='色違い切り替えトグル'
+          beforeIcon={<RxCircleBackslash />}
+          afterIcon={<BsStars />}
+        />
       </React.Fragment>
     );
   };

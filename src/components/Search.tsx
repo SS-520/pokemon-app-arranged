@@ -1,4 +1,4 @@
-import React, { useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { useEffect, useImperativeHandle, useRef } from 'react';
 
 // 呼び出し関数・型
 import { type LsPokemon, type MainModalHandle, type PokedexData } from '../utilities/types/typesUtility';
@@ -6,12 +6,17 @@ import { type LsPokemon, type MainModalHandle, type PokedexData } from '../utili
 // アイコン
 import { IoIosCloseCircleOutline } from 'react-icons/io';
 import { IoMdHelpCircleOutline } from 'react-icons/io';
-import { IoMdMale, IoMdFemale } from 'react-icons/io';
 
 // CSS呼び出し
 import '../scss/SearchModal.scss';
-import { types } from '../utilities/dataInfo';
-import { getVersions } from '../utilities/function/utilityFunction';
+import { formatUniqueVersionList } from '../utilities/function/utilityFunction';
+import SearchKeywordFilter from './searchModalContents/SearchKeywordFilter';
+import SearchGenderFilter from './searchModalContents/SearchGenderFilter';
+import SearchTypeFilter from './searchModalContents/SearchTypeFilter';
+import SearchRegionFilter from './searchModalContents/SearchRegionFilter';
+import SearchVersionFilter from './searchModalContents/SearchVersionFilter';
+import SearchGenerationFilter from './searchModalContents/SearchGenerationFilter';
+import SearchButton from './searchModalContents/SearchButton';
 
 interface SearchProps {
   ref: React.Ref<MainModalHandle>;
@@ -76,70 +81,7 @@ const Search = ({ ref, allData, pokedexData, onClose }: SearchProps) => {
     }
   };
 
-  //
-  // キーワード検索の状態管理
-  const defaultPlaceholder = 'ピカチュウ(名前) または 25(図鑑番号)';
-  const [keywordPlaceholder, setKeywordPlaceholder] =
-    useState<string>(defaultPlaceholder);
-
-  /**
-   * キーワード検索のモード変更
-   * ・
-   */
-  const changeKeywordMode = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.id === 'searchNameOrDexNo') {
-      setKeywordPlaceholder('ピカチュウ(名前) または 25(図鑑番号)');
-    } else if (event.target.id === 'searchFormName') {
-      setKeywordPlaceholder('アローラ キョダイマックス メガ');
-    }
-  };
-
-
   /*  検索項目生成 */
-
-  // タイプ  
-  const selectTypes = ():React.ReactNode => {
-    return types.map((type) => {
-      return (
-        <label className='type method' key={type.number}>
-          <input type='checkbox' name='typeSearchMode' data-number={type.number}/>
-          <img src={type.imgURL} alt={type.name} />
-        </label>
-      );
-    });
-  }
-
-  // 地方
-  const selectRegions = (): React.ReactNode => {
-    // 流用元： renderMainModal.tsx > getAppRegion
-
-
-    // 地方名一覧を取得
-    const regions: PokedexData['region'][] = [...pokedexData].map((data) => {
-      return data.region;
-    });
-
-    // 重複削除
-    const uniqueRegionMap = new Map<number, PokedexData['region']>();
-    [...regions].forEach((region) => {
-      uniqueRegionMap.set(region.id, region);
-    });
-    
-    // 重複を除いた地方一覧をMapから配列に戻す
-    const uniqueRegions: PokedexData['region'][] = Array.from(
-      uniqueRegionMap.values(),
-    );
-
-    // 描画内容
-    return uniqueRegions.map((region) => {
-      return (
-        <label className='region method' key={region.id}>
-          <input type='checkbox' name='regionSearchMode' data-number={region.id}/>
-          {region.name}
-        </label>
-      );
-    });
-  }
 
   // バージョン・世代関連
   // 流用元： renderMainModal.tsx > encountVersionList
@@ -149,9 +91,8 @@ const Search = ({ ref, allData, pokedexData, onClose }: SearchProps) => {
     generation: number;
 }[]> => {
     // 1. バージョン一覧を取得
-    //    全件検索なので第二引数は指定なし
     const versions: PokedexData['vGroup'][number]['version'] =
-      getVersions(pokedexData);
+      formatUniqueVersionList(pokedexData);
 
     // 2. データを世代ごとにversionsをグループ化する
     const groupedVersions: Record<
@@ -177,74 +118,6 @@ const Search = ({ ref, allData, pokedexData, onClose }: SearchProps) => {
     
     return groupedVersions;
   }
-
-  // 野生登場バージョン
-  const selectVersions = (): React.ReactNode => {
-    // versionsDataの結果を取得
-    const groupedVersions = versionsData();
-
-    // グループ化されたデータを元にレンダリング
-    return (
-      <React.Fragment>
-        {/* 世代別にループ */}
-        {Object.entries(groupedVersions).map(
-          ([generation, generationVersions]) => (
-            <dd
-              data-generation={generation}
-              className={`generations gene${generation}`}
-              key={Number(generation)}
-            >
-              <span className='generationNumber'>第{generation}世代</span>
-              <span className='generationGroup'>
-                {/* 世代内のオブジェクトでループ */}
-                {generationVersions.map((version) => {
-                  return (
-                    <span className='version'>
-                    <label
-                      key={version.id}
-                      data-version={version.id}
-                      className={`versionName method `}
-                    >
-                      {version.name}
-                      <input type='checkbox' name='versionSearchMode' data-number={version.id}/>
-                      </label>
-                      </span>
-                  );
-                })}
-              </span>
-            </dd>
-          ),
-        )}
-      </React.Fragment>
-    );
-  }
-
-  // 初出世代
-  const selectFirstGenerations = (): React.ReactNode => {
-    // versionsDataの結果を取得
-    const groupedVersions = versionsData();
-
-    // 描画内容
-    return (
-      <React.Fragment>
-        {/* 世代別にループ */}
-        {Object.entries(groupedVersions).map(
-          ([generation]) => (
-            <label
-              data-generation={generation}
-              className={`generations gene${generation} method`}
-              key={Number(generation)}
-            >
-              <span className='generationNumber'>第{generation}世代</span>
-              <input type='checkbox' name='firstGenerationSearchMode' data-number={generation}/>
-            </label>
-          ),
-        )}
-      </React.Fragment>
-    );
-
-  }
-
 
   // 描画内容
   return (
@@ -273,91 +146,27 @@ const Search = ({ ref, allData, pokedexData, onClose }: SearchProps) => {
           {/* 押下でヘルプモーダル出す */}
         </header>
         <section className='searchContents'>
-          <dl className='keywordSearch areaAppBase'>
-            <dt className='searchTarget areaAppTitle'>名前／図鑑番号</dt>
-            <div className='searchOptions areaAppContents'>
-              <dd>
-                <label className='method'>
-                  <input
-                    type='radio'
-                    name='keywordSearchMode'
-                    id='searchNameOrDexNo'
-                    onChange={changeKeywordMode}
-                    defaultChecked
-                  />
-                  名前・図鑑番号
-                </label>
-                <label className='method'>
-                  <input
-                    type='radio'
-                    name='keywordSearchMode'
-                    id='searchFormName'
-                    onChange={changeKeywordMode}
-                  />
-                  フォルム名
-                </label>
-              </dd>
-              <input
-                type='text'
-                id='searchKeyword'
-                placeholder={`例：${keywordPlaceholder}`}
-              />
-            </div>
-          </dl>
-          <dl className='areaAppBase'>
-            <dt className='areaAppTitle'>
-              <IoMdMale />
-              <IoMdFemale />
-              差分
-            </dt>
-            <dd className='areaAppContents'>
-              <label className='method'>
-                <input type='radio' name='gender' defaultChecked />
-                全て
-              </label>
-              <label className='method'>
-                <input type='radio' name='gender' /> 差分有
-              </label>
-              <label className='method'>
-                <input type='radio' name='gender' /> 差分無
-              </label>
-            </dd>
-          </dl>
-          <dl className='areaAppBase'>
-            <dt className='areaAppTitle'>タイプ</dt>
-            <div className='areaAppContents'>
-              <dd>
-                <label className='method'>
-                  <input type='radio' name='typeSearchMode' defaultChecked />
-                  OR検索
-                </label>
-                <label className='method'>
-                  <input type='radio' name='typeSearchMode' />
-                  AND検索（複合タイプ）
-                </label>
-              </dd>
-              <dd className='selectTypeArea'>
-                {selectTypes()}
-              </dd>
-            </div>
-          </dl>
-          <dl className='areaAppBase'>
-            <dt className='areaAppTitle'>地方</dt>
-            <dd className='areaAppContents'>{ selectRegions()}</dd>
-          </dl>
-          <dl className='areaAppBase'>
-            <dt className='areaAppTitle'>野生出現バージョン</dt>
-            <dd className='areaAppContents'>{ selectVersions()}</dd>
-          </dl>
-          <dl className='areaAppBase'>
-            <dt className='areaAppTitle'>初出世代</dt>
-            <dd className='areaAppContents'>{ selectFirstGenerations()}</dd>
-          </dl>
+          {/* 検索モーダルコンポーネント化したキーワード検索部分をここに */}
+          <SearchKeywordFilter />
+
+          {/* 性別差分選択 */}
+          <SearchGenderFilter />
+
+          {/* タイプ選択 */}
+          <SearchTypeFilter />
+
+          {/* 地方検索 */}
+          <SearchRegionFilter pokedexData={pokedexData} />
+          
+          {/* 野生登場バージョン */}
+          <SearchVersionFilter versionsData={versionsData()} />
+
+          {/* 初出世代 */}
+          <SearchGenerationFilter firstGenerationversionsData={versionsData()} />
+
         </section>
-        <div className='buttonArea'>
-          <button className='resetButton'>全リセット</button>
-          <button className='searchButton'>検索</button>
-        </div>
+        {/* 検索ボタン */}
+        <SearchButton />
       </section>
     </dialog>
   );
