@@ -9,7 +9,6 @@ import { IoMdHelpCircleOutline } from 'react-icons/io';
 
 // CSS呼び出し
 import '../scss/SearchModal.scss';
-import { types } from '../utilities/dataInfo';
 import { formatUniqueVersionList } from '../utilities/function/utilityFunction';
 import SearchKeywordFilter from './searchModalContents/SearchKeywordFilter';
 import SearchGenderFilter from './searchModalContents/SearchGenderFilter';
@@ -17,6 +16,7 @@ import SearchTypeFilter from './searchModalContents/SearchTypeFilter';
 import SearchRegionFilter from './searchModalContents/SearchRegionFilter';
 import SearchVersionFilter from './searchModalContents/SearchVersionFilter';
 import SearchGenerationFilter from './searchModalContents/SearchGenerationFilter';
+import SearchButton from './searchModalContents/SearchButton';
 
 interface SearchProps {
   ref: React.Ref<MainModalHandle>;
@@ -119,32 +119,6 @@ const Search = ({ ref, allData, pokedexData, onClose }: SearchProps) => {
     return groupedVersions;
   }
 
-  const selectFirstGenerations = (): React.ReactNode => {
-    // versionsDataの結果を取得
-    const groupedVersions = versionsData();
-
-    // 描画内容
-    return (
-      <React.Fragment>
-        {/* 世代別にループ */}
-        {Object.entries(groupedVersions).map(
-          ([generation]) => (
-            <label
-              data-generation={generation}
-              className={`generations gene${generation} method`}
-              key={Number(generation)}
-            >
-              <span className='generationNumber'>第{generation}世代</span>
-              <input type='checkbox' name='firstGenerationSearchMode' data-number={generation}/>
-            </label>
-          ),
-        )}
-      </React.Fragment>
-    );
-
-  }
-
-
   // 描画内容
   return (
     <dialog
@@ -177,7 +151,8 @@ const Search = ({ ref, allData, pokedexData, onClose }: SearchProps) => {
 
           {/* 性別差分選択 */}
           <SearchGenderFilter />
-          {/* タイプ洗濯 */}
+
+          {/* タイプ選択 */}
           <SearchTypeFilter />
 
           {/* 地方検索 */}
@@ -188,11 +163,10 @@ const Search = ({ ref, allData, pokedexData, onClose }: SearchProps) => {
 
           {/* 初出世代 */}
           <SearchGenerationFilter firstGenerationversionsData={versionsData()} />
+
         </section>
-        <div className='buttonArea'>
-          <button className='resetButton'>全リセット</button>
-          <button className='searchButton'>検索</button>
-        </div>
+        {/* 検索ボタン */}
+        <SearchButton />
       </section>
     </dialog>
   );
