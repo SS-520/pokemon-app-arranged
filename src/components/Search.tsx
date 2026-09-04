@@ -16,6 +16,7 @@ import SearchGenderFilter from './searchModalContents/SearchGenderFilter';
 import SearchTypeFilter from './searchModalContents/SearchTypeFilter';
 import SearchRegionFilter from './searchModalContents/SearchRegionFilter';
 import SearchVersionFilter from './searchModalContents/SearchVersionFilter';
+import SearchGenerationFilter from './searchModalContents/SearchGenerationFilter';
 
 interface SearchProps {
   ref: React.Ref<MainModalHandle>;
@@ -118,7 +119,6 @@ const Search = ({ ref, allData, pokedexData, onClose }: SearchProps) => {
     return groupedVersions;
   }
 
-  // 初出世代
   const selectFirstGenerations = (): React.ReactNode => {
     // versionsDataの結果を取得
     const groupedVersions = versionsData();
@@ -182,13 +182,12 @@ const Search = ({ ref, allData, pokedexData, onClose }: SearchProps) => {
 
           {/* 地方検索 */}
           <SearchRegionFilter pokedexData={pokedexData} />
-          <dl className='areaAppBase'>
           
           {/* 野生登場バージョン */}
           <SearchVersionFilter versionsData={versionsData()} />
-            <dt className='areaAppTitle'>初出世代</dt>
-            <dd className='areaAppContents'>{ selectFirstGenerations()}</dd>
-          </dl>
+
+          {/* 初出世代 */}
+          <SearchGenerationFilter firstGenerationversionsData={versionsData()} />
         </section>
         <div className='buttonArea'>
           <button className='resetButton'>全リセット</button>
