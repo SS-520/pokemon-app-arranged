@@ -1,7 +1,7 @@
 /* メインモーダルの表示内容制御するファイル */
 
 import React from 'react';
-import { commonImgURL, types } from '../dataInfo';
+import { commonImgURL } from '../dataInfo';
 import type {
   AbilityObj,
   DiffFormsObj,
@@ -12,7 +12,6 @@ import type {
   PokedexData,
   PokedexObj,
   RenderObj,
-  TypeDetails,
 } from '../types/typesUtility';
 import { getJaData } from './utilityFunction';
 import type { PokemonDetail, PokemonSpeciesDetail } from '../types/typesFetch';
@@ -31,6 +30,7 @@ import ModalGenderShinyShow from '../../components/mainModalContents/ModalGender
 import ModalGenderShinyCompare from '../../components/mainModalContents/ModalGenderShinyCompare';
 import ModalRegions from '../../components/mainModalContents/ModalRegions';
 import ModalEggGroups from '../../components/mainModalContents/ModalEggGroups';
+import TypeBadges from '../../components/common/TypeBadges';
 
 /**
 // API取得の情報と各種情報を加工・突合する
@@ -69,20 +69,9 @@ export const renderMainModal = (
   const mainImageAltComment: string = pokemon.name ? pokemon.name : 'No Image';
 
   // タイプ
-  const allTypes: TypeDetails[] = types;
   const typeImage = (): React.ReactNode => {
-    return pokemon.type.map((type: number) => {
-      const pokemonType = allTypes.find((dataType) => dataType.number === type);
-      // タイプオブジェクトを組み込んでJSXを作成
-      return (
-        <img
-          className='type'
-          src={pokemonType?.imgURL}
-          alt={pokemonType?.name}
-          key={pokemonType?.number}
-        />
-      );
-    });
+    if(!pokemon.type) return null;
+    return <TypeBadges typeNumbers={pokemon.type}/>
   };
 
   // べビ・幻・伝説判定

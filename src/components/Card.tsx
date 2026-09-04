@@ -2,9 +2,10 @@
 
 import React from 'react';
 import type { LsPokemon } from '../utilities/types/typesUtility';
-import { commonImgURL, types } from '../utilities/dataInfo';
+import { commonImgURL } from '../utilities/dataInfo';
 import '../scss/Card.scss';
 import noImage from '../img/noImage.png';
+import TypeBadges from './common/TypeBadges';
 
 // propsの定義
 interface CardProps {
@@ -74,18 +75,9 @@ const RenderTypes = ({ pokemon }: CardProps): React.ReactNode => {
   if (pokemon.type) {
     // タイプ別に画像表示
     //  タイプの数に分mapでループ処理して返す（複合タイプ）
-    return pokemon.type.map((type: number) => {
-      // ポケモンのタイプ番号と一致するdataInfo.tsxのタイプオブジェクトを取得
-      const pokemonType = types.find((dataType) => dataType.number === type);
-      // タイプオブジェクトを組み込んでJSXを作成
-      return (
-        <img
-          className='type'
-          src={pokemonType?.imgURL}
-          alt={pokemonType?.name}
-          key={pokemonType?.number}
-        />
-      );
-    });
+    return <TypeBadges typeNumbers={pokemon.type} /> 
   }
+  
+  // タイプがない場合
+  return null;
 };
