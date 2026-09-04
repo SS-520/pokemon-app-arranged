@@ -7,6 +7,7 @@ import {} from '../scss/CompareImagesShiny.scss';
 // アイコン
 import { RxCircleBackslash } from 'react-icons/rx';
 import { BsStars } from 'react-icons/bs';
+import ToggleSwitch from './common/ToggleSwitch';
 
 // propsの型設定
 interface CompareImagesShinyProps {
@@ -32,30 +33,13 @@ function CompareImagesShiny({ images, name }: CompareImagesShinyProps) {
         alt={`${isShiny ? '色違い' : '通常'}の${name}の画像`}
         className='compareImg'
       />
-      <div className='switchArea'>
-        <span className='iconWrap before'>
-          <RxCircleBackslash />
-        </span>
-        <button
-          className={`switchBox toggle ${isShiny ? 'checked' : ''}`}
-          onClick={handleToggle}
-          type='button'
-          aria-label='色違い切り替えトグル'
-        >
-          <input
-            className='switch'
-            type='checkbox'
-            name='check'
-            checked={isShiny}
-            onChange={() => {}} // onClickで制御するため、警告回避の空関数
-            tabIndex={-1}
-            aria-hidden='true'
-          />
-        </button>
-        <span className='iconWrap after'>
-          <BsStars />
-        </span>
-      </div>
+      <ToggleSwitch
+        isChecked={isShiny}
+        onToggle={handleToggle}
+        ariaLabel='色違い切り替えトグル'
+        beforeIcon={<RxCircleBackslash />}
+        afterIcon={<BsStars />}
+      />
     </div>
   );
 }
