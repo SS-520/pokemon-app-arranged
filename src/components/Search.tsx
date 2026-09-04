@@ -6,13 +6,13 @@ import { type LsPokemon, type MainModalHandle, type PokedexData } from '../utili
 // アイコン
 import { IoIosCloseCircleOutline } from 'react-icons/io';
 import { IoMdHelpCircleOutline } from 'react-icons/io';
-import { IoMdMale, IoMdFemale } from 'react-icons/io';
 
 // CSS呼び出し
 import '../scss/SearchModal.scss';
 import { types } from '../utilities/dataInfo';
 import { formatUniqueVersionList } from '../utilities/function/utilityFunction';
 import SearchKeywordFilter from './searchModalContents/SearchKeywordFilter';
+import SearchGenderFilter from './searchModalContents/SearchGenderFilter';
 
 interface SearchProps {
   ref: React.Ref<MainModalHandle>;
@@ -78,18 +78,6 @@ const Search = ({ ref, allData, pokedexData, onClose }: SearchProps) => {
   };
 
   /*  検索項目生成 */
-
-  // タイプ  
-  const selectTypes = ():React.ReactNode => {
-    return types.map((type) => {
-      return (
-        <label className='type method' key={type.number}>
-          <input type='checkbox' name='typeSearchMode' data-number={type.number}/>
-          <img src={type.imgURL} alt={type.name} />
-        </label>
-      );
-    });
-  }
 
   // 地方
   const selectRegions = (): React.ReactNode => {
@@ -254,29 +242,12 @@ const Search = ({ ref, allData, pokedexData, onClose }: SearchProps) => {
           {/* 押下でヘルプモーダル出す */}
         </header>
         <section className='searchContents'>
-          <dl className='areaAppBase'>
           {/* 検索モーダルコンポーネント化したキーワード検索部分をここに */}
           <SearchKeywordFilter />
 
-            <dt className='areaAppTitle'>
-              <IoMdMale />
-              <IoMdFemale />
-              差分
-            </dt>
-            <dd className='areaAppContents'>
-              <label className='method'>
-                <input type='radio' name='gender' defaultChecked />
-                全て
-              </label>
-              <label className='method'>
-                <input type='radio' name='gender' /> 差分有
-              </label>
-              <label className='method'>
-                <input type='radio' name='gender' /> 差分無
-              </label>
-            </dd>
-          </dl>
           <dl className='areaAppBase'>
+          {/* 性別差分選択 */}
+          <SearchGenderFilter />
             <dt className='areaAppTitle'>タイプ</dt>
             <div className='areaAppContents'>
               <dd>
