@@ -13,6 +13,7 @@ import { types } from '../utilities/dataInfo';
 import { formatUniqueVersionList } from '../utilities/function/utilityFunction';
 import SearchKeywordFilter from './searchModalContents/SearchKeywordFilter';
 import SearchGenderFilter from './searchModalContents/SearchGenderFilter';
+import SearchTypeFilter from './searchModalContents/SearchTypeFilter';
 
 interface SearchProps {
   ref: React.Ref<MainModalHandle>;
@@ -245,27 +246,11 @@ const Search = ({ ref, allData, pokedexData, onClose }: SearchProps) => {
           {/* 検索モーダルコンポーネント化したキーワード検索部分をここに */}
           <SearchKeywordFilter />
 
-          <dl className='areaAppBase'>
           {/* 性別差分選択 */}
           <SearchGenderFilter />
-            <dt className='areaAppTitle'>タイプ</dt>
-            <div className='areaAppContents'>
-              <dd>
-                <label className='method'>
-                  <input type='radio' name='typeSearchMode' defaultChecked />
-                  OR検索
-                </label>
-                <label className='method'>
-                  <input type='radio' name='typeSearchMode' />
-                  AND検索（複合タイプ）
-                </label>
-              </dd>
-              <dd className='selectTypeArea'>
-                {selectTypes()}
-              </dd>
-            </div>
-          </dl>
           <dl className='areaAppBase'>
+          {/* タイプ洗濯 */}
+          <SearchTypeFilter />
             <dt className='areaAppTitle'>地方</dt>
             <dd className='areaAppContents'>{ selectRegions()}</dd>
           </dl>
