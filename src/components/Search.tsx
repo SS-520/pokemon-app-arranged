@@ -14,6 +14,7 @@ import { formatUniqueVersionList } from '../utilities/function/utilityFunction';
 import SearchKeywordFilter from './searchModalContents/SearchKeywordFilter';
 import SearchGenderFilter from './searchModalContents/SearchGenderFilter';
 import SearchTypeFilter from './searchModalContents/SearchTypeFilter';
+import SearchRegionFilter from './searchModalContents/SearchRegionFilter';
 
 interface SearchProps {
   ref: React.Ref<MainModalHandle>;
@@ -79,38 +80,6 @@ const Search = ({ ref, allData, pokedexData, onClose }: SearchProps) => {
   };
 
   /*  検索項目生成 */
-
-  // 地方
-  const selectRegions = (): React.ReactNode => {
-    // 流用元： renderMainModal.tsx > getAppRegion
-
-
-    // 地方名一覧を取得
-    const regions: PokedexData['region'][] = [...pokedexData].map((data) => {
-      return data.region;
-    });
-
-    // 重複削除
-    const uniqueRegionMap = new Map<number, PokedexData['region']>();
-    [...regions].forEach((region) => {
-      uniqueRegionMap.set(region.id, region);
-    });
-    
-    // 重複を除いた地方一覧をMapから配列に戻す
-    const uniqueRegions: PokedexData['region'][] = Array.from(
-      uniqueRegionMap.values(),
-    );
-
-    // 描画内容
-    return uniqueRegions.map((region) => {
-      return (
-        <label className='region method' key={region.id}>
-          <input type='checkbox' name='regionSearchMode' data-number={region.id}/>
-          {region.name}
-        </label>
-      );
-    });
-  }
 
   // バージョン・世代関連
   // 流用元： renderMainModal.tsx > encountVersionList
@@ -248,13 +217,12 @@ const Search = ({ ref, allData, pokedexData, onClose }: SearchProps) => {
 
           {/* 性別差分選択 */}
           <SearchGenderFilter />
-          <dl className='areaAppBase'>
           {/* タイプ洗濯 */}
           <SearchTypeFilter />
-            <dt className='areaAppTitle'>地方</dt>
-            <dd className='areaAppContents'>{ selectRegions()}</dd>
-          </dl>
           <dl className='areaAppBase'>
+
+          {/* 地方検索 */}
+          <SearchRegionFilter pokedexData={pokedexData} />
             <dt className='areaAppTitle'>野生出現バージョン</dt>
             <dd className='areaAppContents'>{ selectVersions()}</dd>
           </dl>
