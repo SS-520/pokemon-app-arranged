@@ -15,6 +15,7 @@ import SearchKeywordFilter from './searchModalContents/SearchKeywordFilter';
 import SearchGenderFilter from './searchModalContents/SearchGenderFilter';
 import SearchTypeFilter from './searchModalContents/SearchTypeFilter';
 import SearchRegionFilter from './searchModalContents/SearchRegionFilter';
+import SearchVersionFilter from './searchModalContents/SearchVersionFilter';
 
 interface SearchProps {
   ref: React.Ref<MainModalHandle>;
@@ -117,47 +118,6 @@ const Search = ({ ref, allData, pokedexData, onClose }: SearchProps) => {
     return groupedVersions;
   }
 
-  // 野生登場バージョン
-  const selectVersions = (): React.ReactNode => {
-    // versionsDataの結果を取得
-    const groupedVersions = versionsData();
-
-    // グループ化されたデータを元にレンダリング
-    return (
-      <React.Fragment>
-        {/* 世代別にループ */}
-        {Object.entries(groupedVersions).map(
-          ([generation, generationVersions]) => (
-            <dd
-              data-generation={generation}
-              className={`generations gene${generation}`}
-              key={Number(generation)}
-            >
-              <span className='generationNumber'>第{generation}世代</span>
-              <span className='generationGroup'>
-                {/* 世代内のオブジェクトでループ */}
-                {generationVersions.map((version) => {
-                  return (
-                    <span className='version'>
-                    <label
-                      key={version.id}
-                      data-version={version.id}
-                      className={`versionName method `}
-                    >
-                      {version.name}
-                      <input type='checkbox' name='versionSearchMode' data-number={version.id}/>
-                      </label>
-                      </span>
-                  );
-                })}
-              </span>
-            </dd>
-          ),
-        )}
-      </React.Fragment>
-    );
-  }
-
   // 初出世代
   const selectFirstGenerations = (): React.ReactNode => {
     // versionsDataの結果を取得
@@ -219,14 +179,13 @@ const Search = ({ ref, allData, pokedexData, onClose }: SearchProps) => {
           <SearchGenderFilter />
           {/* タイプ洗濯 */}
           <SearchTypeFilter />
-          <dl className='areaAppBase'>
 
           {/* 地方検索 */}
           <SearchRegionFilter pokedexData={pokedexData} />
-            <dt className='areaAppTitle'>野生出現バージョン</dt>
-            <dd className='areaAppContents'>{ selectVersions()}</dd>
-          </dl>
           <dl className='areaAppBase'>
+          
+          {/* 野生登場バージョン */}
+          <SearchVersionFilter versionsData={versionsData()} />
             <dt className='areaAppTitle'>初出世代</dt>
             <dd className='areaAppContents'>{ selectFirstGenerations()}</dd>
           </dl>
