@@ -9,7 +9,7 @@ import { IoMdHelpCircleOutline } from 'react-icons/io';
 
 // CSS呼び出し
 import '../scss/SearchModal.scss';
-import { formatUniqueVersionList } from '../utilities/function/utilityFunction';
+import { formatUniqueVersionList, groupVersionsByGeneration } from '../utilities/function/utilityFunction';
 import SearchKeywordFilter from './searchModalContents/SearchKeywordFilter';
 import SearchGenderFilter from './searchModalContents/SearchGenderFilter';
 import SearchTypeFilter from './searchModalContents/SearchTypeFilter';
@@ -89,34 +89,13 @@ const Search = ({ ref, allData, pokedexData, onClose }: SearchProps) => {
     id: number;
     name: string;
     generation: number;
-}[]> => {
+  }[]> => {
     // 1. バージョン一覧を取得
     const versions: PokedexData['vGroup'][number]['version'] =
       formatUniqueVersionList(pokedexData);
 
-    // 2. データを世代ごとにversionsをグループ化する
-    const groupedVersions: Record<
-      number,
-      {
-        id: number;
-        name: string;
-        generation: number;
-      }[]
-    > = versions.reduce(
-      (accumulator, version) => {
-        if (!accumulator[version.generation]) {
-          // 蓄積データに[gen]の箱がない
-          // ⇒新規の空配列作成
-          accumulator[version.generation] = [];
-        }
-        // 蓄積配列にversionオブジェクトを突っ込んで返す
-        accumulator[version.generation].push(version);
-        return accumulator;
-      },
-      {} as Record<number, PokedexData['vGroup'][number]['version']>, // 初期値の型を明示,
-      );
-    
-    return groupedVersions;
+    // 2. データを世代ごとにversionsをグループ化⇒返す
+    return groupVersionsByGeneration(versions)
   }
 
   // 描画内容

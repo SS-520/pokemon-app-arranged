@@ -632,6 +632,9 @@ export function convertVersionIdToJapan(versionId: number ): number[]{
  * 地方一覧を取得し、重複を削除して返す純粋関数
  * @param pokedexData: PokedexData[] 図鑑データ
  * @returns PokedexData['region'][] 重複のない地方オブジェクトの配列
+ * バージョン一覧を世代（generation）ごとにグループ化して返す純粋関数
+ * @param versions: PokedexData['vGroup'][number]['version'] バージョン配列
+ * @returns Record<number, PokedexData['vGroup'][number]['version']> 世代ごとのオブジェクト
  */
 export const formatUniqueRegionList = (
   pokedexData: PokedexData[],
@@ -644,6 +647,19 @@ export const formatUniqueRegionList = (
     uniqueRegionMap.set(region.id, region);
   });
   return Array.from(uniqueRegionMap.values());
+export const groupVersionsByGeneration = (
+  versions: PokedexData['vGroup'][number]['version'],
+): Record<number, PokedexData['vGroup'][number]['version']> => {
+  return versions.reduce(
+    (accumulator, version) => {
+      if (!accumulator[version.generation]) {
+        accumulator[version.generation] = [];
+      }
+      accumulator[version.generation].push(version);
+      return accumulator;
+    },
+    {} as Record<number, PokedexData['vGroup'][number]['version']>,
+  );
 };
 
 //
