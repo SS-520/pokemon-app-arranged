@@ -12,6 +12,7 @@ import type {
 
 import { fetchInitialData } from './fetchPokemon';
 import {
+  convertVersionIdToJapan,
   getEndID,
   getJaData,
   getLsData,
@@ -422,12 +423,17 @@ const normalizeVersionAndVgroup = (
         // ⇒verNumとidが一致するバージョン情報を探す
         const matchVersion = tVersion.find((vObj) => vObj.id === verNum);
 
+        // バージョンを日本版に対応させる
+        // matchVersionがundefinedの可能性があるので、その場合はundefinedを返す
+        const matchVersionToJapanese: number | undefined = matchVersion?.id ? convertVersionIdToJapan(matchVersion.id)[0] : undefined;
+
         // 後続処理のために存在を確定させる
         if (!matchVersion) return null;
+        if (!matchVersionToJapanese) return null;
 
         // 情報を詰めて返す
         return {
-          id: matchVersion.id, // 末尾に!で存在断言
+          id: matchVersionToJapanese,
           name: matchVersion.name,
           generation: vgObj.generation,
         };
