@@ -3,7 +3,7 @@
 
 import React from 'react'
 import type { LsPokemon, PokedexData, PokedexObj } from '../../utilities/types/typesUtility'
-import { formatUniqueVersionList } from '../../utilities/function/utilityFunction';
+import { formatUniqueVersionList, groupVersionsByGeneration } from '../../utilities/function/utilityFunction';
 
 // プロップスの型定義
 interface ModalEncountVersionsProps {
@@ -42,19 +42,7 @@ const ModalEncountVersions = ({ pokedexData, pokedex ,pokemon,isDefault}: ModalE
         name: string;
         generation: number;
       }[]
-    > = versions.reduce(
-      (accumulator, version) => {
-        if (!accumulator[version.generation]) {
-          // 蓄積データに[gen]の箱がない
-          // ⇒新規の空配列作成
-          accumulator[version.generation] = [];
-        }
-        // 蓄積配列にversionオブジェクトを突っ込んで返す
-        accumulator[version.generation].push(version);
-        return accumulator;
-      },
-      {} as Record<number, PokedexData['vGroup'][number]['version']>, // 初期値の型を明示,
-    );
+    > = groupVersionsByGeneration(versions)
   
     // 2. グループ化されたデータを元にレンダリング
     return (
