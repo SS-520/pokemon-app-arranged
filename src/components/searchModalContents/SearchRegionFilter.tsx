@@ -1,6 +1,7 @@
 // 地方検索
 
 import React from 'react'
+import { formatUniqueRegionList } from '../../utilities/function/utilityFunction';
 import type { PokedexData } from '../../utilities/types/typesUtility';
 
 // props
@@ -16,20 +17,7 @@ const SearchRegionFilter = ({pokedexData}:SearchRegionFilterProps):React.ReactNo
 
 
     // 地方名一覧を取得
-    const regions: PokedexData['region'][] = [...pokedexData].map((data) => {
-      return data.region;
-    });
-
-    // 重複削除
-    const uniqueRegionMap = new Map<number, PokedexData['region']>();
-    [...regions].forEach((region) => {
-      uniqueRegionMap.set(region.id, region);
-    });
-    
-    // 重複を除いた地方一覧をMapから配列に戻す
-    const uniqueRegions: PokedexData['region'][] = Array.from(
-      uniqueRegionMap.values(),
-    );
+    const uniqueRegions: PokedexData['region'][] = formatUniqueRegionList(pokedexData)
 
     // 描画内容
     return uniqueRegions.map((region) => {

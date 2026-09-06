@@ -627,6 +627,46 @@ export function convertVersionIdToJapan(versionId: number ): number[]{
 
 
 //
+// 
+/**
+ * 地方一覧を取得し、重複を削除して返す純粋関数
+ * @param pokedexData: PokedexData[] 図鑑データ
+ * @returns PokedexData['region'][] 重複のない地方オブジェクトの配列
+ */
+export const formatUniqueRegionList = (
+  pokedexData: PokedexData[],
+): PokedexData['region'][] => {
+  // 地方オブジェクト一覧を取得
+  const regions: PokedexData['region'][] = pokedexData.map((data) => data.region);
+  // 重複削除（idをキーにする）
+  const uniqueRegionMap = new Map<number, PokedexData['region']>();
+  regions.forEach((region) => {
+    uniqueRegionMap.set(region.id, region);
+  });
+  return Array.from(uniqueRegionMap.values());
+};
+
+//
+// 
+/**
+ * 地方一覧を取得し、重複を削除して返す純粋関数
+ * @param pokedexData: PokedexData[] 図鑑データ
+ * @returns PokedexData['region'][] 重複のない地方オブジェクトの配列
+ */
+export const formatUniqueRegionList = (
+  pokedexData: PokedexData[],
+): PokedexData['region'][] => {
+  // 地方オブジェクト一覧を取得
+  const regions: PokedexData['region'][] = pokedexData.map((data) => data.region);
+  // 重複削除（idをキーにする）
+  const uniqueRegionMap = new Map<number, PokedexData['region']>();
+  regions.forEach((region) => {
+    uniqueRegionMap.set(region.id, region);
+  });
+  return Array.from(uniqueRegionMap.values());
+};
+
+//
 //
 // ひらがな⇒カタカナ変換
 export function hiraToKana(str: string): string {

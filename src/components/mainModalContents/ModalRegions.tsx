@@ -1,6 +1,7 @@
 // 登場地方セクション
 
 import React from 'react'
+import { formatUniqueRegionList } from '../../utilities/function/utilityFunction';
 
 // 型定義
 import type { PokedexObj, PokedexData } from '../../utilities/types/typesUtility';
@@ -17,20 +18,7 @@ const ModalRegions = ({pokedex, pokedexData,isDefault}: ModalRegionsProps) => {
   // 地方一覧列挙＋登場地方列挙
 const getAppRegion = (pokedex: PokedexObj, pokedexData: PokedexData[]) => {
   // 地方名一覧を取得
-  const regions: PokedexData['region'][] = [...pokedexData].map((data) => {
-    return data.region;
-  });
-
-  // 重複削除
-  const uniqueRegionMap = new Map<number, PokedexData['region']>();
-  [...regions].forEach((region) => {
-    uniqueRegionMap.set(region.id, region);
-  });
-
-  // 重複を除いた地方一覧をMapから配列に戻す
-  const uniqueRegions: PokedexData['region'][] = Array.from(
-    uniqueRegionMap.values(),
-  );
+  const uniqueRegions: PokedexData['region'][] = formatUniqueRegionList(pokedexData)
 
   // 表示element
   return uniqueRegions.map((region) => {
