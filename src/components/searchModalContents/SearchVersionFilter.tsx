@@ -26,11 +26,14 @@ const SearchVersionFilter = ({ versionsData }: SearchVersionFilterProps): React.
         {Object.entries(groupedVersions).map(
           ([generation, generationVersions]) => (
             <dd
+              id={`gene${generation}`}
               data-generation={generation}
               className={`generations gene${generation}`}
               key={Number(generation)}
             >
-              <span className='generationNumber'>第{generation}世代</span>
+              <label className='generationNumber method'>第{generation}世代
+                <input type='checkbox' name='versionGenerationSearchMode' data-number={generation} />
+              </label>
               <span className='generationGroup'>
                 {/* 世代内のオブジェクトでループ */}
                 {generationVersions.map((version) => {
@@ -57,9 +60,9 @@ const SearchVersionFilter = ({ versionsData }: SearchVersionFilterProps): React.
 
   // 描画内容
   return (
-    <dl className='areaAppBase'>
-      <dt className='areaAppTitle'>野生出現バージョン</dt>
-      <dd className='areaAppContents'>{ selectVersions()}</dd>
+    <dl className='areaAppBase searchVersionArea' id='searchVersionArea'>
+      <dt className='areaAppTitle versionTitle'>野生出現バージョン</dt>
+      <dd className='areaAppContents versionContents'>{ selectVersions()}</dd>
     </dl>
   )
 }

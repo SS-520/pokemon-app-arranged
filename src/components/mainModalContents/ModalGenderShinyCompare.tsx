@@ -17,7 +17,8 @@ interface ModalGenderShinyCompareProps {
 const ModalGenderShinyCompare = ({ image, pokemon }: ModalGenderShinyCompareProps):React.ReactNode => {
 
   const compareImage = (image: ImageObj, pokemon: LsPokemon): React.ReactNode => {
-    if (image.femaleImg) {
+    // メス画像有＋性別差分有（メス100%じゃない）
+    if (image.femaleImg && pokemon.isGen) {
       return (
         <section className='compareDiff maskingTapeStyleBase'>
           <h5 className='compareDiffTitle maskingTapeStyleTitle'>

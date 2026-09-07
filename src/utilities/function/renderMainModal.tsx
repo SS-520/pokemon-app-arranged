@@ -165,7 +165,7 @@ export const renderMainModal = (
       </section>
 
       {/* 画像比較表示 */}
-      <ModalGenderShinyShow images={image} name={pokemon.name} />
+      <ModalGenderShinyShow images={image} name={pokemon.name} isFemale={pokemon.isGen} />
 
       {/* 重ねて画像比較 */}
       <ModalGenderShinyCompare image={image} pokemon={pokemon} />

@@ -19,9 +19,9 @@ const SearchTypeFilter = ():React.ReactNode => {
 
   // 描画内容
   return (
-    <dl className='areaAppBase'>
-      <dt className='areaAppTitle'>タイプ</dt>
-      <div className='areaAppContents'>
+    <dl className='areaAppBase searchTypeArea' id='searchTypeArea'>
+      <dt className='areaAppTitle typeTitle'>タイプ</dt>
+      <div className='areaAppContents typeContents'>
         <dd>
           <label className='method'>
             <input type='radio' name='typeSearchMode' defaultChecked />

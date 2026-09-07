@@ -17,18 +17,20 @@ import type { LsPokemon } from '../../utilities/types/typesUtility';
 interface ModalGenderShinyDiffProps {
   images: ImageObj;
   name: LsPokemon['name'];
+  isFemale: LsPokemon['isGen'];
 }
 
-const ModalGenderShinyDiff = ({images, name}: ModalGenderShinyDiffProps): React.ReactNode => {
+const ModalGenderShinyDiff = ({images, name, isFemale}: ModalGenderShinyDiffProps): React.ReactNode => {
 
   // 本体
   const setImgs = (
   images: ImageObj,
   name: LsPokemon['name'],
+  isFemale: LsPokemon['isGen'],
 ): React.ReactNode => {
   // オスメス差分
 
-  if (images.femaleImg && images.shinyFemaleImg) {
+  if (images.femaleImg && images.shinyFemaleImg && isFemale) {
     // オスメス＋それぞれ色違いの画像でオブジェクト
 
     return (
@@ -118,7 +120,7 @@ const ModalGenderShinyDiff = ({images, name}: ModalGenderShinyDiffProps): React.
   return (
     <section className='imgDiff maskingTapeStyleBase'>
       <h5 className='diffImgTitle maskingTapeStyleTitle'>比較画像</h5>
-      {setImgs(images,name)}
+      {setImgs(images,name,isFemale)}
     </section>
   )
 }
