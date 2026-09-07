@@ -849,6 +849,11 @@ const createBaseData = (
 
       // 卵グループ取得
       setEgg = getEndID(numPokemonSpecies.egg_groups);
+
+      // メス100%の場合オスメス差分をfalseに変更
+      if (numPokemonSpecies.gender_rate === 8) {
+        setIsGender = Number(false);
+      }
     }
 
     // FormsDetailの情報を詰める用に加工
