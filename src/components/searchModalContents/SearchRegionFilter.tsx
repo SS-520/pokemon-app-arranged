@@ -33,9 +33,9 @@ const SearchRegionFilter = ({pokedexData}:SearchRegionFilterProps):React.ReactNo
 
   // 描画内容
   return (
-    <dl className='areaAppBase'>
-      <dt className='areaAppTitle'>地方</dt>
-      <dd className='areaAppContents'>{ selectRegions()}</dd>
+    <dl className='areaAppBase searchRegionArea' id='searchRegionArea'>
+      <dt className='areaAppTitle regionTitle'>地方</dt>
+      <dd className='areaAppContents regionContents'>{ selectRegions()}</dd>
     </dl>
   )
 }

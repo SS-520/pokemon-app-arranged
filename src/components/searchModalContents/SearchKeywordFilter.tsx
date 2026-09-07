@@ -24,9 +24,9 @@ const SearchKeywordFilter = () => {
 
   // 描画内容
   return (
-    <dl className='keywordSearch areaAppBase'>
-      <dt className='searchTarget areaAppTitle'>名前／図鑑番号</dt>
-      <div className='searchOptions areaAppContents'>
+    <dl className='areaAppBase searchKeywordArea' id='searchKeywordArea'>
+      <dt className='areaAppTitle keywordTitle'>名前／図鑑番号</dt>
+      <div className='areaAppContents keywordContents'>
         <dd>
           <label className='method'>
             <input
@@ -51,6 +51,7 @@ const SearchKeywordFilter = () => {
         <input
           type='text'
           id='searchKeyword'
+          className='searchKeyword'
           placeholder={`例：${keywordPlaceholder}`}
         />
       </div>

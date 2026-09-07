@@ -9,6 +9,11 @@ dialog.searchModal {
   @include mixins.dialogBase;
   border: 0;
 
+  // タブレット以上用設定
+  @include media.media(tb) {
+    font-size: 1.75vh;
+  }
+
   // 閉じるボタン
   .modalCloseButton {
     padding: 5px;
@@ -65,7 +70,7 @@ dialog.searchModal {
     height: 85%;
     overflow-y: scroll;
 
-    // タイトル部分の共通
+    // エリアの共通部分
     .areaAppBase {
       @include mixins.areaAppBase;
       margin-bottom: 1.5em;
@@ -74,42 +79,123 @@ dialog.searchModal {
       .areaAppTitle {
         @include mixins.areaAppTitle;
         font-weight: bold;
-      }
+        
+        // 性差・バージョンのタイトルの色（青）
+        &.genderTitle,
+        &.versionTitle {
+          background-image: repeating-linear-gradient(-45deg, #ebf0f5 0, #ebf0f5 3px, #fafafa 3px, #fafafa 6px);
+        }
 
+        // タイプ・世代のタイトルの色（緑）
+        &.typeTitle,
+        &.generationTitle {
+          background-image: repeating-linear-gradient(-45deg, #d6e9ca 0, #d6e9ca 3px, #fafafa 3px, #fafafa 6px);
+        }
+      }
+      
       // 選択肢部分の共通
       .areaAppContents {
         @include mixins.areaAppContents;
 
-        #searchKeyword {
-          width: 90%;
-          line-height: 2;
-          margin: 10px 5px;
-          padding: 2px;
-          border: 1px solid #333;
-          border-radius: 3px;
-          background-color: #fffcfc;
+        // 背景色（青）
+        &.genderContents,
+        &.versionContents {
+          background-color: #ebf0f5;
+
+          label.method {
+            background-color: #999;  // チェック無
+            color: #ebf0f5;  // チェック無
+
+            &:has(>input:checked) {
+              background-color: #1e90ff;  // チェック有
+              color: #fffcfc;  // チェック有
+            }
+          }
+        }
+
+        // 背景色（緑）
+        &.typeContents,
+        &.generationContents {
+          background-color: #eff5eb;
+
+          label.method {
+            background-color: #999;  // チェック無
+            color: #eff5eb;  // チェック無
+
+            &:has(>input:checked) {
+              background-color: #2c7c2c;  // チェック有
+              color: #fffcfc;  // チェック有
+            }
+          }
         }
       }
     }
 
     // ラジオボタン・チェックボックス消す
     label.method {
-      padding: 2.5px 10px;
-      margin: 5px;
+      padding: 3px 7.5px;
+      margin: 5px 2.5px;
       border-radius: 10px;
-      background-color: #dec8c8;
-      color: #999;
       cursor: pointer;
       font-size: 0.9em;
+      text-align: center;
+
+      // チェックが入った時の仕込み
+      display: inline-block;
+      position: relative;
+
+      // 色（基本）
+      background-color: #999;  // チェック無
+      color: #dec8c8;  // チェック無
+
+      // タブレット以上用設定
+      @include media.media(tb) {
+        margin: 7px 5px;
+      }
 
       input {
         display: none;
       }
+
+      /* チェックマークを描画する疑似要素（初期状態：非表示） */
+      &::before {
+        content: ""; /* 空のコンテンツを生成 */
+        position: absolute;
+        top: 0; /* ラベルの最上部に配置 */
+        left: 50%; /* 水平方向の中央に配置 */
+        transform: translateX(-50%) rotate(45deg); /* 中央寄せを維持しつつ、45度回転させてL字をチェックマークに見せる */
+    
+        /* チェックマークの形状定義 */
+        width: 8px; /* チェックマークの幅 */
+        height: 14px; /* チェックマークの高さ */
+        border-right: 3px solid variables.$checkmarlColor; /* 右辺の線 */
+        border-bottom: 3px solid variables.$checkmarlColor; /* 下辺の線 */
+        
+        /* アニメーション設定 */
+        opacity: 0; /* 初期状態は透明（非表示） */
+        transition: opacity 0.2s ease, transform 0.2s ease; /* 表示切り替えを滑らかにする */
+      
+        // タブレット以上用設定
+        @include media.media(tb) {
+          width: 0.75vh; /* チェックマークの幅 */
+          height: 1.5vh; /* チェックマークの高さ */
+        }
+      }
     }
+
+
     label.method:has(> input:checked) {
-      background-color: #fffcfc; // 文字を白くする
-      color: #dd1e24;
+      background-color: #dd1e24; // 背景を赤に
+      color: #fffcfc; // 文字を白くする
+
+
+      /* チェック状態時のスタイル変更 */
+      &::before {
+          opacity: 1; /* チェックマークを可視化 */
+          transform: translateX(-50%) translateY(2px) rotate(45deg); /* 少し下へスライドさせながら表示 */
+      }  
     }
+
   }
 
   // 検索・リセットボタン
@@ -136,8 +222,9 @@ dialog.searchModal {
       z-index: 1;
 
       &.resetButton {
-        background-color: #dec8c8;
-        color: #999;
+        border: #dd1e24 1px solid;
+        background-color: transparent;
+        color: #dd1e24;
       }
       &.searchButton {
         background-color: #dd1e24;
@@ -147,21 +234,72 @@ dialog.searchModal {
   }
 
   /** 個別項目 */
-  .selectTypeArea {
-    margin-top: 20px;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 5px;
+  .searchContents {
 
-    
-    label.type{
-      background-color: transparent;
+    // キーワード検索欄
+    .searchKeyword {
+      width: 90%;
+      line-height: 2;
+      margin: 10px 5px;
+      padding: 2px;
+      border: 1px solid #333;
+      border-radius: 3px;
+      background-color: #fffcfc;
 
-      padding: 0;
-      margin:0;
-      // 画像のサイズ
-      img {
-        width: 100%;
+      // タブレット以上用設定
+      @include media.media(tb) {
+        font-size: 1.75vh;
+        margin: 7px 5px;
+      }
+    }
+
+    // タイプ
+    .selectTypeArea {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5px;
+  
+      label.type{
+        background-color: transparent !important; // 絶対に最優先適用
+        padding: 0;
+        margin:0;
+        -webkit-filter: grayscale(100%) saturate(0%);
+        filter: grayscale(100%) saturate(0%);
+        opacity: 0.5;
+
+        &:has(> input:checked) {
+          filter: none;
+          opacity: 1;
+        }
+
+        // 画像のサイズ
+        img {
+          width: 100%;
+        }
+      }
+    }
+  
+    // バージョン
+    .searchVersionArea {
+  
+      .generations {
+        display: grid;
+        grid-template-columns: 1fr 4.25fr;
+      }
+      .generations:nth-child(even) {
+        background-color: #dce9f5;
+      }
+  
+          // 世代欄
+      .generationNumber {
+        align-self: center;
+      }
+  
+          // バージョン欄
+      .generationGroup {
+      font-size: 0.95em;
+        
       }
     }
   }

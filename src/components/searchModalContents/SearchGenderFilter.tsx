@@ -6,13 +6,13 @@ import { IoMdMale, IoMdFemale } from 'react-icons/io';
 
 const SearchGenderFilter = ():React.ReactNode => {
   return (
-    <dl className='areaAppBase'>
-      <dt className='areaAppTitle'>
+    <dl className='areaAppBase searchGenderArea' id='searchGenderArea'>
+      <dt className='areaAppTitle genderTitle'>
         <IoMdMale />
         <IoMdFemale />
         差分
       </dt>
-      <dd className='areaAppContents'>
+      <dd className='areaAppContents genderContents'>
         <label className='method'>
           <input type='radio' name='gender' defaultChecked />
           全て

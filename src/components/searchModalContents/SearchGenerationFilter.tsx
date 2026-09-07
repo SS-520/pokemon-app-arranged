@@ -38,9 +38,9 @@ const SearchGenerationFilter = ({ firstGenerationversionsData }: SearchGeneratio
   }
 
   return (
-    <dl className='areaAppBase'>
-      <dt className='areaAppTitle'>初出世代</dt>
-      <dd className='areaAppContents'>{selectFirstGenerations()}</dd>
+    <dl className='areaAppBase searchGenerationArea' id='searchGenerationArea'>
+      <dt className='areaAppTitle generationTitle'>初出世代</dt>
+      <dd className='areaAppContents generationContents'>{selectFirstGenerations()}</dd>
     </dl>
   )
 }
