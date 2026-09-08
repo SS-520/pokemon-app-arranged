@@ -77,15 +77,13 @@ const ModalGenderShinyDiff = ({images, name, isFemale}: ModalGenderShinyDiffProp
         <div className='commonImg'>
           <figure className='detail male'>
             <figcaption>
-              <IoMdMale />
-              <IoMdFemale />
+              通常
             </figcaption>
             <img src={images.defaultImg} alt={`${name}の画像`} />
           </figure>
           <figure className='shiny male'>
             <figcaption>
-              <BsStars /> <IoMdMale />
-              <IoMdFemale />
+              <BsStars />色違い
             </figcaption>
             <img src={images.shinyImg} alt={`${name}の色違い画像`} />
           </figure>
