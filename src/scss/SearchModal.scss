@@ -269,6 +269,7 @@ dialog.searchModal {
         opacity: 0.5;
 
         &:has(> input:checked) {
+          -webkit-filter: none;
           filter: none;
           opacity: 1;
         }
