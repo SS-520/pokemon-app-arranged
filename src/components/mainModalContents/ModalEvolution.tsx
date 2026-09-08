@@ -20,10 +20,7 @@ const ModalEvolution= ({ evolutions }:ModalEvolutionProps): React.ReactNode => {
     // 進化無しの場合：evolutions.length=1⇒本人だけ
     if (evolutions.length <= 1) {
       return (
-        <section className='evolution maskingTapeStyleBase'>
-          <h5 className='evolutionTitle title maskingTapeStyleTitle'>進化の流れ</h5>
-          <div className='evolutionDetail'>進化無し</div>
-        </section>
+        <div className='evolutionDetail'>進化無し</div>
       );
     } else {
       // 進化有の場合（メイン）
