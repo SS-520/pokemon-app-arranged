@@ -77,6 +77,8 @@ const ModalEvolution= ({ evolutions }:ModalEvolutionProps): React.ReactNode => {
                       className='evoImg'
                       src={commonImgURL + evo.img}
                       alt={`${evo.name}の画像`}
+                      loading='lazy' // 表示されるまで読み込まない
+                      decoding='async' // 裏で準備するからメイン処理を邪魔しない
                     />
                     <figcaption className='name'>{evo.name}</figcaption>
                   </figure>

@@ -38,6 +38,8 @@ const ModalVariation = ({variation}: ModalVariationProps): React.ReactNode => {
                   src={commonImgURL + variation.img}
                   className='formImg'
                   alt={`${variation.formName}の画像`}
+                  loading='lazy' // 表示されるまで読み込まない
+                  decoding='async' // 裏で準備するからメイン処理を邪魔しない
                 />
               </figure>
             ))}
@@ -51,6 +53,8 @@ const ModalVariation = ({variation}: ModalVariationProps): React.ReactNode => {
                   src={commonImgURL + form.img}
                   className='formImg'
                   alt={`${form.formName}の画像`}
+                  loading='lazy' // 表示されるまで読み込まない
+                  decoding='async' // 裏で準備するからメイン処理を邪魔しない
                 />
               </figure>
             ))}
@@ -69,6 +73,8 @@ const ModalVariation = ({variation}: ModalVariationProps): React.ReactNode => {
                 }
                 alt={`${variation.formName}の画像`}
                 className='formImg'
+                loading='lazy' // 表示されるまで読み込まない
+                decoding='async' // 裏で準備するからメイン処理を邪魔しない
               />
             </figure>
           ))}
@@ -84,6 +90,8 @@ const ModalVariation = ({variation}: ModalVariationProps): React.ReactNode => {
                 src={form.img !== '' ? commonImgURL + form.img : noImage}
                 className='formImg'
                 alt={`${form.formName}の画像`}
+                loading='lazy' // 表示されるまで読み込まない
+                decoding='async' // 裏で準備するからメイン処理を邪魔しない
               />
             </figure>
           ))}

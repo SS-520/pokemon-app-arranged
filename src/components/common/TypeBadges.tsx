@@ -28,6 +28,8 @@ const TypeBadges = ({ typeNumbers }: TypeBadgesProps): React.ReactNode => {
             src={pokemonType.imgURL}
             alt={pokemonType.name}
             key={pokemonType.number}
+            loading='lazy'  // 表示されるまで読み込まない
+            decoding='async'  // 裏で準備するからメイン処理を邪魔しない
           />
         );
       })}
