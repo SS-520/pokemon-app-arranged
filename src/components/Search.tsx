@@ -1,4 +1,4 @@
-import React, { useEffect, useImperativeHandle, useRef } from 'react';
+import React, { useEffect, useImperativeHandle, useMemo, useRef } from 'react';
 
 // 呼び出し関数・型
 import { type LsPokemon, type MainModalHandle, type PokedexData } from '../utilities/types/typesUtility';
@@ -85,18 +85,13 @@ const Search = ({ ref, allData, pokedexData, onClose }: SearchProps) => {
 
   // バージョン・世代関連
   // 流用元： renderMainModal.tsx > encountVersionList
-  const versionsData = ():Record<number, {
-    id: number;
-    name: string;
-    generation: number;
-  }[]> => {
+  // pokedexData依存⇒pokedexDataが変わらない限りデータは再生成しない⇒memo化してコストを下げる
+  const groupedVersionsData = useMemo<Record<number, { id: number; name: string; generation: number; }[]>>(() => {
     // 1. バージョン一覧を取得
-    const versions: PokedexData['vGroup'][number]['version'] =
-      formatUniqueVersionList(pokedexData);
-
+    const versions = formatUniqueVersionList(pokedexData);
     // 2. データを世代ごとにversionsをグループ化⇒返す
-    return groupVersionsByGeneration(versions)
-  }
+    return groupVersionsByGeneration(versions);
+  }, [pokedexData]);  // pokedexDataの変更時のみ再計算
 
   // 描画内容
   return (
@@ -138,10 +133,10 @@ const Search = ({ ref, allData, pokedexData, onClose }: SearchProps) => {
           <SearchRegionFilter pokedexData={pokedexData} />
           
           {/* 野生登場バージョン */}
-          <SearchVersionFilter versionsData={versionsData()} />
+          <SearchVersionFilter versionsData={groupedVersionsData} />
 
           {/* 初出世代 */}
-          <SearchGenerationFilter firstGenerationversionsData={versionsData()} />
+          <SearchGenerationFilter firstGenerationversionsData={groupedVersionsData} />
 
         </section>
         {/* 検索ボタン */}
