@@ -21,7 +21,7 @@ const ModalVariation = ({variation}: ModalVariationProps): React.ReactNode => {
   const setVariation = (variation: {
     variationResults: DiffFormsSpecies[];
     formsResults: DiffForms[];
-  }): React.ReactNode => {
+  }): React.ReactNode | null => {
     // 引数を分解
     const variations: DiffFormsSpecies[] = variation.variationResults;
     const forms: DiffForms[] = variation.formsResults;
@@ -98,25 +98,25 @@ const ModalVariation = ({variation}: ModalVariationProps): React.ReactNode => {
         </div>
       );
     } else {
-      return;
+      return null;
     }
   };
 
   // 描画部分
+  //  別フォームがあるか先に確認してから描画
+  const variationContent: React.ReactNode|null = setVariation(variation);
+
+  // 中身が空ならここで終わり
+  if(!variationContent) return null;
+  
+  // 中身があったら描画
   return (
-    <>
-      {setVariation(variation) ? (
-        // 別フォームがなければ表示しない
-        <section className='variation maskingTapeStyleBase'>
-          <h5 className='variationTitle title maskingTapeStyleTitle'>
-            別フォーム
-          </h5>
-          <div className='variationDetail'>{setVariation(variation)}</div>
-        </section>
-      ) : (
-        <></>
-      )}
-    </>
+    <section className='variation maskingTapeStyleBase'>
+      <h5 className='variationTitle title maskingTapeStyleTitle'>
+        別フォーム
+      </h5>
+      <div className='variationDetail'>{variationContent}</div>
+      </section>
   )
 }
 
