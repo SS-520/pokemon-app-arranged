@@ -80,7 +80,6 @@ function Contents({
   const handleChange = (_event: React.ChangeEvent<unknown>, value: number) => {
     console.log('start');
     //ページ番号をセット
-    setPage(value);
 
     // 表示URLにページ番号のパラメータ付与
     const url = new URL(window.location.href);
@@ -133,7 +132,6 @@ function Contents({
       block: 'start',
     });
 
-    console.log(`Page changed to: ${page}`);
   }, [page, displayNum]);
 
   /* 描画内容 */
