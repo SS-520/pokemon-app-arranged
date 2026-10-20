@@ -95,10 +95,10 @@ const SearchVersionFilter = ({ versionsData }: SearchVersionFilterProps): React.
                   // 対象のバージョンが選択されてるかの判定
                   const isChecked = selectedVersionIds.has(version.id);
 
+                  // key属性は一番外の要素に付与⇒ループ内の最小の変更でDOMを生成（DOM再利用を促す）
                   return (
-                    <span className='version'>
+                    <span className='version' key={version.id}>
                       <label
-                        key={version.id}
                         data-version={version.id}
                         className={`versionName method `}
                       >
