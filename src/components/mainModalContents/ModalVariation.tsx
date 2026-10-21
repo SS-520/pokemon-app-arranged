@@ -21,7 +21,7 @@ const ModalVariation = ({variation}: ModalVariationProps): React.ReactNode => {
   const setVariation = (variation: {
     variationResults: DiffFormsSpecies[];
     formsResults: DiffForms[];
-  }): React.ReactNode => {
+  }): React.ReactNode | null => {
     // 引数を分解
     const variations: DiffFormsSpecies[] = variation.variationResults;
     const forms: DiffForms[] = variation.formsResults;
@@ -38,6 +38,8 @@ const ModalVariation = ({variation}: ModalVariationProps): React.ReactNode => {
                   src={commonImgURL + variation.img}
                   className='formImg'
                   alt={`${variation.formName}の画像`}
+                  loading='lazy' // 表示されるまで読み込まない
+                  decoding='async' // 裏で準備するからメイン処理を邪魔しない
                 />
               </figure>
             ))}
@@ -51,6 +53,8 @@ const ModalVariation = ({variation}: ModalVariationProps): React.ReactNode => {
                   src={commonImgURL + form.img}
                   className='formImg'
                   alt={`${form.formName}の画像`}
+                  loading='lazy' // 表示されるまで読み込まない
+                  decoding='async' // 裏で準備するからメイン処理を邪魔しない
                 />
               </figure>
             ))}
@@ -69,6 +73,8 @@ const ModalVariation = ({variation}: ModalVariationProps): React.ReactNode => {
                 }
                 alt={`${variation.formName}の画像`}
                 className='formImg'
+                loading='lazy' // 表示されるまで読み込まない
+                decoding='async' // 裏で準備するからメイン処理を邪魔しない
               />
             </figure>
           ))}
@@ -84,31 +90,33 @@ const ModalVariation = ({variation}: ModalVariationProps): React.ReactNode => {
                 src={form.img !== '' ? commonImgURL + form.img : noImage}
                 className='formImg'
                 alt={`${form.formName}の画像`}
+                loading='lazy' // 表示されるまで読み込まない
+                decoding='async' // 裏で準備するからメイン処理を邪魔しない
               />
             </figure>
           ))}
         </div>
       );
     } else {
-      return;
+      return null;
     }
   };
 
   // 描画部分
+  //  別フォームがあるか先に確認してから描画
+  const variationContent: React.ReactNode|null = setVariation(variation);
+
+  // 中身が空ならここで終わり
+  if(!variationContent) return null;
+  
+  // 中身があったら描画
   return (
-    <>
-      {setVariation(variation) ? (
-        // 別フォームがなければ表示しない
-        <section className='variation maskingTapeStyleBase'>
-          <h5 className='variationTitle title maskingTapeStyleTitle'>
-            別フォーム
-          </h5>
-          <div className='variationDetail'>{setVariation(variation)}</div>
-        </section>
-      ) : (
-        <></>
-      )}
-    </>
+    <section className='variation maskingTapeStyleBase'>
+      <h5 className='variationTitle title maskingTapeStyleTitle'>
+        別フォーム
+      </h5>
+      <div className='variationDetail'>{variationContent}</div>
+      </section>
   )
 }
 

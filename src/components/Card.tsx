@@ -49,12 +49,14 @@ const RenderImg = ({ pokemon }: CardProps): React.ReactNode => {
         className='cardImg'
         src={commonImgURL + pokemon.img}
         alt={pokemon.name}
+        loading='lazy' // 表示されるまで読み込まない
+        decoding='async' // 裏で準備するからメイン処理を邪魔しない
       />
     );
   } else {
     // 画像URL：null
     // 名前：null
-    return <img className='cardImg' src={noImage} alt='画像無し' />;
+    return <img className='cardImg' src={noImage} alt='画像無し' loading='lazy' decoding='async'/>;
   }
 };
 

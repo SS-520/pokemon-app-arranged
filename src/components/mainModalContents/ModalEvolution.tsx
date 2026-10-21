@@ -26,13 +26,20 @@ const ModalEvolution= ({ evolutions }:ModalEvolutionProps): React.ReactNode => {
       // 進化有の場合（メイン）
     
       // 進化分岐の有無判定
-      let evoBranch = 'straight';
-      evolutions.map((evo, index) => {
-        const preLevel = index > 0 ? evolutions[index - 1] : null;
-        if (evo.level === preLevel?.level) {
-          evoBranch = 'branch';
-        }
-      });
+      //  配列evolutionsに対してsomeを使用して条件に合致する要素があればその時点で処理終了（return）する（全部は見ない）
+      //  結果はbooleanで返却
+      const hasBranch = evolutions.some((evo, index) => {
+        // 最初の要素は対象外
+        if (index === 0) return false;
+        
+        // 2番目以降の要素に対して、「1つ前の要素-1」と進化段階が同じ場合は進化分岐ありと判定（trueを返す）
+        return evo.level === evolutions[index-1].level;
+      })
+      
+      // 分岐の有無からクラス名を作成
+      const evoBranch = hasBranch ? 'branch' : 'straight';
+
+      // 描画
       return (
         <React.Fragment>
           <div className='evolutionDetail'>
@@ -77,6 +84,8 @@ const ModalEvolution= ({ evolutions }:ModalEvolutionProps): React.ReactNode => {
                       className='evoImg'
                       src={commonImgURL + evo.img}
                       alt={`${evo.name}の画像`}
+                      loading='lazy' // 表示されるまで読み込まない
+                      decoding='async' // 裏で準備するからメイン処理を邪魔しない
                     />
                     <figcaption className='name'>{evo.name}</figcaption>
                   </figure>

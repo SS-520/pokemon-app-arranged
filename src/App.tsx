@@ -109,11 +109,11 @@ function App() {
     // returnされたデータ（名前をuseStateの時と同じにすることで利用のリライトを防止）
     // []で初期値を設定することで、undefinedを回避
     data: pokedexData = [],
-    // loadPokemonProcessを実行中か判定するフラグ
+    // loadPokedexProcessを実行中か判定するフラグ
     // 実行中はtrue、終了後はfalse
     isLoading: isPokedexLoading, // 既存名と名前を分けて衝突を避ける
-    isError: isPokedexError, // loadPokemonProcess内でthwrowがあったらtrueになるフラグ
-    error: pokedexError, // loadPokemonProcess内でthwrowされたエラーの箱
+    isError: isPokedexError, // loadPokedexProcess内でthwrowがあったらtrueになるフラグ
+    error: pokedexError, // loadPokedexProcess内でthwrowされたエラーの箱
     refetch: refetchPokedex, // 再取得用関数
   } = useQuery<PokedexData[]>({
     queryKey: ['pokedex', 'all'], // unknown型配列
@@ -134,11 +134,11 @@ function App() {
     // returnされたデータ（名前をuseStateの時と同じにすることで利用のリライトを防止）
     // []で初期値を設定することで、undefinedを回避
     data: abilityData = [],
-    // loadPokemonProcessを実行中か判定するフラグ
+    // loadAbilityProcessを実行中か判定するフラグ
     // 実行中はtrue、終了後はfalse
     isLoading: isAbilityLoading, // 既存名と名前を分けて衝突を避ける
-    isError: isAbilityError, // loadPokemonProcess内でthwrowがあったらtrueになるフラグ
-    error: abilityError, // loadPokemonProcess内でthwrowされたエラーの箱
+    isError: isAbilityError, // loadAbilityProcess内でthwrowがあったらtrueになるフラグ
+    error: abilityError, // loadAbilityProcess内でthwrowされたエラーの箱
     refetch: refetchAbility, // 再取得用関数
   } = useQuery<AbilityData[]>({
     queryKey: ['ability', 'all'], // unknown型配列
