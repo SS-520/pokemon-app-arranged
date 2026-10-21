@@ -3,11 +3,9 @@ import { useQuery } from '@tanstack/react-query';
 
 // 呼び出し関数・型
 import type {
-  AbilityData,
   LsPokemon,
   MainModalHandle,
   ModalFetchResult,
-  PokedexData,
   RenderObj,
 } from '../utilities/types/typesUtility';
 import { loadModalData } from '../utilities/function/mainModalFunction';
@@ -19,15 +17,12 @@ import Loading from './Loading';
 
 // アイコン
 import { IoIosCloseCircleOutline } from 'react-icons/io';
+import { usePokemonData } from '../contexts/PokemonDataContext';
 
 // propsの型設定
 interface MainModalProps {
   ref: React.Ref<MainModalHandle>;
   pokemon: LsPokemon;
-  pokedexData: PokedexData[];
-  abilityData: AbilityData[];
-  allData: LsPokemon[];
-  pokemonMap: Map<number, LsPokemon>;  // id情報から即検索可能なMap
   onClose: () => void;
   onSelectPokemon: (pokemon: LsPokemon) => void;  // setSelectPokemonを変更する関数
 }
@@ -40,13 +35,12 @@ interface MainModalProps {
 function MainModal({
   ref,
   pokemon,
-  pokedexData,
-  abilityData,
-  allData,
-  pokemonMap,
   onClose,
   onSelectPokemon,  // ポケモン切り替え用関数
 }: MainModalProps) {
+  // contextでpokedexDataとabilityDataを取得
+  const { pokemonAllData, pokedexData, abilityData, pokemonMap } = usePokemonData();
+  
   //
   // 開閉判定の変数設定
   // HTMLDialogElement : <dialog> 要素を操作するメソッド
@@ -165,7 +159,7 @@ function MainModal({
   } = useQuery<{ result: ModalFetchResult; mergeResult: RenderObj }>({
     queryKey: ['pokemon', pokemon.id],
     queryFn: ({ signal }) =>
-      loadModalData(pokemon, pokedexData, abilityData, allData, signal),
+      loadModalData(pokemon, pokedexData, abilityData, pokemonAllData, signal),
   });
 
   // 一旦画面描画後にエラー処理

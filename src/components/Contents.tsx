@@ -8,13 +8,8 @@ import React, {
 import { Pagination, Stack } from '@mui/material'; //ページング
 
 // 呼び出し関数・型
-import type {
-  AbilityData,
-  LsPokemon,
-  PokedexData,
-} from '../utilities/types/typesUtility';
+import type { LsPokemon, MainModalHandle } from '../utilities/types/typesUtility';
 import { showDetail } from '../utilities/function/renderFunction';
-import type { MainModalHandle } from '../utilities/types/typesUtility';
 
 // CSS呼び出し
 import {} from '../scss/Contents.scss';
@@ -22,23 +17,21 @@ import {} from '../scss/Contents.scss';
 // 呼び出しコンポーネント
 import MainModal from './MainModal';
 import Card from './Card';
+import { usePokemonData } from '../contexts/PokemonDataContext';
 
 // props定義
 interface ContentsProps {
-  allData: LsPokemon[];
-  pokedexData: PokedexData[];
-  abilityData: AbilityData[];
   displayNum: number;
   displayType: boolean;
 }
 function Contents({
-  allData,
-  pokedexData,
-  abilityData,
   displayNum,
   displayType,
 }: ContentsProps) {
   /* 各種設定宣言 */
+
+  // contextでpokemonAllDataを取得
+  const { pokemonAllData } = usePokemonData();
 
   // URLから取得する情報
   //  ページ番号
@@ -57,20 +50,13 @@ function Contents({
   const [page, setPage] = useState<number>(() => getPageFromUrl());
 
   // 総ページ数（派生ステートとして計算）
-  const totalPages = Math.ceil((allData.length || 0) / displayNum);
+  const totalPages = Math.ceil((pokemonAllData.length || 0) / displayNum);
 
   // モーダル開閉ハンドラ
   const modalRef = useRef<MainModalHandle | null>(null);
 
   // モーダルに渡すポケモンの基本情報
   const [selectPokemon, setSelectPokemon] = useState<LsPokemon | null>(null);
-
-  // id情報で即検索できるようにMapをメモ化
-  //  allDataが変更されない限り再計算されない（メモ化）
-  const pokemonMap = useMemo(() => {
-    // allDataをkey(id)とvalue(pokemon)にしたMapを作成
-    return new Map<number, LsPokemon>((allData || []).map((pokemon) => [pokemon.id, pokemon]));
-  }, [allData]);
 
   /**
    * ページ変更時のハンドラ
@@ -97,7 +83,7 @@ function Contents({
     const endNum: number = displayNum * page;
 
     // ページ移動の時は開始番号を変更
-    const currentDisplayData = (allData || []).slice(startNum, endNum);
+    const currentDisplayData = (pokemonAllData || []).slice(startNum, endNum);
     return currentDisplayData.map((pokemon: LsPokemon) => (
       <div
         key={pokemon.id}
@@ -116,7 +102,7 @@ function Contents({
         <Card pokemon={pokemon} />
       </div>
     ));
-  }, [allData, page, modalRef, displayNum]);
+  }, [pokemonAllData, page, modalRef, displayNum]);
 
   /* ページ遷移時の処理 */
   // 表示件数が変更⇒必ず最初のページに戻す
@@ -169,10 +155,6 @@ function Contents({
         <MainModal
           ref={modalRef}
           pokemon={selectPokemon}
-          pokedexData={pokedexData}
-          abilityData={abilityData}
-          allData={allData || []}
-          pokemonMap={pokemonMap} // id情報から即検索できるようにMapを渡す
           onClose={() => setSelectPokemon(null)}
           onSelectPokemon={setSelectPokemon}  // Modalの中でポケモンを選択した際にselectPokemonを更新(setSelectPokemon)するための関数を渡す
           key={selectPokemon.id}
