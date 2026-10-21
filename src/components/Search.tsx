@@ -1,7 +1,7 @@
 import React, { useEffect, useImperativeHandle, useMemo, useRef } from 'react';
 
 // 呼び出し関数・型
-import { type LsPokemon, type MainModalHandle, type PokedexData } from '../utilities/types/typesUtility';
+import { type MainModalHandle } from '../utilities/types/typesUtility';
 
 // アイコン
 import { IoIosCloseCircleOutline } from 'react-icons/io';
@@ -17,15 +17,20 @@ import SearchRegionFilter from './searchModalContents/SearchRegionFilter';
 import SearchVersionFilter from './searchModalContents/SearchVersionFilter';
 import SearchGenerationFilter from './searchModalContents/SearchGenerationFilter';
 import SearchButton from './searchModalContents/SearchButton';
+import { usePokemonData } from '../contexts/PokemonDataContext';
 
 interface SearchProps {
   ref: React.Ref<MainModalHandle>;
-  allData: LsPokemon[];
-  pokedexData: PokedexData[];
   onClose: () => void;
 }
 
-const Search = ({ ref, allData, pokedexData, onClose }: SearchProps) => {
+const Search = ({ ref, onClose }: SearchProps) => {
+  //
+
+  // contextからデータを受け取る
+  const { pokedexData } = usePokemonData();
+  //
+
   //
   // 開閉判定の変数設定
   // HTMLDialogElement : <dialog> 要素を操作するメソッド

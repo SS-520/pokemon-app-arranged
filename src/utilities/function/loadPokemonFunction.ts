@@ -24,6 +24,7 @@ import type {
   setNumber,
 } from '../types/typesUtility';
 
+import { progressNotifier } from './progressEvent'; // 進捗バー共有機能
 import { fetchInitialData, getPokemonDetail } from './fetchPokemon'; // fetchPokemonから各関数を呼び出し
 import {
   storageAvailable,
@@ -64,7 +65,6 @@ import {
 export const loadPokemonProcess = async (
   queryClient: QueryClient, // 呼び出し元に蓄積されたキャッシュ
   setIsBgLoading: setBoolean, // バックグラウンド処理の判定
-  setProgress: setNumber, // バックグラウンド処理の進捗
   signal: AbortSignal,
 ): Promise<LsPokemon[]> => {
   // 土台になるポケモンAPIのURLを指定
@@ -137,7 +137,6 @@ export const loadPokemonProcess = async (
           pokedexNumArray,
           { result: lsData.value, failedList: pendingPokemonArray },
           queryClient,
-          setProgress,
         );
       }
 
@@ -156,7 +155,6 @@ export const loadPokemonProcess = async (
           pokedexNumArray,
           pendingPokemonData,
           queryClient,
-          setProgress,
         );
 
         // 失敗したidはnewPendingPokemonArrayに詰める
@@ -216,7 +214,6 @@ export const loadPokemonProcess = async (
         pokedexNumArray,
         newData,
         queryClient,
-        setProgress,
       );
 
       // 失敗したIDはnewPendingPokemonArrayに詰める
@@ -231,7 +228,6 @@ export const loadPokemonProcess = async (
         pokedexNumArray,
         { result: lsData.value, failedList: stillFailedIds },
         queryClient,
-        setProgress,
       );
     }
 
@@ -249,7 +245,6 @@ export const loadPokemonProcess = async (
       queryClient,
       stillFailedIds,
       setIsBgLoading,
-      setProgress,
       signal,
     );
   }
@@ -400,7 +395,6 @@ const applyPokemonUpdates = (
   pokedexNumArray: number[],
   addData: { result: LsPokemon[]; failedList: number[] },
   queryClient: QueryClient,
-  setProgress: setNumber,
 ): LsPokemon[] => {
   // 受け取ったデータを画面に反映されるように処理
   // 最終的な結果はreturnする
@@ -442,7 +436,8 @@ const applyPokemonUpdates = (
       }
 
       // プログレスバーの値を更新
-      setProgress(
+      //  ⇒情報共有機能のemitに送る
+      progressNotifier.emit(
         Math.round((mergeData.length / pokedexNumArray.length) * 100),
       );
 
@@ -963,7 +958,6 @@ const backgroundFetchAPI = async (
   queryClient: QueryClient,
   stillFailedIds: number[],
   setIsBgLoading: setBoolean,
-  setProgress: setNumber,
   signal: AbortSignal,
 ): Promise<void> => {
   const startNum: number = gotDataCount; // ローディングの裏で取得した分の続きから開始
@@ -975,7 +969,7 @@ const backgroundFetchAPI = async (
     } = await getPokemonDataSafely(pokedexNumArray, i, getAPIcount, signal);
 
     // 取得したデータが画面に反映されるように設定
-    applyPokemonUpdates(pokedexNumArray, newData, queryClient, setProgress);
+    applyPokemonUpdates(pokedexNumArray, newData, queryClient);
 
     // 失敗したIDはnewPendingPokemonArrayに詰める
     if (newData.failedList.length > 0) {
