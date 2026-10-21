@@ -1,5 +1,5 @@
 // 基本設定と拡張機能
-import React, { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 // 外部の関数・型定義ファイル
@@ -21,6 +21,7 @@ import Loading from './components/Loading';
 import Contents from './components/Contents';
 import Confirm from './components/Confirm';
 import AppProgressBar from './components/AppProgressBar';
+import { PokemonDataProvider } from './contexts/PokemonDataContext';
 
 // コンポーネントメイン記述
 function App() {
@@ -152,18 +153,24 @@ function App() {
     }
   }, [isAbilityError, abilityError, refetchAbility]);
 
-  // 表示カードを作成
-  console.log({ abilityData });
-  console.log({ isConfirm });
+
+  // 全ポケモンのID検索用Mapを1度だけ作成して使い回す（メモ化/contextで使用）
+  const pokemonMap = useMemo(() => {
+    return new Map<number, LsPokemon>(
+      (pokemonAllData || []).map((pokemon) => [pokemon.id, pokemon]),
+    );
+  }, [pokemonAllData]);
+
+
+  // 描画内容
+  //  内部呼び出しのコンポーネントにcontextを渡す
+  //  ⇒contextのプロバイダーで包んで、contextを使用する
   return (
-    <React.Fragment>
+    <PokemonDataProvider value={{ pokemonAllData, pokedexData ,abilityData,pokemonMap}}>
         <NavigationBar
           viewSettings={viewSettings}
           updateViewSettings={updateViewSettings}
           isBgLoading={isBgLoading}
-        pokedexData={pokedexData}
-        allData={pokemonAllData}
-        
         />
       <AppProgressBar isBgLoading={isBgLoading}/>
       <div className='App'>
@@ -178,9 +185,6 @@ function App() {
             <Loading />
           ) : (
             <Contents
-              allData={pokemonAllData}
-              pokedexData={pokedexData}
-              abilityData={abilityData}
               displayNum={viewSettings.displayNum}
               displayType={viewSettings.displayType}
             />
@@ -188,7 +192,7 @@ function App() {
         }
         {isConfirm ? <></> : <Confirm setIsConfirm={setIsConfirm} />}
       </div>
-    </React.Fragment>
+    </PokemonDataProvider>
   );
 }
 
