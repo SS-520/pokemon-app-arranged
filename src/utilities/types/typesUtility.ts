@@ -29,6 +29,8 @@ export type setPokemonAllData = Dispatch<SetStateAction<LsPokemon[]>>;
 export type setPokedexData = Dispatch<SetStateAction<PokedexData[]>>;
 export type setAbilityData = Dispatch<SetStateAction<AbilityData[]>>;
 
+// ファイル登録データの型
+
 export interface BallDetails {
   number: number;
   name: string;
@@ -45,6 +47,9 @@ export interface EggDetails {
   number: number;
   name: string;
 }
+
+// プログレスイベントリスナーの型
+export type ProgressListener = (progress: number) => void;
 
 // 全国図鑑番号を厳密に定義
 export type PokedexNumber = number & { readonly __brand: 'PokedexNumber' };
