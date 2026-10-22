@@ -32,9 +32,6 @@ function NavigationBar({
   // ローカルストレージの使用可否
   const isLsAvailable = storageAvailable('localStorage');
 
-  // 検索モーダルの開閉状態管理
-  const [isSearchModal, setIsSearchModal] = useState<boolean>(false);
-
   // モーダル開閉ハンドラ
   const searchModalRef = useRef<MainModalHandle | null>(null);
 
@@ -94,8 +91,8 @@ function NavigationBar({
       alert('バックグラウンドで全データ取得完了後に\n検索可能です');
       return; // 早期に処理を中断
     } else {
-      // 検索モーダルの管理変数を変更する
-      setIsSearchModal(true);
+      // 検索モーダルを表示する（アンマウントせず開くだけ）
+      searchModalRef.current?.showModal();
     }
   };
 
@@ -162,11 +159,7 @@ function NavigationBar({
         </select>
       </div>
 
-      {isSearchModal ? (
-        <Search ref={searchModalRef} onClose={() => setIsSearchModal(false)} />
-      ) : (
-        <React.Fragment></React.Fragment>
-      )}
+        <Search ref={searchModalRef} />
     </div>
   );
 }
