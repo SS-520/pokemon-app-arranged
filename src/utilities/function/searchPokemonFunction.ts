@@ -1,6 +1,8 @@
 // ポケモン検索用関数集
 // import { hiraToKana } from './utilityFunction';
 
+import type { LsPokemon } from "../types/typesUtility";
+
 /**
  * 世代を押したら全部オンオフ
  * 検索ボタンで発火
@@ -47,3 +49,16 @@
  * ・選択対象はグレー化＋チェックアイコンを上に表示
  * ・リセットボタンでバージョンの選択解除
  */
+
+/**
+ * ポケモンフィルタリング処理
+ * @param allData 全ポケモンデータ
+ * @param conditions 検索条件
+ * @returns 絞り込まれた LsPokemon[] 配列
+ */
+
+export const searchPokemon = (allData:LsPokemon[]):LsPokemon[] => {
+
+
+  return [];
+}

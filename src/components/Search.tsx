@@ -1,4 +1,4 @@
-import React, { useEffect, useImperativeHandle, useMemo, useRef } from 'react';
+import React, { useImperativeHandle, useMemo, useRef } from 'react';
 
 // 呼び出し関数・型
 import { type MainModalHandle } from '../utilities/types/typesUtility';
@@ -21,10 +21,9 @@ import { usePokemonData } from '../contexts/PokemonDataContext';
 
 interface SearchProps {
   ref: React.Ref<MainModalHandle>;
-  onClose: () => void;
 }
 
-const Search = ({ ref, onClose }: SearchProps) => {
+const Search = ({ ref }: SearchProps) => {
   //
 
   // contextからデータを受け取る
@@ -43,12 +42,6 @@ const Search = ({ ref, onClose }: SearchProps) => {
     if (dialogRef.current?.open) {
       dialogRef.current.close();
     }
-
-    // モーダルが消える瞬間のガタつきを抑え
-    // ブラウザに無理のないタイミングで状態を切り替えてもらう
-    requestAnimationFrame(() => {
-      onClose();
-    });
   };
 
   // useImperativeHandle で 親が子の内部メソッドを呼び出せる
@@ -58,24 +51,19 @@ const Search = ({ ref, onClose }: SearchProps) => {
     // 親側で変数を叩くと子側の機能が発火
 
     // モーダルを開く
-    showModal: () => {},
+    showModal: () => {
+      if (dialogRef.current && !dialogRef.current.open) {
+        dialogRef.current.showModal();
+        // フォーカスによる自動スクロール移動を防止
+        // preventScroll: true を使用して初回トップ戻りを防止
+        dialogRef.current.focus({ preventScroll: true });
+      }
+    },
     // モーダルを閉じる
     closeModal: () => {
       searchModalClose();
     },
   }));
-
-  /**
-   * モーダル起動制御
-   */
-  useEffect(() => {
-    if (dialogRef.current && !dialogRef.current.open) {
-      dialogRef.current.showModal();
-      // フォーカスによる自動スクロール移動を防止
-      // preventScroll: true を使用して初回トップ戻りを防止
-      dialogRef.current.focus({ preventScroll: true });
-    }
-  }, []);
 
   /**
    * ダイアログのバックドロップ（外側）クリック判定
@@ -145,7 +133,7 @@ const Search = ({ ref, onClose }: SearchProps) => {
 
         </section>
         {/* 検索ボタン */}
-        <SearchButton />
+        <SearchButton onClose={searchModalClose} />
       </section>
     </dialog>
   );
