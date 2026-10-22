@@ -10,6 +10,11 @@ interface PokemonDataContextType  {
   pokedexData: PokedexData[];
   abilityData: AbilityData[];
   pokemonMap: Map<number, LsPokemon>;
+  
+  /* 検索関連 */
+  searchResults: LsPokemon[] | null; // 検索結果（nullなら未検索）
+  setSearchResults: React.Dispatch<React.SetStateAction<LsPokemon[] | null>> // 結果更新関数
+  displayPokemonData: LsPokemon[]; // 実際に画面表示するポケモン（全件/検索結果）
 }
 
 // 1. contextの初期値（入れ物）設定

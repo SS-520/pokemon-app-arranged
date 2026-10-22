@@ -30,6 +30,11 @@ function App() {
   // バックグラウンドでデータ取得中かの判定
   const [isBgLoading, setIsBgLoading] = useState<boolean>(false);
 
+  // 検索結果のポケモンデータ定義
+  //  null⇒検索前＝全件表示
+  const [searchResults, setSearchResults] = useState<LsPokemon[] | null>(null);
+
+
   /** 画面表示 **/
 
   // URLから取得する情報（表示件数）
@@ -154,6 +159,9 @@ function App() {
   }, [isAbilityError, abilityError, refetchAbility]);
 
 
+  // 表示するポケモンデータ（検索結果があれば検索結果、なければ全件ポケモンデータ）
+  const displayPokemonData = searchResults !== null ? searchResults : pokemonAllData;
+
   // 全ポケモンのID検索用Mapを1度だけ作成して使い回す（メモ化/contextで使用）
   const pokemonMap = useMemo(() => {
     return new Map<number, LsPokemon>(
@@ -166,7 +174,7 @@ function App() {
   //  内部呼び出しのコンポーネントにcontextを渡す
   //  ⇒contextのプロバイダーで包んで、contextを使用する
   return (
-    <PokemonDataProvider value={{ pokemonAllData, pokedexData ,abilityData,pokemonMap}}>
+    <PokemonDataProvider value={{ pokemonAllData, pokedexData ,abilityData,pokemonMap, searchResults,setSearchResults,displayPokemonData}}>
         <NavigationBar
           viewSettings={viewSettings}
           updateViewSettings={updateViewSettings}

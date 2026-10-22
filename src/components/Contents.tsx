@@ -31,7 +31,7 @@ function Contents({
   /* 各種設定宣言 */
 
   // contextでpokemonAllDataを取得
-  const { pokemonAllData } = usePokemonData();
+  const { displayPokemonData } = usePokemonData();
 
   // URLから取得する情報
   //  ページ番号
@@ -50,7 +50,7 @@ function Contents({
   const [page, setPage] = useState<number>(() => getPageFromUrl());
 
   // 総ページ数（派生ステートとして計算）
-  const totalPages = Math.ceil((pokemonAllData.length || 0) / displayNum);
+  const totalPages = Math.ceil((displayPokemonData.length || 0) / displayNum);
 
   // モーダル開閉ハンドラ
   const modalRef = useRef<MainModalHandle | null>(null);
@@ -83,7 +83,7 @@ function Contents({
     const endNum: number = displayNum * page;
 
     // ページ移動の時は開始番号を変更
-    const currentDisplayData = (pokemonAllData || []).slice(startNum, endNum);
+    const currentDisplayData = (displayPokemonData || []).slice(startNum, endNum);
     return currentDisplayData.map((pokemon: LsPokemon) => (
       <div
         key={pokemon.id}
@@ -102,14 +102,14 @@ function Contents({
         <Card pokemon={pokemon} />
       </div>
     ));
-  }, [pokemonAllData, page, modalRef, displayNum]);
+  }, [displayPokemonData, page, modalRef, displayNum]);
 
   /* ページ遷移時の処理 */
-  // 表示件数が変更⇒必ず最初のページに戻す
+  // 表示件数が変更/表示ポケモン変更⇒必ず最初のページに戻す
   // ※ブラウザが描画する前に実行したい（旧画面のチラつき防止）→useLayoutEffect使用
   useLayoutEffect(() => {
     setPage(1);
-  }, [displayNum]);
+  }, [displayNum, displayPokemonData]);
 
   // ページが変わった時だけ画面トップに戻す
   useEffect(() => {

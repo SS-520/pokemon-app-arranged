@@ -133,7 +133,7 @@ const Search = ({ ref }: SearchProps) => {
 
         </section>
         {/* 検索ボタン */}
-        <SearchButton />
+        <SearchButton onClose={searchModalClose} />
       </section>
     </dialog>
   );
