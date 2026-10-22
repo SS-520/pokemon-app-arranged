@@ -63,7 +63,7 @@ export const loadModalData = async (
     allData,
   );
 
-  console.log({ result, mergeResult });
+  // console.log({ result, mergeResult });
 
   return { result, mergeResult };
 };
@@ -170,18 +170,18 @@ export const mergePokemonDetails = (
   abilityCurrent: AbilityData[],
   allData: LsPokemon[],
 ): RenderObj => {
-  console.log({ pokemon });
-  console.log({ pokedexCurrent });
-  console.log({ abilityCurrent });
+  // console.log({ pokemon });
+  // console.log({ pokedexCurrent });
+  // console.log({ abilityCurrent });
   // fetchResultの中身を分離
   const detail: PokemonDetail = fetchResult.pokemonDetail;
   const species: PokemonSpeciesDetail = fetchResult.pokemonSpecies;
   const forms: FormsDetail[] = fetchResult.pokemonForms;
   const evoChain: EvoChainDetail = fetchResult.pokemonEvoChain;
-  console.log({ detail });
-  console.log({ species });
-  console.log({ forms });
-  console.log({ evoChain });
+  // console.log({ detail });
+  // console.log({ species });
+  // console.log({ forms });
+  // console.log({ evoChain });
 
   // オスメス・色違いの画像整理
   const imgObj: ImageObj = formatGenderImg(detail.sprites);

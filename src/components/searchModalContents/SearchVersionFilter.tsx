@@ -74,7 +74,7 @@ const SearchVersionFilter = ({ versionsData }: SearchVersionFilterProps): React.
           const isAllChecked = generationVersions.length > 0 && generationVersions.every((version)=>selectedVersionIds.has(version.id))
           
           return (
-            <dd
+            <span
               id={`gene${generation}`}
               data-generation={generation}
               className={`generations gene${generation}`}
@@ -115,7 +115,7 @@ const SearchVersionFilter = ({ versionsData }: SearchVersionFilterProps): React.
                   );
                 })}
               </span>
-            </dd>
+            </span>
           )}
         )}
       </React.Fragment>

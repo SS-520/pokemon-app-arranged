@@ -24,12 +24,12 @@ const getAppRegion = (pokedex: PokedexObj, pokedexData: PokedexData[]) => {
   return uniqueRegions.map((region) => {
     const isRegion: boolean = pokedex.regionNames.includes(region.name);
     return (
-      <dd
+      <span
         className={`regionName tiles ${isRegion ? 'show' : ''}`}
         key={region.id}
       >
         {region.name}
-      </dd>
+      </span>
     );
   });
 };

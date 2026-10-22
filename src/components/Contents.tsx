@@ -39,9 +39,9 @@ function Contents({
     // URLパラメータを取得
     const params = new URLSearchParams(window.location.search);
     // 負の数や小数点が入ってきたら修正
-    const page = parseInt(params.get('page') ?? '1', 10);
+    const paramPage = parseInt(params.get('page') ?? '1', 10);
     // 確実に1か渡ってきた数値を返す
-    return isNaN(page) || page < 1 ? 1 : page;
+    return isNaN(paramPage) || paramPage < 1 ? 1 : paramPage;
   };
 
   // ページ番号設定
@@ -66,6 +66,7 @@ function Contents({
   const handleChange = (_event: React.ChangeEvent<unknown>, value: number) => {
     console.log('start');
     //ページ番号をセット
+    setPage(value);
 
     // 表示URLにページ番号のパラメータ付与
     const url = new URL(window.location.href);
@@ -105,10 +106,27 @@ function Contents({
   }, [displayPokemonData, page, modalRef, displayNum]);
 
   /* ページ遷移時の処理 */
-  // 表示件数が変更/表示ポケモン変更⇒必ず最初のページに戻す
+  // 前回の表示件数と表示ポケモン群の値を保持して、本当に変わった時だけページ番号を1にリセットする
+  const prevDisplayNumRef: React.RefObject<number> = useRef(displayNum);
+  const prevDataRef: React.RefObject<LsPokemon[]> = useRef(displayPokemonData);
+
+  // 表示件数が変更/表示ポケモン変更⇒必ず最初のページに戻す（2回目以降のマウント）
   // ※ブラウザが描画する前に実行したい（旧画面のチラつき防止）→useLayoutEffect使用
   useLayoutEffect(() => {
-    setPage(1);
+
+    const isNumChanged: boolean = prevDisplayNumRef.current !== displayNum;
+    const isDataChanged: boolean = prevDataRef.current !== displayPokemonData;
+
+    // 初回は両方とも一致しているのでここをスルー
+    // ⇒2回目以降に表示件数か表示ポケモン群に変更があったらページを1に戻す
+    if (isNumChanged || isDataChanged) {
+
+      prevDisplayNumRef.current = displayNum; // 表示件数のデータ更新
+      prevDataRef.current = displayPokemonData; // 表示ポケモン群のデータ更新
+
+      // ページ番号を1にリセット
+      setPage(1);
+    }
   }, [displayNum, displayPokemonData]);
 
   // ページが変わった時だけ画面トップに戻す
