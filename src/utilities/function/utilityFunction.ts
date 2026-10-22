@@ -604,7 +604,7 @@ export const formatUniqueVersionList = (
  * ※formatUniqueVersionList()の一部を独立化
  */
 export function convertVersionIdToJapan(versionId: number ): number[]{
-  console.log(versionId);
+  // console.log(versionId);
 
 
   // グローバル1,2（赤青）を弾く
@@ -620,7 +620,7 @@ export function convertVersionIdToJapan(versionId: number ): number[]{
     versionId = 2; // 日本版青
   }
   
-  console.log(versionId);
+  // console.log(versionId);
     // 結果を配列の要素として返す
     return [versionId];
 }
