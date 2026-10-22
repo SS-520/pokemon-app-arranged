@@ -71,7 +71,7 @@ export function getLsData<T>(lsName: string): Result<T[], FetchError> {
 
   // パース失敗時の処理はparseJsonBodyが行ってるので省略
   // パース成功時は成功結果をそのまま返す
-  console.log({ lsData });
+  // console.log({ lsData });
 
   return lsData;
 }
