@@ -84,7 +84,7 @@ function Contents({
     const endNum: number = displayNum * page;
 
     // ページ移動の時は開始番号を変更
-    const currentDisplayData = (displayPokemonData || []).slice(startNum, endNum);
+    const currentDisplayData = (displayPokemonData).slice(startNum, endNum);
     return currentDisplayData.map((pokemon: LsPokemon) => (
       <div
         key={pokemon.id}
