@@ -107,8 +107,10 @@ function Contents({
 
   /* ページ遷移時の処理 */
   // 前回の表示件数と表示ポケモン群の値を保持して、本当に変わった時だけページ番号を1にリセットする
-  const prevDisplayNumRef: React.RefObject<number> = useRef(displayNum);
-  const prevDataRef: React.RefObject<LsPokemon[]> = useRef(displayPokemonData);
+  // 後でrefの中身を変えるので変数にアノテーションを明示しない
+  // ⇒RefObjectを明示するとreadOnlyになりビルドエラーになる
+  const prevDisplayNumRef = useRef(displayNum);
+  const prevDataRef = useRef(displayPokemonData);
 
   // 表示件数が変更/表示ポケモン変更⇒必ず最初のページに戻す（2回目以降のマウント）
   // ※ブラウザが描画する前に実行したい（旧画面のチラつき防止）→useLayoutEffect使用
