@@ -10,10 +10,11 @@ import { searchPokemon } from '../../utilities/function/searchPokemonFunction';
 // プロップス型定義
 interface SearchButtonProps {
   onClose?: () => void; // モーダルを閉じる関数(親コンポーネントで定義済)
+  onReset?: () => void; // フォームの選択状態を全初期化する関数
 }
 
 // コンポーネント本体
-const SearchButton = ({ onClose }: SearchButtonProps): React.ReactNode => {
+const SearchButton = ({ onClose, onReset }: SearchButtonProps): React.ReactNode => {
 
   // contextでデータを受け取る
   const { pokemonAllData, setSearchResults } = usePokemonData();
@@ -22,6 +23,11 @@ const SearchButton = ({ onClose }: SearchButtonProps): React.ReactNode => {
   const handleResetClick = (): void => {
     // Contextの検索結果をnullに戻す（これにより、App.tsx側で全件表示に切り替わる）
     setSearchResults(null);
+
+    // フォームの入力・選択を初期化する親の関数を実行
+    if (onReset) {
+      onReset();
+    }
   };
 
   /* 検索ボタン押下処理 */

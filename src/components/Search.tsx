@@ -1,4 +1,4 @@
-import React, { useImperativeHandle, useMemo, useRef } from 'react';
+import React, { useImperativeHandle, useMemo, useRef, useState } from 'react';
 
 // 呼び出し関数・型
 import { type MainModalHandle } from '../utilities/types/typesUtility';
@@ -34,6 +34,21 @@ const Search = ({ ref }: SearchProps) => {
   // 開閉判定の変数設定
   // HTMLDialogElement : <dialog> 要素を操作するメソッド
   const dialogRef = useRef<HTMLDialogElement | null>(null);
+
+  // 検索モーダル内の、各種フォームのリセットキー
+  // ⇒変更があると子コンポーネントが再マウント⇒初期化
+  const [resetKey, setResetKey] = useState<number>(0);
+
+  /**
+   * 検索条件の入力欄・チェックボックスを全初期化する処理
+   */
+
+  const handleResetForm = () => {
+    // 1か0の2値で「変更」処理
+    // ※keyにbooleanが使用できないので数値で処理
+    setResetKey((prevKeyVal)=> prevKeyVal === 0 ? 1 : 0)
+  }
+  
 
   /**
    * モーダルを閉じる共通処理
@@ -95,10 +110,10 @@ const Search = ({ ref }: SearchProps) => {
       className='searchModal'
       id='searchModal'
       tabIndex={-1}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
           handleBackdropClick(
-            e as unknown as React.MouseEvent<HTMLDialogElement>,
+            event as unknown as React.MouseEvent<HTMLDialogElement>,
           );
         }
       }}
@@ -112,7 +127,7 @@ const Search = ({ ref }: SearchProps) => {
           <IoMdHelpCircleOutline className='helpIcon' />
           {/* 押下でヘルプモーダル出す */}
         </header>
-        <section className='searchContents'>
+        <section className='searchContents' key={resetKey}>
           {/* 検索モーダルコンポーネント化したキーワード検索部分をここに */}
           <SearchKeywordFilter />
 
@@ -133,7 +148,7 @@ const Search = ({ ref }: SearchProps) => {
 
         </section>
         {/* 検索ボタン */}
-        <SearchButton onClose={searchModalClose} />
+        <SearchButton onClose={searchModalClose} onReset={handleResetForm}/>
       </section>
     </dialog>
   );
