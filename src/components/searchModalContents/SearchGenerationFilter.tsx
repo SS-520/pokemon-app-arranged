@@ -1,17 +1,21 @@
 // 初出世代検索
 
-import React from 'react'
+import React from 'react';
 
 interface SearchGenerationFilterProps {
-  firstGenerationversionsData: Record<number, {
-    id: number;
-    name: string;
-    generation: number;
-}[]>;
+  firstGenerationversionsData: Record<
+    number,
+    {
+      id: number;
+      name: string;
+      generation: number;
+    }[]
+  >;
 }
 
-const SearchGenerationFilter = ({ firstGenerationversionsData }: SearchGenerationFilterProps): React.ReactNode => {
-
+const SearchGenerationFilter = ({
+  firstGenerationversionsData,
+}: SearchGenerationFilterProps): React.ReactNode => {
   const selectFirstGenerations = (): React.ReactNode => {
     // versionsDataの結果を取得
     const groupedVersions = firstGenerationversionsData;
@@ -20,29 +24,39 @@ const SearchGenerationFilter = ({ firstGenerationversionsData }: SearchGeneratio
     return (
       <React.Fragment>
         {/* 世代別にループ */}
-        {Object.entries(groupedVersions).map(
-          ([generation]) => (
-            <label
-              data-generation={generation}
-              className={`generations gene${generation} method`}
-              key={Number(generation)}
-            >
-              <span className='generationNumber'>第{generation}世代</span>
-              <input type='checkbox' name='firstGenerationSearchMode' data-number={generation}/>
-            </label>
-          ),
-        )}
+        {Object.entries(groupedVersions).map(([generation]) => (
+          <label
+            data-generation={generation}
+            className={`generations gene${generation} method`}
+            key={Number(generation)}
+          >
+            第{generation}世代
+            <input
+              type='checkbox'
+              name='firstGenerationSearchMode'
+              data-number={generation}
+            />
+          </label>
+        ))}
       </React.Fragment>
     );
-
-  }
+  };
 
   return (
-    <dl className='areaAppBase searchGenerationArea' id='searchGenerationArea'>
-      <dt className='areaAppTitle generationTitle'>初出世代</dt>
-      <dd className='areaAppContents generationContents'>{selectFirstGenerations()}</dd>
-    </dl>
-  )
-}
+    <section
+      className='areaAppBase searchGenerationArea'
+      id='searchGenerationArea'
+      role='group'
+      aria-labelledby='searchGenerationTitle'
+    >
+      <h3 className='areaAppTitle generationTitle' id='searchGenerationTitle'>
+        初出世代
+      </h3>
+      <div className='areaAppContents generationContents'>
+        {selectFirstGenerations()}
+      </div>
+    </section>
+  );
+};
 
-export default SearchGenerationFilter
+export default SearchGenerationFilter;

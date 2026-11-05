@@ -14,16 +14,21 @@ dialog.confirm {
   z-index: 101;
 
   h2 {
-    margin: 0.5em auto;
+    margin: 0.5em auto 0;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #dd1e24;
   }
   .attention {
-    margin: 0.5em auto;
+    margin: 0 auto;
     width: 90%;
     padding: 0.5em;
+
+    h3 {
+      font-weight: bold;
+      margin: 0.25em auto;
+    }
 
     ul {
       padding: 0.5em;
@@ -33,11 +38,7 @@ dialog.confirm {
       overflow-y: scroll;
 
       scrollbar-width: none; // スクロールバー非表示(Firefox)
-      li.header {
-        font-weight: bold;
-        line-height: 2;
-        margin: 0.25em auto;
-      }
+
       li.list {
         line-height: 1.5;
         text-align: left;

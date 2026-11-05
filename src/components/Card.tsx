@@ -22,12 +22,12 @@ interface CardProps {
 const Card = React.memo(({ pokemon }: CardProps): React.ReactNode => {
   return (
     <div className='card' data-id={pokemon.id.toString()}>
-      <h3>No.{pokemon.pokedex}</h3>
+      <h4>No.{pokemon.pokedex}</h4>
       <RenderImg pokemon={pokemon} />
-      <h4 className='cardName'>
+      <h3 className='cardName'>
         {pokemon.name}
         <RenderDifferentName pokemon={pokemon} />
-      </h4>
+      </h3>
       <div className='cardTypes'>
         <RenderTypes pokemon={pokemon} />
       </div>
@@ -68,7 +68,7 @@ const RenderDifferentName = ({ pokemon }: CardProps): React.ReactNode => {
   } else {
     // 別名がない（高さ統一のため全角スペース挿入）
     // eslint-disable-next-line no-irregular-whitespace
-    return <div className='difNm'>　</div>;
+    return <div className='difNm'></div>;
   }
 };
 

@@ -86,13 +86,11 @@ function Contents({
     // ページ移動の時は開始番号を変更
     const currentDisplayData = (displayPokemonData || []).slice(startNum, endNum);
     return currentDisplayData.map((pokemon: LsPokemon) => (
-      <div
+      <button
         key={pokemon.id}
         className='pokemonCard'
         data-id={pokemon.id}
         onClick={() => showDetail(modalRef, pokemon, setSelectPokemon)}
-        role='button'
-        tabIndex={0}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             showDetail(modalRef, pokemon, setSelectPokemon);
@@ -101,14 +99,16 @@ function Contents({
         aria-label={`${pokemon.name}の詳細を表示`}
       >
         <Card pokemon={pokemon} />
-      </div>
+      </button>
     ));
   }, [displayPokemonData, page, modalRef, displayNum]);
 
   /* ページ遷移時の処理 */
   // 前回の表示件数と表示ポケモン群の値を保持して、本当に変わった時だけページ番号を1にリセットする
-  const prevDisplayNumRef: React.RefObject<number> = useRef(displayNum);
-  const prevDataRef: React.RefObject<LsPokemon[]> = useRef(displayPokemonData);
+  // 後でrefの中身を変えるので変数にアノテーションを明示しない
+  // ⇒RefObjectを明示するとreadOnlyになりビルドエラーになる
+  const prevDisplayNumRef = useRef(displayNum);
+  const prevDataRef = useRef(displayPokemonData);
 
   // 表示件数が変更/表示ポケモン変更⇒必ず最初のページに戻す（2回目以降のマウント）
   // ※ブラウザが描画する前に実行したい（旧画面のチラつき防止）→useLayoutEffect使用
@@ -178,7 +178,7 @@ function Contents({
           key={selectPokemon.id}
         />
       ) : (
-        <React.Fragment></React.Fragment>
+        null
       )}
     </React.Fragment>
   );

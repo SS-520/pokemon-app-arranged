@@ -1,6 +1,5 @@
 // 特性情報セクション
 
-
 import React from 'react';
 import type { AbilityObj } from '../../utilities/types/typesUtility';
 
@@ -14,10 +13,12 @@ interface ModalAbilitiesProps {
 }
 
 // 本体
-const ModalAbilities= ({abilities}:ModalAbilitiesProps):React.ReactNode => {
+const ModalAbilities = ({
+  abilities,
+}: ModalAbilitiesProps): React.ReactNode => {
   return (
     <section className='ability maskingTapeStyleBase'>
-      <h5 className='abilityTitle title maskingTapeStyleTitle'>特性</h5>
+      <h3 className='abilityTitle title maskingTapeStyleTitle'>特性</h3>
       {/* 内容 */}
       <ul>
         {abilities.map((ability) => {
@@ -62,4 +63,4 @@ const ModalAbilities= ({abilities}:ModalAbilitiesProps):React.ReactNode => {
   );
 };
 
-export default ModalAbilities
+export default ModalAbilities;

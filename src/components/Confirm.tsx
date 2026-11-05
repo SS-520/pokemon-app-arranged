@@ -57,17 +57,15 @@ const Confirm = ({ setIsConfirm }: ConfirmProps) => {
         Attention!
       </h2>
       <section className='attention'>
+        <h3>本webアプリについて</h3>
         <ul>
-          <li className='header'>本webアプリについて</li>
           <li className='list'>
             <MdCatchingPokemon className='ball' />
             学習目的で作成したものです。
           </li>
           <li className='list'>
             <MdCatchingPokemon className='ball' />
-            初回読み込み時に１～５分ほど時間がかかる場合があります
-            <br />
-            （通信状況により前後します）
+            初回読み込み時に１～５分ほど時間がかかる場合があります（通信状況により前後します）
           </li>
           <li className='list'>
             <MdCatchingPokemon className='ball' />
@@ -92,7 +90,6 @@ const Confirm = ({ setIsConfirm }: ConfirmProps) => {
                   type='checkbox'
                   name='nextTime'
                   className='nextTimeCheck'
-                  required
                   value={'true'}
                   ref={checkRef}
                 />

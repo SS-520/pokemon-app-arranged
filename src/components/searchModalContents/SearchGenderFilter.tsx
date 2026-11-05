@@ -1,18 +1,27 @@
 // 性別差分検索
 
-import React from 'react'
+import React from 'react';
 
 import { IoMdMale, IoMdFemale } from 'react-icons/io';
 
-const SearchGenderFilter = ():React.ReactNode => {
+const SearchGenderFilter = (): React.ReactNode => {
   return (
-    <dl className='areaAppBase searchGenderArea' id='searchGenderArea'>
-      <dt className='areaAppTitle genderTitle'>
-        <IoMdMale />
-        <IoMdFemale />
+    <section
+      className='areaAppBase searchGenderArea'
+      id='searchGenderArea'
+      role='group'
+      aria-labelledby='searchGenderTitle'
+    >
+      <h3 className='areaAppTitle genderTitle' id='searchGenderTitle'>
+        <IoMdMale aria-hidden='true' />
+        <IoMdFemale aria-hidden='true' />
         差分
-      </dt>
-      <dd className='areaAppContents genderContents'>
+      </h3>
+      <div
+        className='areaAppContents genderContents'
+        role='radiogroup'
+        aria-label='性別差分選択'
+      >
         <label className='method'>
           <input type='radio' name='gender' defaultChecked />
           全て
@@ -23,9 +32,9 @@ const SearchGenderFilter = ():React.ReactNode => {
         <label className='method'>
           <input type='radio' name='gender' /> 差分無
         </label>
-      </dd>
-    </dl>
-  )
-}
+      </div>
+    </section>
+  );
+};
 
-export default SearchGenderFilter
+export default SearchGenderFilter;

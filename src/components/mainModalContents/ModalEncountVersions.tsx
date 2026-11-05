@@ -1,20 +1,31 @@
 // 野生出現バージョン
 
-
-import React from 'react'
-import type { LsPokemon, PokedexData, PokedexObj } from '../../utilities/types/typesUtility'
-import { formatUniqueVersionList, groupVersionsByGeneration } from '../../utilities/function/utilityFunction';
+import React from 'react';
+import type {
+  LsPokemon,
+  PokedexData,
+  PokedexObj,
+} from '../../utilities/types/typesUtility';
+import {
+  formatUniqueVersionList,
+  groupVersionsByGeneration,
+} from '../../utilities/function/utilityFunction';
 
 // プロップスの型定義
 interface ModalEncountVersionsProps {
-  pokedexData:PokedexData[]
-  pokedex: PokedexObj
-  pokemon: LsPokemon
-  isDefault:boolean
+  pokedexData: PokedexData[];
+  pokedex: PokedexObj;
+  pokemon: LsPokemon;
+  isDefault: boolean;
 }
 
 // 本体
-const ModalEncountVersions = ({ pokedexData, pokedex ,pokemon,isDefault}: ModalEncountVersionsProps): React.ReactNode => {
+const ModalEncountVersions = ({
+  pokedexData,
+  pokedex,
+  pokemon,
+  isDefault,
+}: ModalEncountVersionsProps): React.ReactNode => {
   //  バージョン一覧を取得
   const versions: PokedexData['vGroup'][number]['version'] =
     formatUniqueVersionList(pokedexData);
@@ -26,7 +37,6 @@ const ModalEncountVersions = ({ pokedexData, pokedex ,pokemon,isDefault}: ModalE
   const pokeApp: number[] = pokedex.versionNames.map((version) => {
     return version.id;
   });
-
 
   // バージョン一覧を返す関数（）
   const encountVersionList = (
@@ -42,21 +52,21 @@ const ModalEncountVersions = ({ pokedexData, pokedex ,pokemon,isDefault}: ModalE
         name: string;
         generation: number;
       }[]
-    > = groupVersionsByGeneration(versions)
-  
+    > = groupVersionsByGeneration(versions);
+
     // 2. グループ化されたデータを元にレンダリング
     return (
       <React.Fragment>
         {/* 世代別にループ */}
         {Object.entries(groupedVersions).map(
           ([generation, generationVersions]) => (
-            <dd
+            <li
               data-generation={generation}
               className={`generations gene${generation}`}
               key={Number(generation)}
             >
               <span className='generationNumber'>第{generation}世代</span>
-              <span className='generationGroup'>
+              <ul className='generationGroup'>
                 {/* 世代内のオブジェクトでループ */}
                 {generationVersions.map((version) => {
                   // 登場バージョンに該当する？
@@ -66,17 +76,17 @@ const ModalEncountVersions = ({ pokedexData, pokedex ,pokemon,isDefault}: ModalE
                       ? encountVersions.includes(version.id)
                       : pokeApp.includes(version.id);
                   return (
-                    <span
+                    <li
                       key={version.id}
                       data-version={version.id}
                       className={`version tiles ${isAppearing ? 'show' : ''}`}
                     >
                       {version.name}
-                    </span>
+                    </li>
                   );
                 })}
-              </span>
-            </dd>
+              </ul>
+            </li>
           ),
         )}
       </React.Fragment>
@@ -85,21 +95,20 @@ const ModalEncountVersions = ({ pokedexData, pokedex ,pokemon,isDefault}: ModalE
 
   // 描画内容
   return (
-    <dl className='appearanceVersions maskingTapeStyleBase'>
-      <dt className='maskingTapeStyleTitle'>野生登場バージョン</dt>
-      <div className='ddContainer maskingTapeStyleContents'>
-        {encountVersionList(versions, encountVersions,pokeApp)}
-      </div>
+    <section className='appearanceVersions maskingTapeStyleBase'>
+      <h3 className='maskingTapeStyleTitle'>野生登場バージョン</h3>
+      <ul className='ulContainer maskingTapeStyleContents'>
+        {encountVersionList(versions, encountVersions, pokeApp)}
+      </ul>
       {!isDefault && (
         <div>
           <p className='annotation'>
             ※通常／リージョンフォームが登場する全バージョンが表示されます
           </p>
         </div>
-      )
-    }
-  </dl>
-  )
-}
+      )}
+    </section>
+  );
+};
 
-export default ModalEncountVersions
+export default ModalEncountVersions;

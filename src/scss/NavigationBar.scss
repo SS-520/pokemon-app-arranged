@@ -9,20 +9,27 @@
 @import url('https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap');
 
 // スタイル記述
-.navArea {
+.headArea {
+
+  // nav要素はCSS上無効にしたい
+  nav {
+    display: contents;
+  }
+
   position: sticky;
   top: 0;
   display: grid;
   grid-template-columns: auto 1fr repeat(2, auto);
   grid-template-rows: 10vh auto;
+  background-color: #dd1e24;
 
   header#navigation {
     grid-row: 1;
     grid-column: 1/-1;
 
     padding-top: variables.$safeTop;
+
     h1 {
-      background-color: #dd1e24;
       height: 100%;
       font-family: 'Dela Gothic One', sans-serif;
       color: #fff2f2;
@@ -40,11 +47,11 @@
         padding-right: 0;
         font-size: 4vh;
       }
-    }
-    .titleLogo {
-      height: 40%;
-      margin-bottom: 20px;
-      margin-right: 3px;
+
+      .titleLogo {
+        width: 15%;
+        margin-right: 3px;
+      }
     }
   }
   .icon {
