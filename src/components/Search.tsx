@@ -109,14 +109,6 @@ const Search = ({ ref }: SearchProps) => {
       onClick={handleBackdropClick}
       className='searchModal'
       id='searchModal'
-      tabIndex={-1}
-      onKeyDown={(event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          handleBackdropClick(
-            event as unknown as React.MouseEvent<HTMLDialogElement>,
-          );
-        }
-      }}
     >
       <button className='modalCloseButton' onClick={searchModalClose}>
         <IoIosCloseCircleOutline />
@@ -127,7 +119,7 @@ const Search = ({ ref }: SearchProps) => {
           <IoMdHelpCircleOutline className='helpIcon' />
           {/* 押下でヘルプモーダル出す */}
         </header>
-        <section className='searchContents' key={resetKey}>
+        <div className='searchContents' key={resetKey}>
           {/* 検索モーダルコンポーネント化したキーワード検索部分をここに */}
           <SearchKeywordFilter />
 
@@ -146,7 +138,7 @@ const Search = ({ ref }: SearchProps) => {
           {/* 初出世代 */}
           <SearchGenerationFilter firstGenerationversionsData={groupedVersionsData} />
 
-        </section>
+        </div>
         {/* 検索ボタン */}
         <SearchButton onClose={searchModalClose} onReset={handleResetForm}/>
       </section>

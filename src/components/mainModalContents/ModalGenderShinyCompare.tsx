@@ -14,16 +14,21 @@ interface ModalGenderShinyCompareProps {
 }
 
 // 本体
-const ModalGenderShinyCompare = ({ image, pokemon }: ModalGenderShinyCompareProps):React.ReactNode => {
-
-  const compareImage = (image: ImageObj, pokemon: LsPokemon): React.ReactNode => {
+const ModalGenderShinyCompare = ({
+  image,
+  pokemon,
+}: ModalGenderShinyCompareProps): React.ReactNode => {
+  const compareImage = (
+    image: ImageObj,
+    pokemon: LsPokemon,
+  ): React.ReactNode => {
     // メス画像有＋性別差分有（メス100%じゃない）
     if (image.femaleImg && pokemon.isGen) {
       return (
         <section className='compareDiff maskingTapeStyleBase'>
-          <h5 className='compareDiffTitle maskingTapeStyleTitle'>
+          <h3 className='compareDiffTitle maskingTapeStyleTitle'>
             重ねて比較！
-          </h5>
+          </h3>
           <div className='maskingTapeStyleContents'>
             <CompareImagesAll images={image} name={pokemon.name} />
           </div>
@@ -32,9 +37,9 @@ const ModalGenderShinyCompare = ({ image, pokemon }: ModalGenderShinyCompareProp
     } else if (image.shinyImg) {
       return (
         <section className='compareDiff maskingTapeStyleBase'>
-          <h5 className='compareDiffTitle maskingTapeStyleTitle'>
+          <h3 className='compareDiffTitle maskingTapeStyleTitle'>
             重ねて比較！
-          </h5>
+          </h3>
           <div className='maskingTapeStyleContents'>
             <CompareImagesShiny images={image} name={pokemon.name} />
           </div>
@@ -45,10 +50,7 @@ const ModalGenderShinyCompare = ({ image, pokemon }: ModalGenderShinyCompareProp
     }
   };
 
+  return <>{compareImage(image, pokemon)}</>;
+};
 
-  return (
-    <>{ compareImage(image, pokemon) }</>
-  )
-}
-
-export default ModalGenderShinyCompare
+export default ModalGenderShinyCompare;

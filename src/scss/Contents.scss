@@ -5,6 +5,12 @@
 
 /* メインComponent用CSS */
 
+button.pokemonCard {
+  border: none;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-size: initial;
+}
+
 #paging {
   padding: 30px 0;
   justify-items: center;

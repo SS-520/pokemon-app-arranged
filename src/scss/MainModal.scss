@@ -136,7 +136,7 @@ dialog.mainModal {
     }
     section {
       margin-top: 10px;
-      h5 {
+      h3 {
         font-weight: normal;
       }
     }
@@ -259,7 +259,7 @@ dialog.mainModal {
             #fafafa 6px
           ); /* ストライプ模様 */
         }
-        .ddContainer {
+        .ulContainer {
           text-align: left;
           padding-left: 1em;
           padding-right: 1em;
@@ -352,9 +352,9 @@ dialog.mainModal {
         ); /* ストライプ模様 */
       }
       // 世代別に整理
-      .ddContainer {
+      .ulContainer {
         padding: 1.5em 0 0;
-        dd {
+        li.generations {
           border-top: none;
           display: grid;
           grid-template-columns: 1fr 5fr;
@@ -380,7 +380,7 @@ dialog.mainModal {
           @include mixins.tileStyle;
         }
       }
-      dd:nth-child(even) {
+      li.generations:nth-child(even) {
         background-color: #dce9f5; /* ボックス背景色 */
       }
     }
@@ -399,7 +399,7 @@ dialog.mainModal {
           #fafafa 6px
         ); /* ストライプ模様 */
       }
-      .ddContainer {
+      .ulContainer {
         text-align: left;
 
         // 該当する対象だけ着色するタイル群
@@ -446,13 +446,12 @@ dialog.mainModal {
           // タブレット以上
           @include media.media('tb') {
             &::before {
-              content: "/ ";
+              content: '/ ';
             }
-            &:first-of-type::before{
-             content: "";
+            &:first-of-type::before {
+              content: '';
             }
           }
-
         }
       }
     }
@@ -615,10 +614,18 @@ dialog.mainModal {
         hr {
           @include mixins.hrLine;
         }
-        & > div {
+        & > ul {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
           grid-template-rows: auto;
+
+          @include media.media(pc) {
+            grid-template-columns: repeat(4, 1fr);
+          }
+
+          li {
+            list-style: none;
+          }
 
           figure {
             display: grid;
@@ -644,7 +651,7 @@ dialog.mainModal {
       .variationDetail figure.form {
         cursor: pointer;
         transition: transform 0.15s ease;
-  
+
         &:hover {
           transform: translateY(-2px);
         }

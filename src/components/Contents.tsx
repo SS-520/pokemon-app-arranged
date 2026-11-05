@@ -84,15 +84,13 @@ function Contents({
     const endNum: number = displayNum * page;
 
     // ページ移動の時は開始番号を変更
-    const currentDisplayData = (displayPokemonData).slice(startNum, endNum);
+    const currentDisplayData = (displayPokemonData || []).slice(startNum, endNum);
     return currentDisplayData.map((pokemon: LsPokemon) => (
-      <div
+      <button
         key={pokemon.id}
         className='pokemonCard'
         data-id={pokemon.id}
         onClick={() => showDetail(modalRef, pokemon, setSelectPokemon)}
-        role='button'
-        tabIndex={0}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             showDetail(modalRef, pokemon, setSelectPokemon);
@@ -101,7 +99,7 @@ function Contents({
         aria-label={`${pokemon.name}の詳細を表示`}
       >
         <Card pokemon={pokemon} />
-      </div>
+      </button>
     ));
   }, [displayPokemonData, page, modalRef, displayNum]);
 
@@ -180,7 +178,7 @@ function Contents({
           key={selectPokemon.id}
         />
       ) : (
-        <React.Fragment></React.Fragment>
+        null
       )}
     </React.Fragment>
   );

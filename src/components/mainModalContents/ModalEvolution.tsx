@@ -13,29 +13,28 @@ interface ModalEvolutionProps {
 }
 
 // 本体
-const ModalEvolution= ({ evolutions }:ModalEvolutionProps): React.ReactNode => {
- 
+const ModalEvolution = ({
+  evolutions,
+}: ModalEvolutionProps): React.ReactNode => {
   // 進化系統の描画処理
   const evolutionDisplay = (evolutions: EvoObj[]): React.ReactNode => {
     // 進化無しの場合：evolutions.length=1⇒本人だけ
     if (evolutions.length <= 1) {
-      return (
-        <div className='evolutionDetail'>進化無し</div>
-      );
+      return <div className='evolutionDetail'>進化無し</div>;
     } else {
       // 進化有の場合（メイン）
-    
+
       // 進化分岐の有無判定
       //  配列evolutionsに対してsomeを使用して条件に合致する要素があればその時点で処理終了（return）する（全部は見ない）
       //  結果はbooleanで返却
       const hasBranch = evolutions.some((evo, index) => {
         // 最初の要素は対象外
         if (index === 0) return false;
-        
+
         // 2番目以降の要素に対して、「1つ前の要素-1」と進化段階が同じ場合は進化分岐ありと判定（trueを返す）
-        return evo.level === evolutions[index-1].level;
-      })
-      
+        return evo.level === evolutions[index - 1].level;
+      });
+
       // 分岐の有無からクラス名を作成
       const evoBranch = hasBranch ? 'branch' : 'straight';
 
@@ -98,15 +97,13 @@ const ModalEvolution= ({ evolutions }:ModalEvolutionProps): React.ReactNode => {
           </p>
         </React.Fragment>
       );
-    };
-  }
+    }
+  };
 
   // 描画
   return (
     <section className='evolution maskingTapeStyleBase'>
-      <h5 className='evolutionTitle title maskingTapeStyleTitle'>
-        進化の流れ
-      </h5>
+      <h3 className='evolutionTitle title maskingTapeStyleTitle'>進化の流れ</h3>
       {evolutionDisplay(evolutions)}
     </section>
   );

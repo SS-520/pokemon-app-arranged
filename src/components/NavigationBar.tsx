@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import type {
   ViewSettings,
   MainModalHandle,
@@ -98,13 +98,14 @@ function NavigationBar({
 
   /* レンダリング結果 */
   return (
-    <div className='navArea'>
-      <header id='navigation'>
+    <div className='headArea'>
+      <header id='navigation' className='navArea'>
         <h1>
-          <img className='titleLogo' src={logo} alt='読む！' />
-          ポケモン図鑑
+          <img className='titleLogo' src={logo} alt='読む！' />ポケモン図鑑
         </h1>
       </header>
+      {/* 主要操作・ナビゲーション機能 */}
+      <nav className='navActions' aria-label="メイン操作">
       {isLsAvailable ? (
         <button
           className='refreshIcon icon'
@@ -142,7 +143,8 @@ function NavigationBar({
           <FaSearch />
         </span>
         <span className='iconText'>search</span>
-      </button>
+        </button>
+      </nav>
       <div className='showItemsNumber'>
         <label htmlFor='showNum'>表示件数</label>
         <select
@@ -159,7 +161,7 @@ function NavigationBar({
         </select>
       </div>
 
-        <Search ref={searchModalRef} />
+      <Search ref={searchModalRef} />
     </div>
   );
 }

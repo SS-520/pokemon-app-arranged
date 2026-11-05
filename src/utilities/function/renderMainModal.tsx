@@ -70,8 +70,8 @@ export const renderMainModal = (
 
   // タイプ
   const typeImage = (): React.ReactNode => {
-    if(!pokemon.type) return null;
-    return <TypeBadges typeNumbers={pokemon.type}/>
+    if (!pokemon.type) return null;
+    return <TypeBadges typeNumbers={pokemon.type} />;
   };
 
   // べビ・幻・伝説判定
@@ -137,19 +137,20 @@ export const renderMainModal = (
     <article className={`modalContents ${pokemonSpecies.color.name}`}>
       <header className='header'>
         <div className='nationalPokedex'>全国図鑑 No.{pokemon.pokedex}</div>
-        <h4 className='pokemonName'>
+        <h2 className='pokemonName'>
           {pokemon.name}{' '}
           <span className='diffName'>{pokemon.difNm ? pokemon.difNm : ''}</span>
-        </h4>
+        </h2>
       </header>
       <section className='mainIntroduction'>
-        <h5 className='mainImage'>
+        <h3 className='visually-hidden'>基本情報</h3>
+        <figure className='mainImage'>
           <img
             src={mainImage}
             alt={`${mainImageAltComment}の画像`}
             className='modalMainImage'
           />
-        </h5>
+        </figure>
         <p className='genus'>{pokemonGenus ? pokemonGenus.genus : ''}</p>
         <div className='pokemonTypes'>{typeImage()}</div>
         <div className='size'>{pokemonSize()}</div>
@@ -161,35 +162,48 @@ export const renderMainModal = (
         </div>
 
         {/* 登場地方 */}
-        <ModalRegions pokedex={pokedex} pokedexData={pokedexData} isDefault={pokemonDetail.is_default} />
+        <ModalRegions
+          pokedex={pokedex}
+          pokedexData={pokedexData}
+          isDefault={pokemonDetail.is_default}
+        />
       </section>
 
       {/* 画像比較表示 */}
-      <ModalGenderShinyShow images={image} name={pokemon.name} isFemale={pokemon.isGen} />
+      <ModalGenderShinyShow
+        images={image}
+        name={pokemon.name}
+        isFemale={pokemon.isGen}
+      />
 
       {/* 重ねて画像比較 */}
       <ModalGenderShinyCompare image={image} pokemon={pokemon} />
-      
+
       {/* 進化系統 */}
-      <ModalEvolution evolutions={evolution}/>
+      <ModalEvolution evolutions={evolution} />
 
       {/* 別フォーム */}
-      <ModalVariation variation={variation}/>
-
+      <ModalVariation variation={variation} />
 
       {/* 野生登場バージョン */}
-      <ModalEncountVersions pokedexData={pokedexData} pokedex={pokedex} pokemon={pokemon} isDefault={pokemonDetail.is_default}/>
-
+      <ModalEncountVersions
+        pokedexData={pokedexData}
+        pokedex={pokedex}
+        pokemon={pokemon}
+        isDefault={pokemonDetail.is_default}
+      />
 
       {/* 卵グループ */}
-      <ModalEggGroups pokemon={pokemon}/>
-      
+      <ModalEggGroups pokemon={pokemon} />
+
       {/* 特性情報 */}
-      <ModalAbilities abilities={ability}/>
-      
+      <ModalAbilities abilities={ability} />
+
       {/* 図鑑解説テキスト */}
-      <ModalFlavorText flavorTextes={flavorText} isDefault={pokemonDetail.is_default}/>
+      <ModalFlavorText
+        flavorTextes={flavorText}
+        isDefault={pokemonDetail.is_default}
+      />
     </article>
   );
 };
-

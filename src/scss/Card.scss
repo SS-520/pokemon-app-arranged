@@ -26,6 +26,7 @@
 
       .difNm {
         font-size: 0.8em;
+        min-height: 2em;
       }
     }
 
@@ -40,6 +41,15 @@
   }
 }
 .list {
+  button {
+    display: block;
+    width: 100%;
+
+    @include media.media(tb) {
+      width: 768px;
+      margin: 0 auto;
+    }
+  }
   div.card {
     width: 95%;
     height: 10vh;
@@ -120,6 +130,7 @@
         // PC用設定
         @include media.media(pc) {
           width: 10vw;
+          max-width: 130px;
         }
       }
     }

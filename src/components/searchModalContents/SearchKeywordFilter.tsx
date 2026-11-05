@@ -1,6 +1,6 @@
 // キーワード検索
 
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 
 // 本体
 const SearchKeywordFilter = () => {
@@ -21,13 +21,19 @@ const SearchKeywordFilter = () => {
     }
   };
 
-
   // 描画内容
   return (
-    <dl className='areaAppBase searchKeywordArea' id='searchKeywordArea'>
-      <dt className='areaAppTitle keywordTitle'>名前／図鑑番号</dt>
+    <section
+      className='areaAppBase searchKeywordArea'
+      id='searchKeywordArea'
+      role='group'
+      aria-labelledby='searchKeywordTitle'
+    >
+      <h3 className='areaAppTitle keywordTitle' id='searchKeywordTitle'>
+        名前／図鑑番号
+      </h3>
       <div className='areaAppContents keywordContents'>
-        <dd>
+        <div role='radiogroup' aria-label='検索対象モード'>
           <label className='method'>
             <input
               type='radio'
@@ -47,16 +53,17 @@ const SearchKeywordFilter = () => {
             />
             フォルム名
           </label>
-        </dd>
+        </div>
         <input
           type='text'
           id='searchKeyword'
           className='searchKeyword'
+          aria-label='名前または図鑑番号のキーワード入力'
           placeholder={`例：${keywordPlaceholder}`}
         />
       </div>
-    </dl>
-  )
-}
+    </section>
+  );
+};
 
-export default SearchKeywordFilter
+export default SearchKeywordFilter;
