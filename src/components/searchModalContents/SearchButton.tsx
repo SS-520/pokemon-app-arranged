@@ -1,21 +1,25 @@
 // 検索・リセットボタン
 
-import React from 'react'
+import React from 'react';
 import type { LsPokemon } from '../../utilities/types/typesUtility';
 
-import { usePokemonData } from '../../contexts/PokemonDataContext'
+import { usePokemonData } from '../../contexts/PokemonDataContext';
 import { searchPokemon } from '../../utilities/function/searchPokemonFunction';
-
+import type { SearchConditions } from '../../contexts/SearchConditions';
 
 // プロップス型定義
 interface SearchButtonProps {
+  condition: SearchConditions;
   onClose?: () => void; // モーダルを閉じる関数(親コンポーネントで定義済)
   onReset?: () => void; // フォームの選択状態を全初期化する関数
 }
 
 // コンポーネント本体
-const SearchButton = ({ onClose, onReset }: SearchButtonProps): React.ReactNode => {
-
+const SearchButton = ({
+  condition,
+  onClose,
+  onReset,
+}: SearchButtonProps): React.ReactNode => {
   // contextでデータを受け取る
   const { pokemonAllData, setSearchResults } = usePokemonData();
 
@@ -32,9 +36,8 @@ const SearchButton = ({ onClose, onReset }: SearchButtonProps): React.ReactNode 
 
   /* 検索ボタン押下処理 */
   const handleSearchClick = (): void => {
-    
     // 1. フィルタリング実行
-    const results:LsPokemon[] = searchPokemon(pokemonAllData);
+    const results: LsPokemon[] = searchPokemon(pokemonAllData, condition);
 
     // 2. 結果をcontextに保存・更新
     //  ⇒App.tsxのdisplayPokemonDataが更新される
@@ -44,15 +47,23 @@ const SearchButton = ({ onClose, onReset }: SearchButtonProps): React.ReactNode 
     if (onClose) {
       onClose();
     }
-  }
+  };
 
   // 描画内容
   return (
     <div className='buttonArea'>
-      <button className='resetButton' type='button' onClick={handleResetClick}>全リセット</button>
-      <button className='searchButton' type='button' onClick={handleSearchClick}>検索</button>
+      <button className='resetButton' type='button' onClick={handleResetClick}>
+        全リセット
+      </button>
+      <button
+        className='searchButton'
+        type='button'
+        onClick={handleSearchClick}
+      >
+        検索
+      </button>
     </div>
-  )
-}
+  );
+};
 
-export default SearchButton
+export default SearchButton;

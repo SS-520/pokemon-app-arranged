@@ -1,7 +1,8 @@
 // ポケモン検索用関数集
 // import { hiraToKana } from './utilityFunction';
 
-import type { LsPokemon } from "../types/typesUtility";
+import type { SearchConditions } from '../../contexts/SearchConditions';
+import type { LsPokemon } from '../types/typesUtility';
 
 /**
  * 世代を押したら全部オンオフ
@@ -57,8 +58,9 @@ import type { LsPokemon } from "../types/typesUtility";
  * @returns 絞り込まれた LsPokemon[] 配列
  */
 
-export const searchPokemon = (allData:LsPokemon[]):LsPokemon[] => {
-
-
+export const searchPokemon = (
+  allData: LsPokemon[],
+  condition: SearchConditions,
+): LsPokemon[] => {
   return [];
-}
+};

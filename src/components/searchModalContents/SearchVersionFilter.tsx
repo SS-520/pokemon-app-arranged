@@ -1,6 +1,7 @@
 // 野生出現バージョン検索
 
-import React, { useState } from 'react';
+import React from 'react';
+import type { SearchConditions } from '../../contexts/SearchConditions';
 
 // props
 interface SearchVersionFilterProps {
@@ -12,53 +13,69 @@ interface SearchVersionFilterProps {
       generation: number;
     }[]
   >;
+  versions: SearchConditions['versions'];
+  onVersionsChange: (newVer: SearchConditions['versions']) => void;
 }
 
 // 本体
 const SearchVersionFilter = ({
   versionsData,
+  versions,
+  onVersionsChange,
 }: SearchVersionFilterProps): React.ReactNode => {
   // ハンドラ関数定義
-  // 選択中のバージョンID一覧をSetで管理（O(1)で高速判定！）
-  const [selectedVersionIds, setSelectedVersionIds] = useState<Set<number>>(
-    new Set(),
-  );
 
   // 世代チェックボックスの切り替え（内包する全バージョンを一括ON/OFF）
   const handleGenerationChange = (
-    generationVersions: { id: number }[],
-    isChecked: boolean,
+    generationVersions: {
+      id: number;
+      name: string;
+      generation: number;
+    }[],
+    isTargetChecked: boolean,
   ) => {
-    // selectedVersionIdsを更新
-    setSelectedVersionIds((prevVersionIds) => {
-      // Setのコピーを作成（以降はコピー側を走査）
-      const nextVersionIds = new Set(prevVersionIds);
-      // 世代内のバージョンをループ
-      generationVersions.forEach((version) => {
-        // チェック状態に応じてIDを追加または削除
-        if (isChecked) {
-          nextVersionIds.add(version.id); // 追加⇒チェックオン
-        } else {
-          nextVersionIds.delete(version.id); // 削除⇒チェックオフ
+    // 各世代オブジェクトに含まれる、ソフトのバージョンIDだけを抽出して配列化
+    const targetGenerationVersions: number[] = generationVersions.map(
+      (version) => version.id,
+    );
+
+    // 新しいバージョン配列を入れる変数用意
+    let newVersions: number[] = [];
+
+    // 今周の世代番号にチェック入ってる？
+    if (isTargetChecked) {
+      // チェック入り
+      // 元のversionsに世代のバージョンIDが含まれてなかったら追加する
+      newVersions = [...versions]; // 新規用の箱に元配列コピー
+
+      // 対象世代のバージョンID配列全部に対して、「IDがnewVersionsに含有なしならnewVersionsに追加」
+      targetGenerationVersions.forEach((versionId) => {
+        if (!newVersions.includes(versionId)) {
+          newVersions.push(versionId);
         }
       });
-      // 新しいSetを返す（全部チェックorチェックオフの状態を返す）
-      return nextVersionIds;
-    });
+    } else {
+      // チェック無⇒検索対象バージョンに含まれてたら除去
+      newVersions = versions.filter(
+        (versionId) => !targetGenerationVersions.includes(versionId),
+      );
+    }
+
+    // 新しい検索対象の配列を更新
+    onVersionsChange(newVersions);
   };
 
   // 個別バージョンチェックボックスの切り替え
-  const handleVersionChange = (versionId: number, isChecked: boolean) => {
-    setSelectedVersionIds((prevVersionIds) => {
-      const nextVersionIds = new Set(prevVersionIds);
+  const handleVersionChange = (checkedVersionId: number) => {
+    // 押したIDは元配列に含まれてる？
+    const newVersions: SearchConditions['versions'] = versions.includes(
+      checkedVersionId,
+    )
+      ? versions.filter((version) => version !== checkedVersionId) // 含む⇒チェックを外した処理⇒配列から対象除去
+      : [...versions, checkedVersionId]; // 含まない⇒追加
 
-      if (isChecked) {
-        nextVersionIds.add(versionId);
-      } else {
-        nextVersionIds.delete(versionId);
-      }
-      return nextVersionIds;
-    });
+    // 更新関数
+    onVersionsChange(newVersions);
   };
 
   // 内部処理
@@ -76,7 +93,7 @@ const SearchVersionFilter = ({
             const isAllChecked =
               generationVersions.length > 0 &&
               generationVersions.every((version) =>
-                selectedVersionIds.has(version.id),
+                versions.includes(version.id),
               );
 
             return (
@@ -108,9 +125,6 @@ const SearchVersionFilter = ({
                 >
                   {/* 世代内のオブジェクトでループ */}
                   {generationVersions.map((version) => {
-                    // 対象のバージョンが選択されてるかの判定
-                    const isChecked = selectedVersionIds.has(version.id);
-
                     // key属性は一番外の要素に付与⇒ループ内の最小の変更でDOMを生成（DOM再利用を促す）
                     return (
                       <span className='version' key={version.id}>
@@ -123,13 +137,8 @@ const SearchVersionFilter = ({
                             type='checkbox'
                             name='versionSearchMode'
                             data-number={version.id}
-                            checked={isChecked}
-                            onChange={(event) =>
-                              handleVersionChange(
-                                version.id,
-                                event.target.checked,
-                              )
-                            } // チェックした時に発火
+                            checked={versions.includes(version.id)}
+                            onChange={() => handleVersionChange(version.id)} // チェックした時に発火
                           />
                         </label>
                       </span>
