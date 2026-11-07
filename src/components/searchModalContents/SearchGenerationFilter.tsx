@@ -1,6 +1,7 @@
 // 初出世代検索
 
 import React from 'react';
+import type { SearchConditions } from '../../contexts/SearchConditions';
 
 interface SearchGenerationFilterProps {
   firstGenerationversionsData: Record<
@@ -11,11 +12,28 @@ interface SearchGenerationFilterProps {
       generation: number;
     }[]
   >;
+  generations: SearchConditions['generations'];
+  onGenerationsChange: (newGene: SearchConditions['generations']) => void;
 }
 
 const SearchGenerationFilter = ({
   firstGenerationversionsData,
+  generations,
+  onGenerationsChange,
 }: SearchGenerationFilterProps): React.ReactNode => {
+  // 検索対象押下時のハンドラ
+  const handleGenerationChange = (checkedGenerationId: number) => {
+    // 押下結果のID配列（解除true/追加false）
+    const newGenerations: SearchConditions['regions'] = generations.includes(
+      checkedGenerationId,
+    )
+      ? generations.filter((generations) => generations !== checkedGenerationId) // 解除
+      : [...generations, checkedGenerationId]; // 追加
+
+    // 結果で更新
+    onGenerationsChange(newGenerations);
+  };
+
   const selectFirstGenerations = (): React.ReactNode => {
     // versionsDataの結果を取得
     const groupedVersions = firstGenerationversionsData;
@@ -33,8 +51,10 @@ const SearchGenerationFilter = ({
             第{generation}世代
             <input
               type='checkbox'
-              name='firstGenerationSearchMode'
+              name='firstGenerationNumber'
               data-number={generation}
+              checked={generations.includes(Number(generation))}
+              onChange={() => handleGenerationChange(Number(generation))}
             />
           </label>
         ))}

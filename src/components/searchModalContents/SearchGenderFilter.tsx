@@ -3,8 +3,19 @@
 import React from 'react';
 
 import { IoMdMale, IoMdFemale } from 'react-icons/io';
+import type { SearchConditions } from '../../contexts/SearchConditions';
 
-const SearchGenderFilter = (): React.ReactNode => {
+// props
+interface SearchGenderFilterProps {
+  genderDiff: SearchConditions['genderDiff'];
+  onGenderDiffChange: (newDiff: SearchConditions['genderDiff']) => void;
+}
+
+// 本体
+const SearchGenderFilter = ({
+  genderDiff,
+  onGenderDiffChange,
+}: SearchGenderFilterProps): React.ReactNode => {
   return (
     <section
       className='areaAppBase searchGenderArea'
@@ -23,14 +34,31 @@ const SearchGenderFilter = (): React.ReactNode => {
         aria-label='性別差分選択'
       >
         <label className='method'>
-          <input type='radio' name='gender' defaultChecked />
+          <input
+            type='radio'
+            name='gender'
+            checked={genderDiff === 'all'}
+            onChange={() => onGenderDiffChange('all')}
+          />
           全て
         </label>
         <label className='method'>
-          <input type='radio' name='gender' /> 差分有
+          <input
+            type='radio'
+            name='gender'
+            checked={genderDiff === 'hasDiff'}
+            onChange={() => onGenderDiffChange('hasDiff')}
+          />{' '}
+          差分有
         </label>
         <label className='method'>
-          <input type='radio' name='gender' /> 差分無
+          <input
+            type='radio'
+            name='gender'
+            checked={genderDiff === 'noDiff'}
+            onChange={() => onGenderDiffChange('noDiff')}
+          />{' '}
+          差分無
         </label>
       </div>
     </section>
